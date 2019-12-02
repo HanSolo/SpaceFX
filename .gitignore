@@ -1,0 +1,8 @@
+/.idea
+/.gradle
+.DS_Store
+/build
+/src/main/java/eu/hansolo/spacefx/Test.java
+/out
+/classes
+/spacefx.iml
