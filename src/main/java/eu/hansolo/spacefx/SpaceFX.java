@@ -115,8 +115,11 @@ public class SpaceFX extends Application {
 
     // ******************** Methods *******************************************
     @Override public void init() {
+        // Mediaplayer for background music
         mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
         mediaPlayer.setVolume(0.2);
+
+        // Variable initialization
         background            = new ImageView(nebular);
         canvas                = new Canvas(WIDTH, HEIGHT);
         ctx                   = canvas.getGraphicsContext2D();
@@ -134,24 +137,18 @@ public class SpaceFX extends Application {
         score                 = 0;
         destroy               = false;
         timer                 = new AnimationTimer() {
-            @Override public void handle(final long NOW) {
+            @Override public void handle(final long now) {
                 draw();
             }
         };
-        for (int i = 0 ; i < NO_OF_STARS ; i++) {
-            stars[i] = spawnStar();
-        }
-        for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
-            asteroids[i] = spawnAsteroid();
-        }
-        for (int i = 0 ; i < NO_OF_ENEMIES ; i ++) {
-            enemies[i] = spawnEnemy();
-        }
+        for (int i = 0 ; i < NO_OF_STARS ; i++) { stars[i] = spawnStar(); }
+        for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) { asteroids[i] = spawnAsteroid(); }
+        for (int i = 0 ; i < NO_OF_ENEMIES ; i ++) { enemies[i] = spawnEnemy(); }
 
         scoreX = WIDTH * 0.5;
         scoreY = 30;
 
-        // Prepare GraphicsContext
+        // Preparing GraphicsContext
         ctx.setFont(spaceBoy(30));
         ctx.setTextAlign(TextAlignment.CENTER);
         ctx.setTextBaseline(VPos.CENTER);
@@ -162,6 +159,8 @@ public class SpaceFX extends Application {
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
         Scene scene = new Scene(pane);
+
+        // Setup key listener
         scene.setOnKeyPressed(e -> {
             switch(e.getCode()) {
                 case UP   : spaceShip.dY = -5; break;
@@ -184,8 +183,10 @@ public class SpaceFX extends Application {
         stage.setScene(scene);
         stage.show();
 
+        // Start playing background music
         mediaPlayer.play();
 
+        // Start the game
         timer.start();
     }
 
@@ -194,6 +195,8 @@ public class SpaceFX extends Application {
         System.exit(0);
     }
 
+
+    // Draw method which will be called by animation timer
     private void draw() {
         torpedosToRemove.clear();
         enemyTorpedosToRemove.clear();
@@ -409,6 +412,8 @@ public class SpaceFX extends Application {
         ctx.fillText(Long.toString(score), scoreX, scoreY);
     }
 
+
+    // Spawn different objects
     private Star spawnStar() {
         return new Star();
     }
@@ -431,11 +436,15 @@ public class SpaceFX extends Application {
         playSound(enemyLaserSound);
     }
 
+
+    // Play audio clips in a separate thread
     private void playSound(final AudioClip audioClip) {
         new Thread(() -> audioClip.play()).run();
     }
 
-    private static Font spaceBoy(final double SIZE) { return new Font(SPACE_BOY, SIZE); }
+
+    // Font definition
+    private static Font spaceBoy(final double size) { return new Font(SPACE_BOY, size); }
 
 
     // ******************** Misc **********************************************
@@ -444,7 +453,7 @@ public class SpaceFX extends Application {
     }
 
 
-    // ******************** InnerClasses **************************************
+    // ******************** Space Object Classes ******************************
     private class Star {
         private final Random  rnd          = new Random();
         private final double  xVariation   = 0;
