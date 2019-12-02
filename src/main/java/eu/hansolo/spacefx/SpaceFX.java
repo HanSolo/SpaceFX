@@ -80,6 +80,7 @@ public class SpaceFX extends Application {
     private final        Image              explosionImg            = new Image(getClass().getResourceAsStream("explosion.png"), 960, 768, true, false);
     private final        Image              spaceShipExplosionImg   = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800, 600, true, false);
     private final        AudioClip          laserSound              = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
+    private final        AudioClip          enemyLaserSound         = new AudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm());
     private final        AudioClip          explosionSound          = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
     private final        AudioClip          spaceShipExplosionSound = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
     private final        Media              soundTheme              = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
@@ -427,7 +428,7 @@ public class SpaceFX extends Application {
 
     private void spawnEnemyTorpedo(final double x, final double y) {
         enemyTorpedos.add(new EnemyTorpedo(enemyTorpedoImg, x, y));
-        playSound(laserSound);
+        playSound(enemyLaserSound);
     }
 
     private void playSound(final AudioClip audioClip) {
