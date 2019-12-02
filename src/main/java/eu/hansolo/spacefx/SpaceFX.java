@@ -69,13 +69,14 @@ public class SpaceFX extends Application {
                                                                         new Image(getClass().getResourceAsStream("asteroid11.png"), 150, 150, true, false),
                                                                         };
     private final        Image              spaceshipImg            = new Image(getClass().getResourceAsStream("fighter.png"), 48, 48, true, false);
+    private final        Image              spaceshipThrustImg      = new Image(getClass().getResourceAsStream("fighterThrust.png"), 48, 48, true, false);
     private final        Image              torpedoImg              = new Image(getClass().getResourceAsStream("torpedo.png"), 17, 20, true, false);
     private final        Image              explosionImg            = new Image(getClass().getResourceAsStream("explosion.png"), 960, 768, true, false);
     private final        Image              spaceShipExplosionImg   = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800, 600, true, false);
     private final        AudioClip          laserSound              = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
     private final        AudioClip          explosionSound          = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
     private final        AudioClip          spaceShipExplosionSound = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
-    private final        Media              soundTheme              = new Media(getClass().getResource("IntergalacticOdyssey.mp3").toExternalForm());
+    private final        Media              soundTheme              = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
     private final        MediaPlayer        mediaPlayer             = new MediaPlayer(soundTheme);
     private              ImageView          background;
     private              Canvas             canvas;
@@ -105,13 +106,13 @@ public class SpaceFX extends Application {
     // ******************** Methods *******************************************
     @Override public void init() {
         mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-        mediaPlayer.setVolume(0.1);
+        mediaPlayer.setVolume(0.2);
         background         = new ImageView(nebular);
         canvas             = new Canvas(WIDTH, HEIGHT);
         ctx                = canvas.getGraphicsContext2D();
         stars              = new Star[NO_OF_STARS];
         asteroids          = new Asteroid[NO_OF_ASTEROIDS];
-        spaceShip          = new SpaceShip(spaceshipImg);
+        spaceShip          = new SpaceShip(spaceshipImg, spaceshipThrustImg);
         spaceShipExplosion = new SpaceShipExplosion(0, 0);
         torpedos           = new ArrayList<>();
         torpedosToRemove   = new ArrayList<>();
@@ -284,6 +285,7 @@ public class SpaceFX extends Application {
         }
         explosions.removeAll(explosionsToRemove);
 
+        // Draw Spaceship or it's explosion
         if (destroy) {
             ctx.drawImage(spaceShipExplosionImg, spaceShipExplosion.countX * spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.countY * spaceShipExplosion.FRAME_HEIGHT, spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.FRAME_HEIGHT, spaceShip.x - spaceShip.width * 0.5, spaceShip.y - spaceShip.height * 0.5, spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.FRAME_HEIGHT);
 
@@ -295,7 +297,9 @@ public class SpaceFX extends Application {
                     spaceShipExplosion.countY = 0;
                 }
                 if (spaceShipExplosion.countX == 0 && spaceShipExplosion.countY == 0) {
-                    destroy = false;
+                    destroy     = false;
+                    spaceShip.x = WIDTH / 2.0 - spaceShip.width / 2.0;
+                    spaceShip.y = HEIGHT - 2 * spaceShip.height;
                 }
             }
         } else {
@@ -303,19 +307,19 @@ public class SpaceFX extends Application {
             spaceShip.x += spaceShip.dX;
             spaceShip.y += spaceShip.dY;
 
-            if (spaceShip.x + spaceShip.image.getWidth() > WIDTH) {
-                spaceShip.x = WIDTH - spaceShip.image.getWidth();
+            if (spaceShip.x + spaceShip.width > WIDTH) {
+                spaceShip.x = WIDTH - spaceShip.width;
             }
             if (spaceShip.x < 0) {
                 spaceShip.x = 0;
             }
-            if (spaceShip.y + spaceShip.image.getHeight() > HEIGHT) {
-                spaceShip.y = HEIGHT - spaceShip.image.getHeight();
+            if (spaceShip.y + spaceShip.height > HEIGHT) {
+                spaceShip.y = HEIGHT - spaceShip.height;
             }
             if (spaceShip.y < 0) {
                 spaceShip.y = 0;
             }
-            ctx.drawImage(spaceShip.image, spaceShip.x, spaceShip.y);
+            ctx.drawImage((0 == spaceShip.dX && 0 == spaceShip.dY) ? spaceShip.image : spaceshipThrustImg, spaceShip.x, spaceShip.y);
         }
 
         // Draw score
@@ -443,6 +447,7 @@ public class SpaceFX extends Application {
 
     private class SpaceShip {
         private final Image       image;
+        private final Image       imageThrust;
         private       double      x;
         private       double      y;
         private       double      width;
@@ -451,14 +456,15 @@ public class SpaceFX extends Application {
         private       double      dY;
 
 
-        public SpaceShip(final Image image) {
-            this.image     = image;
-            this.x         = WIDTH / 2.0 - image.getWidth() / 2.0;
-            this.y         = HEIGHT - 2 * image.getHeight();
-            this.width     = image.getWidth();
-            this.height    = image.getHeight();
-            this.dX        = 0;
-            this.dY        = 0;
+        public SpaceShip(final Image image, final Image imageThrust) {
+            this.image       = image;
+            this.imageThrust = imageThrust;
+            this.x           = WIDTH / 2.0 - image.getWidth() / 2.0;
+            this.y           = HEIGHT - 2 * image.getHeight();
+            this.width       = image.getWidth();
+            this.height      = image.getHeight();
+            this.dX          = 0;
+            this.dY          = 0;
         }
 
         public Rectangle2D getBounds() {
