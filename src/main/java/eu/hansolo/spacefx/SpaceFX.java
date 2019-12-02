@@ -319,7 +319,7 @@ public class SpaceFX extends Application {
             if (spaceShip.y < 0) {
                 spaceShip.y = 0;
             }
-            ctx.drawImage((0 == spaceShip.dX && 0 == spaceShip.dY) ? spaceShip.image : spaceshipThrustImg, spaceShip.x, spaceShip.y);
+            ctx.drawImage((0 == spaceShip.dX && 0 == spaceShip.dY) ? spaceShip.image : spaceShip.imageThrust, spaceShip.x, spaceShip.y);
         }
 
         // Draw score
