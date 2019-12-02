@@ -58,7 +58,16 @@ public class SpaceFX extends Application {
     private final        Image              nebular                 = new Image(SpaceFX.class.getResourceAsStream("nebular.jpg"));
     private final        Image[]            asteroidImages          = { new Image(getClass().getResourceAsStream("asteroid1.png"), 150, 150, true, false),
                                                                         new Image(getClass().getResourceAsStream("asteroid2.png"), 150, 150, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid3.png"), 150, 150, true, false) };
+                                                                        new Image(getClass().getResourceAsStream("asteroid3.png"), 150, 150, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid4.png"), 150, 150, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid5.png"), 150, 150, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid6.png"), 150, 150, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid7.png"), 150, 150, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid8.png"), 150, 150, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid9.png"), 150, 150, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid10.png"), 150, 150, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid11.png"), 150, 150, true, false),
+                                                                        };
     private final        Image              spaceshipImg            = new Image(getClass().getResourceAsStream("fighter.png"), 48, 48, true, false);
     private final        Image              torpedoImg              = new Image(getClass().getResourceAsStream("torpedo.png"), 17, 20, true, false);
     private final        Image              explosionImg            = new Image(getClass().getResourceAsStream("explosion.png"), 960, 768, true, false);
@@ -319,7 +328,7 @@ public class SpaceFX extends Application {
     }
 
     private Asteroid spawnAsteroid() {
-        return new Asteroid(asteroidImages[RND.nextInt(3)]);
+        return new Asteroid(asteroidImages[RND.nextInt(asteroidImages.length - 1)]);
     }
 
     private void spawnTorpedo(final double x, final double y) {
