@@ -179,7 +179,7 @@ public class SpaceFX extends Application {
             }
         });
 
-        stage.setTitle("Asteroids");
+        stage.setTitle("SpaceFX");
         stage.setScene(scene);
         stage.show();
 
