@@ -12,7 +12,7 @@ buildscript {
         classpath 'com.google.gradle:osdetector-gradle-plugin:1.6.2'
         classpath 'org.javamodularity:moduleplugin:1.6.0'
         classpath "org.beryx:badass-jlink-plugin:2.16.4"
-        classpath 'com.sandec.jpro:jpro-plugin-gradle:2019.2.0-SNAPSHOT'
+        classpath 'com.sandec.jpro:jpro-plugin-gradle:2019.2.1-SNAPSHOT'
     }
 }
 
@@ -22,7 +22,6 @@ plugins {
     id 'com.google.osdetector' version '1.6.2'
     id 'org.javamodularity.moduleplugin' version '1.6.0'
     id 'org.beryx.jlink' version '2.16.4'
-    /*id 'com.sandec.jpro' version '2019.2.0-SNAPSHOT'*/
 }
 
 apply plugin: 'com.sandec.jpro'
@@ -61,6 +60,6 @@ jpro {
     //JVMArgs << '-Djava.security.policy=/usr/lib/jvm/adoptopenjdk-11-hotspot-amd64/conf/security/java.policy -Xmx1000m'
     visible          = false // Debug mode can also be used to create images via canvas and snapshot
     noRenderJobs     = true // false to enable snapshot support
-    jproVersion      = "2019.2.0-SNAPSHOT"
+    jproVersion      = "2019.2.1-SNAPSHOT"
     openURLOnStartup = false
 }
