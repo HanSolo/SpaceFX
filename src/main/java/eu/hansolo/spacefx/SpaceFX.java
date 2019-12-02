@@ -60,13 +60,13 @@ public class SpaceFX extends Application {
     private final        Image[]            asteroidImages          = { new Image(getClass().getResourceAsStream("asteroid1.png"), 150, 150, true, false),
                                                                         new Image(getClass().getResourceAsStream("asteroid2.png"), 150, 150, true, false),
                                                                         new Image(getClass().getResourceAsStream("asteroid3.png"), 150, 150, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid4.png"), 150, 150, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid5.png"), 150, 150, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid6.png"), 150, 150, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid7.png"), 150, 150, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid8.png"), 150, 150, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid9.png"), 150, 150, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid10.png"), 150, 150, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid4.png"), 120, 120, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid5.png"), 100, 100, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid6.png"), 130, 130, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid7.png"), 120, 120, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid8.png"), 110, 110, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid9.png"), 140, 140, true, false),
+                                                                        new Image(getClass().getResourceAsStream("asteroid10.png"), 130, 130, true, false),
                                                                         new Image(getClass().getResourceAsStream("asteroid11.png"), 150, 150, true, false)
                                                                       };
     private final        Image[]            enemyImages             = { new Image(getClass().getResourceAsStream("enemy1.png"), 48, 48, true, false),
@@ -247,8 +247,8 @@ public class SpaceFX extends Application {
 
             // Respawn Asteroid
             if(p.y > HEIGHT + p.height) {
-                //particles[i].x = RND.nextDouble() * WIDTH;
-                //particles[i].y = -p.image.getHeight();
+                //asteroids[i].x = RND.nextDouble() * WIDTH;
+                //asteroids[i].y = -p.image.getHeight();
                 asteroids[i] = spawnAsteroid();
             }
 
@@ -298,15 +298,13 @@ public class SpaceFX extends Application {
 
             // Respawn Enemy
             if(e.y > HEIGHT + e.height) {
-                //particles[i].x = RND.nextDouble() * WIDTH;
-                //particles[i].y = -p.image.getHeight();
                 enemies[i] = spawnEnemy();
             }
 
             // Check for torpedo hits
             for (Torpedo torpedo : torpedos) {
                 if (torpedo.intersects(e.getBounds())) {
-                    explosions.add(new Explosion(e.x - Explosion.FRAME_WIDTH * 0.5, e.y - Explosion.FRAME_HEIGHT * 0.5, e.vX, e.vY, 1.0));
+                    explosions.add(new Explosion(e.x - Explosion.FRAME_WIDTH * 0.125, e.y - Explosion.FRAME_HEIGHT * 0.125, e.vX, e.vY, 0.5));
                     score += e.value;
                     enemies[i] = spawnEnemy();
                     torpedosToRemove.add(torpedo);
@@ -354,6 +352,8 @@ public class SpaceFX extends Application {
         // Draw Explosions
         for (Explosion e : explosions) {
             ctx.drawImage(explosionImg, e.countX * Explosion.FRAME_WIDTH, e.countY * Explosion.FRAME_HEIGHT, Explosion.FRAME_WIDTH, Explosion.FRAME_HEIGHT, e.x, e.y, Explosion.FRAME_WIDTH * e.scale, Explosion.FRAME_HEIGHT * e.scale);
+
+
             e.x += e.vX;
             e.y += e.vY;
             e.countX++;
@@ -516,7 +516,7 @@ public class SpaceFX extends Application {
             rot = 0;
 
             // Random Size
-            scale = (rnd.nextDouble() * 0.6) + 0.1;
+            scale = (rnd.nextDouble() * 0.6) + 0.2;
 
             // Value
             value = (int) (1 / scale * MAX_VALUE);
@@ -661,7 +661,7 @@ public class SpaceFX extends Application {
         private              double  y;
         private              double  width;
         private              double  height;
-        private              double  radius;
+        private              double  size;
         private              double  vX;
         private              double  vY;
         private              double  vYVariation;
@@ -686,7 +686,7 @@ public class SpaceFX extends Application {
 
             width  = image.getWidth();
             height = image.getHeight();
-            radius = (width < height ? width : height) * 0.5;
+            size   = width < height ? height : width;
 
             // Velocity
             vX = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
