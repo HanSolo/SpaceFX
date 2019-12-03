@@ -29,8 +29,8 @@ apply plugin: 'com.sandec.jpro'
 group 'eu.hansolo.spacefx'
 version '1.0-SNAPSHOT'
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = 13
+targetCompatibility = 13
 
 ext.platform = osdetector.os == 'osx' ? 'mac' : osdetector.os == 'windows' ? 'win' : osdetector.os
 
@@ -39,10 +39,10 @@ repositories {
 }
 
 dependencies {
-    compile "org.openjfx:javafx-base:11:$platform"
-    compile "org.openjfx:javafx-graphics:11:$platform"
-    compile "org.openjfx:javafx-controls:11:$platform"
-    compile "org.openjfx:javafx-media:11:$platform"
+    compile "org.openjfx:javafx-base:13:$platform"
+    compile "org.openjfx:javafx-graphics:13:$platform"
+    compile "org.openjfx:javafx-controls:13:$platform"
+    compile "org.openjfx:javafx-media:13:$platform"
 }
 
 mainClassName = 'eu.hansolo.spacefx.SpaceFX'
@@ -72,8 +72,8 @@ jlink {
 
 jpro {
     port             = 8080
-    JVMArgs << '-Djava.security.policy=/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home/conf/security/java.policy - Xmx1000m'
-    //JVMArgs << '-Djava.security.policy=/usr/lib/jvm/adoptopenjdk-11-hotspot-amd64/conf/security/java.policy -Xmx1000m'
+    JVMArgs << '-Djava.security.policy=/Library/Java/JavaVirtualMachines/adoptopenjdk-13.jdk/Contents/Home/conf/security/java.policy - Xmx1000m'
+    //JVMArgs << '-Djava.security.policy=/usr/lib/jvm/adoptopenjdk-13-hotspot-amd64/conf/security/java.policy -Xmx1000m'
     visible          = false // Debug mode can also be used to create images via canvas and snapshot
     noRenderJobs     = true // false to enable snapshot support
     jproVersion      = "2019.2.1-SNAPSHOT"
