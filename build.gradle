@@ -47,6 +47,22 @@ dependencies {
 
 mainClassName = 'eu.hansolo.spacefx.SpaceFX'
 
+jar {
+    dependsOn configurations.runtime
+    from {
+        (configurations.runtime).collect {  it.isDirectory() ? it : zipTree(it)  }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+    manifest {
+        attributes ('Implementation-Title': 'Dashboard',
+                'Class-Path': 'spacefx.jar ',
+                'Main-Class': 'eu.hansolo.spacefx.Launcher')
+    }
+}
+
 jlink {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     launcher {
