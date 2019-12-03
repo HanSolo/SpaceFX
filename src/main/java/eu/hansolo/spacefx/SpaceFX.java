@@ -17,6 +17,9 @@
 package eu.hansolo.spacefx;
 
 import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -27,6 +30,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -38,6 +42,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,9 +59,13 @@ public class SpaceFX extends Application {
     private static final double             VELOCITY_FACTOR_X       = 1.0;
     private static final double             VELOCITY_FACTOR_Y       = 1.0;
     private static final double             VELOCITY_FACTOR_R       = 1.0;
+    private static final int                LIFES                   = 5;
     private static final String             SPACE_BOY;
     private static       String             spaceBoyName;
-    private final        Image              nebular                 = new Image(SpaceFX.class.getResourceAsStream("nebular.jpg"));
+    private static volatile boolean            running                 = false;
+    private final        Image              startImg                = new Image(getClass().getResourceAsStream("startscreen.png"));
+    private final        Image              gameOverImg             = new Image(getClass().getResourceAsStream("gameover.png"));
+    private final        Image              nebularImg              = new Image(SpaceFX.class.getResourceAsStream("nebular.jpg"));
     private final        Image[]            asteroidImages          = { new Image(getClass().getResourceAsStream("asteroid1.png"), 150, 150, true, false),
                                                                         new Image(getClass().getResourceAsStream("asteroid2.png"), 150, 150, true, false),
                                                                         new Image(getClass().getResourceAsStream("asteroid3.png"), 150, 150, true, false),
@@ -67,14 +76,13 @@ public class SpaceFX extends Application {
                                                                         new Image(getClass().getResourceAsStream("asteroid8.png"), 110, 110, true, false),
                                                                         new Image(getClass().getResourceAsStream("asteroid9.png"), 140, 140, true, false),
                                                                         new Image(getClass().getResourceAsStream("asteroid10.png"), 130, 130, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid11.png"), 150, 150, true, false)
-                                                                      };
+                                                                        new Image(getClass().getResourceAsStream("asteroid11.png"), 150, 150, true, false) };
     private final        Image[]            enemyImages             = { new Image(getClass().getResourceAsStream("enemy1.png"), 48, 48, true, false),
                                                                         new Image(getClass().getResourceAsStream("enemy2.png"), 36, 36, true, false),
-                                                                        new Image(getClass().getResourceAsStream("enemy3.png"), 68, 68, true, false)
-                                                                      };
+                                                                        new Image(getClass().getResourceAsStream("enemy3.png"), 68, 68, true, false) };
     private final        Image              spaceshipImg            = new Image(getClass().getResourceAsStream("fighter.png"), 48, 48, true, false);
     private final        Image              spaceshipThrustImg      = new Image(getClass().getResourceAsStream("fighterThrust.png"), 48, 48, true, false);
+    private final        Image              miniSpaceshipImg        = new Image(getClass().getResourceAsStream("fighter.png"), 16, 16, true, false);
     private final        Image              torpedoImg              = new Image(getClass().getResourceAsStream("torpedo.png"), 17, 20, true, false);
     private final        Image              enemyTorpedoImg         = new Image(getClass().getResourceAsStream("enemyTorpedo.png"), 21, 21, true, false);
     private final        Image              explosionImg            = new Image(getClass().getResourceAsStream("explosion.png"), 960, 768, true, false);
@@ -83,8 +91,12 @@ public class SpaceFX extends Application {
     private final        AudioClip          enemyLaserSound         = new AudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm());
     private final        AudioClip          explosionSound          = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
     private final        AudioClip          spaceShipExplosionSound = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
-    private final        Media              soundTheme              = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
+    private final        AudioClip          gameoverSound           = new AudioClip(getClass().getResource("gameover.wav").toExternalForm());
+    private final        Media              gameSoundTheme          = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
+    private final        Media              soundTheme              = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
+    private final        MediaPlayer        gameMediaPlayer         = new MediaPlayer(gameSoundTheme);
     private final        MediaPlayer        mediaPlayer             = new MediaPlayer(soundTheme);
+    private              Timeline           timeline;
     private              ImageView          background;
     private              Canvas             canvas;
     private              GraphicsContext    ctx;
@@ -103,6 +115,7 @@ public class SpaceFX extends Application {
     private              double             scoreX;
     private              double             scoreY;
     private              boolean            destroy;
+    private              int                lifes;
     private              AnimationTimer     timer;
 
     static {
@@ -115,12 +128,18 @@ public class SpaceFX extends Application {
 
     // ******************** Methods *******************************************
     @Override public void init() {
+        timeline = new Timeline();
+
         // Mediaplayer for background music
         mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
         mediaPlayer.setVolume(0.2);
 
+        // Mediaplayer for game background music
+        gameMediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+        gameMediaPlayer.setVolume(0.2);
+
         // Variable initialization
-        background            = new ImageView(nebular);
+        background            = new ImageView(startImg);
         canvas                = new Canvas(WIDTH, HEIGHT);
         ctx                   = canvas.getGraphicsContext2D();
         stars                 = new Star[NO_OF_STARS];
@@ -136,6 +155,7 @@ public class SpaceFX extends Application {
         enemyTorpedosToRemove = new ArrayList<>();
         score                 = 0;
         destroy               = false;
+        lifes                 = LIFES;
         timer                 = new AnimationTimer() {
             @Override public void handle(final long now) {
                 draw();
@@ -162,20 +182,30 @@ public class SpaceFX extends Application {
 
         // Setup key listener
         scene.setOnKeyPressed(e -> {
-            switch(e.getCode()) {
-                case UP   : spaceShip.dY = -5; break;
-                case RIGHT: spaceShip.dX = 5; break;
-                case DOWN : spaceShip.dY = 5; break;
-                case LEFT : spaceShip.dX = -5; break;
-                case SPACE: spawnTorpedo(spaceShip.x + spaceShip.width / 2, spaceShip.y);
+            if (running) {
+                switch(e.getCode()) {
+                    case UP   : spaceShip.dY = -5; break;
+                    case RIGHT: spaceShip.dX = 5; break;
+                    case DOWN : spaceShip.dY = 5; break;
+                    case LEFT : spaceShip.dX = -5; break;
+                    case SPACE: spawnTorpedo(spaceShip.x + spaceShip.width / 2, spaceShip.y); break;
+                }
+            } else if (e.getCode() == KeyCode.P) {
+                background.setImage(nebularImg);
+                mediaPlayer.stop();
+                gameMediaPlayer.play();
+                running = true;
+                timer.start();
             }
         });
         scene.setOnKeyReleased( e -> {
-            switch(e.getCode()) {
-                case UP   : spaceShip.dY = 0; break;
-                case RIGHT: spaceShip.dX = 0; break;
-                case DOWN : spaceShip.dY = 0; break;
-                case LEFT : spaceShip.dX = 0; break;
+            if (running) {
+                switch (e.getCode()) {
+                    case UP   : spaceShip.dY = 0; break;
+                    case RIGHT: spaceShip.dX = 0; break;
+                    case DOWN : spaceShip.dY = 0; break;
+                    case LEFT : spaceShip.dX = 0; break;
+                }
             }
         });
 
@@ -185,9 +215,6 @@ public class SpaceFX extends Application {
 
         // Start playing background music
         mediaPlayer.play();
-
-        // Start the game
-        timer.start();
     }
 
     @Override public void stop() {
@@ -273,6 +300,10 @@ public class SpaceFX extends Application {
                 spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
                 asteroids[i]              = spawnAsteroid();
                 playSound(spaceShipExplosionSound);
+                lifes--;
+                if (0 == lifes) {
+                    gameOver();
+                }
             }
         }
 
@@ -322,6 +353,10 @@ public class SpaceFX extends Application {
                 spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
                 enemies[i]                = spawnEnemy();
                 playSound(spaceShipExplosionSound);
+                lifes--;
+                if (0 == lifes) {
+                    gameOver();
+                }
             }
         }
 
@@ -342,6 +377,10 @@ public class SpaceFX extends Application {
                 destroy = true;
                 enemyTorpedosToRemove.add(enemyTorpedo);
                 playSound(spaceShipExplosionSound);
+                lifes--;
+                if (0 == lifes) {
+                    gameOver();
+                }
             } else if (enemyTorpedo.y > HEIGHT) {
                 enemyTorpedosToRemove.add(enemyTorpedo);
             }
@@ -352,8 +391,6 @@ public class SpaceFX extends Application {
         // Draw Explosions
         for (Explosion e : explosions) {
             ctx.drawImage(explosionImg, e.countX * Explosion.FRAME_WIDTH, e.countY * Explosion.FRAME_HEIGHT, Explosion.FRAME_WIDTH, Explosion.FRAME_HEIGHT, e.x, e.y, Explosion.FRAME_WIDTH * e.scale, Explosion.FRAME_HEIGHT * e.scale);
-
-
             e.x += e.vX;
             e.y += e.vY;
             e.countX++;
@@ -370,46 +407,55 @@ public class SpaceFX extends Application {
         }
         explosions.removeAll(explosionsToRemove);
 
-        // Draw Spaceship or it's explosion
-        if (destroy) {
-            ctx.drawImage(spaceShipExplosionImg, spaceShipExplosion.countX * spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.countY * spaceShipExplosion.FRAME_HEIGHT, spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.FRAME_HEIGHT, spaceShip.x - spaceShip.width * 0.5, spaceShip.y - spaceShip.height * 0.5, spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.FRAME_HEIGHT);
+        if (lifes > 0) {
+            // Draw Spaceship or it's explosion
+            if (destroy) {
+                ctx.drawImage(spaceShipExplosionImg, spaceShipExplosion.countX * spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.countY * spaceShipExplosion.FRAME_HEIGHT,
+                              spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.FRAME_HEIGHT, spaceShip.x - spaceShip.width * 0.5, spaceShip.y - spaceShip.height * 0.5,
+                              spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.FRAME_HEIGHT);
 
-            spaceShipExplosion.countX++;
-            if (spaceShipExplosion.countX == 8) {
-                spaceShipExplosion.countX = 0;
-                spaceShipExplosion.countY++;
-                if (spaceShipExplosion.countY == 6) {
-                    spaceShipExplosion.countY = 0;
+                spaceShipExplosion.countX++;
+                if (spaceShipExplosion.countX == 8) {
+                    spaceShipExplosion.countX = 0;
+                    spaceShipExplosion.countY++;
+                    if (spaceShipExplosion.countY == 6) {
+                        spaceShipExplosion.countY = 0;
+                    }
+                    if (spaceShipExplosion.countX == 0 && spaceShipExplosion.countY == 0) {
+                        destroy = false;
+                        spaceShip.x = WIDTH / 2.0 - spaceShip.width / 2.0;
+                        spaceShip.y = HEIGHT - 2 * spaceShip.height;
+                    }
                 }
-                if (spaceShipExplosion.countX == 0 && spaceShipExplosion.countY == 0) {
-                    destroy     = false;
-                    spaceShip.x = WIDTH / 2.0 - spaceShip.width / 2.0;
-                    spaceShip.y = HEIGHT - 2 * spaceShip.height;
-                }
-            }
-        } else {
-            // Draw space ship
-            spaceShip.x += spaceShip.dX;
-            spaceShip.y += spaceShip.dY;
+            } else {
+                // Draw space ship
+                spaceShip.x += spaceShip.dX;
+                spaceShip.y += spaceShip.dY;
 
-            if (spaceShip.x + spaceShip.width > WIDTH) {
-                spaceShip.x = WIDTH - spaceShip.width;
+                if (spaceShip.x + spaceShip.width > WIDTH) {
+                    spaceShip.x = WIDTH - spaceShip.width;
+                }
+                if (spaceShip.x < 0) {
+                    spaceShip.x = 0;
+                }
+                if (spaceShip.y + spaceShip.height > HEIGHT) {
+                    spaceShip.y = HEIGHT - spaceShip.height;
+                }
+                if (spaceShip.y < 0) {
+                    spaceShip.y = 0;
+                }
+                ctx.drawImage((0 == spaceShip.dX && 0 == spaceShip.dY) ? spaceShip.image : spaceShip.imageThrust, spaceShip.x, spaceShip.y);
             }
-            if (spaceShip.x < 0) {
-                spaceShip.x = 0;
+
+            // Draw score
+            ctx.setFill(Color.rgb(51, 210, 206));
+            ctx.fillText(Long.toString(score), scoreX, scoreY);
+
+            // Draw lifes
+            for (int i = 0; i < lifes; i++) {
+                ctx.drawImage(miniSpaceshipImg, i * miniSpaceshipImg.getWidth() + 10, 20);
             }
-            if (spaceShip.y + spaceShip.height > HEIGHT) {
-                spaceShip.y = HEIGHT - spaceShip.height;
-            }
-            if (spaceShip.y < 0) {
-                spaceShip.y = 0;
-            }
-            ctx.drawImage((0 == spaceShip.dX && 0 == spaceShip.dY) ? spaceShip.image : spaceShip.imageThrust, spaceShip.x, spaceShip.y);
         }
-
-        // Draw score
-        ctx.setFill(Color.rgb(51, 210, 206));
-        ctx.fillText(Long.toString(score), scoreX, scoreY);
     }
 
 
@@ -434,6 +480,29 @@ public class SpaceFX extends Application {
     private void spawnEnemyTorpedo(final double x, final double y) {
         enemyTorpedos.add(new EnemyTorpedo(enemyTorpedoImg, x, y));
         playSound(enemyLaserSound);
+    }
+
+
+    // Game Over
+    private void gameOver() {
+        running = false;
+        timer.stop();
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        for (int i = 0 ; i < NO_OF_STARS ; i++) { stars[i] = spawnStar(); }
+        for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) { asteroids[i] = spawnAsteroid(); }
+        for (int i = 0 ; i < NO_OF_ENEMIES ; i ++) { enemies[i] = spawnEnemy(); }
+
+        gameMediaPlayer.stop();
+
+        KeyFrame kf0 = new KeyFrame(Duration.ZERO, new KeyValue(background.imageProperty(), gameOverImg));
+        KeyFrame kf1 = new KeyFrame(Duration.seconds(5), new KeyValue(background.imageProperty(), startImg));
+        timeline.getKeyFrames().setAll(kf0, kf1);
+        timeline.play();
+        playSound(gameoverSound);
+
+        mediaPlayer.play();
+        destroy  = false;
+        lifes    = LIFES;
     }
 
 
