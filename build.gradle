@@ -57,7 +57,7 @@ jar {
         exclude "META-INF/*.RSA"
     }
     manifest {
-        attributes ('Implementation-Title': 'Dashboard',
+        attributes ('Implementation-Title': 'SpaceFX',
                 'Class-Path': 'spacefx.jar ',
                 'Main-Class': 'eu.hansolo.spacefx.Launcher')
     }
