@@ -71,7 +71,7 @@ jar {
     }
     manifest {
         attributes ('Implementation-Title': 'SpaceFX',
-                'Class-Path': 'spacefx.jar ',
+                'Class-Path': 'SpaceFX-1.0-SNAPSHOT.jar ',
                 'Main-Class': 'eu.hansolo.spacefx.Launcher')
     }
 }
