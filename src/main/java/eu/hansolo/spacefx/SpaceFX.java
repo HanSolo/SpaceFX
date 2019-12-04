@@ -386,7 +386,6 @@ public class SpaceFX extends Application {
 
             // Check for space ship hit
             if (!destroy && spaceShipBounds.intersects(e.getBounds())) {
-                score                     = 0;
                 spaceShipExplosion.countX = 0;
                 spaceShipExplosion.countY = 0;
                 spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
