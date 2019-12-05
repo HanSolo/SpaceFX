@@ -55,6 +55,10 @@ public class SpaceFX extends Application {
     private static final    Random             RND                     = new Random();
     private static final    double             WIDTH                   = 700;
     private static final    double             HEIGHT                  = 700;
+    private static final    double             SHIELD_INDICATOR_X      = WIDTH * 0.73;
+    private static final    double             SHIELD_INDICATOR_Y      = HEIGHT * 0.06;
+    private static final    double             SHIELD_INDICATOR_WIDTH  = WIDTH * 0.26;
+    private static final    double             SHIELD_INDICATOR_HEIGHT = HEIGHT * 0.01428571;
     private static final    int                NO_OF_STARS             = 20;
     private static final    int                NO_OF_ASTEROIDS         = 20;
     private static final    int                NO_OF_ENEMIES           = 3;
@@ -101,6 +105,7 @@ public class SpaceFX extends Application {
     private final           AudioClip          spaceShipExplosionSound = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
     private final           AudioClip          gameoverSound           = new AudioClip(getClass().getResource("gameover.wav").toExternalForm());
     private final           AudioClip          shieldHitSound          = new AudioClip(getClass().getResource("shieldhit.wav").toExternalForm());
+    private final           AudioClip          deflectorShieldSound    = new AudioClip(getClass().getResource("deflectorshieldSound.wav").toExternalForm());
     private final           Media              gameSoundTheme          = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
     private final           Media              soundTheme              = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
     private final           MediaPlayer        gameMediaPlayer         = new MediaPlayer(gameSoundTheme);
@@ -220,12 +225,27 @@ public class SpaceFX extends Application {
         scene.setOnKeyPressed(e -> {
             if (running) {
                 switch(e.getCode()) {
-                    case UP   : spaceShip.dY = -5; break;
-                    case RIGHT: spaceShip.dX = 5; break;
-                    case DOWN : spaceShip.dY = 5; break;
-                    case LEFT : spaceShip.dX = -5; break;
-                    case S    : if (noOfShields > 0 && !spaceShip.shield) { lastShieldActivated = System.currentTimeMillis(); spaceShip.shield = true; } break;
-                    case SPACE: spawnTorpedo(spaceShip.x + spaceShip.width / 2, spaceShip.y); break;
+                    case UP:
+                        spaceShip.dY = -5;
+                        break;
+                    case RIGHT:
+                        spaceShip.dX = 5;
+                        break;
+                    case DOWN:
+                        spaceShip.dY = 5;
+                        break;
+                    case LEFT:
+                        spaceShip.dX = -5;
+                        break;
+                    case S:
+                        if (noOfShields > 0 && !spaceShip.shield) {
+                            lastShieldActivated = System.currentTimeMillis(); spaceShip.shield = true;
+                            playSound(deflectorShieldSound);
+                        }
+                        break;
+                    case SPACE:
+                        spawnTorpedo(spaceShip.x + spaceShip.width / 2, spaceShip.y);
+                        break;
                 }
             } else if (e.getCode() == KeyCode.P && !gameOverScreen) {
                 background.setImage(nebularImg);
@@ -495,11 +515,18 @@ public class SpaceFX extends Application {
                 ctx.drawImage((0 == spaceShip.dX && 0 == spaceShip.dY) ? spaceShip.image : spaceShip.imageThrust, spaceShip.x, spaceShip.y);
 
                 if (spaceShip.shield) {
-                    if (System.currentTimeMillis() - lastShieldActivated > DEFLECTOR_SHIELD_TIME) {
+                    long delta = System.currentTimeMillis() - lastShieldActivated;
+                    if (delta > DEFLECTOR_SHIELD_TIME) {
                         spaceShip.shield = false;
                         noOfShields--;
                     } else {
+                        ctx.setStroke(SCORE_COLOR);
+                        ctx.setFill(SCORE_COLOR);
+                        ctx.strokeRect(SHIELD_INDICATOR_X, SHIELD_INDICATOR_Y, SHIELD_INDICATOR_WIDTH, SHIELD_INDICATOR_HEIGHT);
+                        ctx.fillRect(SHIELD_INDICATOR_X, SHIELD_INDICATOR_Y, SHIELD_INDICATOR_WIDTH - SHIELD_INDICATOR_WIDTH * delta / DEFLECTOR_SHIELD_TIME, SHIELD_INDICATOR_HEIGHT);
+                        ctx.setGlobalAlpha(RND.nextDouble() * 0.5 + 0.1);
                         ctx.drawImage(deflectorShieldImg, spaceShip.x - 26, spaceShip.y - 26);
+                        ctx.setGlobalAlpha(1);
                     }
                 }
             }
