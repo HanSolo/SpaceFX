@@ -46,18 +46,6 @@ dependencies {
     compile "org.openjfx:javafx-media:11:$platform"
 }
 
-/* JDK 13 (used for building native image)
-sourceCompatibility = 13
-targetCompatibility = 13
-
-dependencies {
-    compile "org.openjfx:javafx-base:13:$platform"
-    compile "org.openjfx:javafx-graphics:13:$platform"
-    compile "org.openjfx:javafx-controls:13:$platform"
-    compile "org.openjfx:javafx-media:13:$platform"
-}
-*/
-
 mainClassName = 'eu.hansolo.spacefx.SpaceFX'
 
 jar {
