@@ -16,6 +16,7 @@
 
 package eu.hansolo.spacefx;
 
+import com.jpro.webapi.WebAPI;
 import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -28,7 +29,6 @@ import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -59,6 +59,9 @@ public class SpaceFX extends Application {
     private static final    double             SHIELD_INDICATOR_Y      = HEIGHT * 0.06;
     private static final    double             SHIELD_INDICATOR_WIDTH  = WIDTH * 0.26;
     private static final    double             SHIELD_INDICATOR_HEIGHT = HEIGHT * 0.01428571;
+    private static final    long               FPS_60                  = 0_016_666_666l;
+    private static final    long               FPS_30                  = 0_033_333_333l;
+    private static final    long               FPS_10                  = 0_100_000_000l;
     private static final    int                NO_OF_STARS             = 20;
     private static final    int                NO_OF_ASTEROIDS         = 20;
     private static final    int                NO_OF_ENEMIES           = 3;
@@ -71,6 +74,7 @@ public class SpaceFX extends Application {
     private static final    Color              SCORE_COLOR             = Color.rgb(51, 210, 206);
     private static final    String             SPACE_BOY;
     private static          String             spaceBoyName;
+    private static final    boolean            IS_BROWSER = WebAPI.isBrowser();
     private                 boolean            running;
     private                 boolean            gameOverScreen;
     private final           Image              startImg                = new Image(getClass().getResourceAsStream("startscreen.png"));
@@ -134,6 +138,7 @@ public class SpaceFX extends Application {
     private                 int                noOfLifes;
     private                 int                noOfShields;
     private                 long               lastShieldActivated;
+    private                 long               lastTimerCall;
     private                 AnimationTimer     timer;
 
     static {
@@ -191,7 +196,10 @@ public class SpaceFX extends Application {
         lastShieldActivated   = 0;
         timer                 = new AnimationTimer() {
             @Override public void handle(final long now) {
-                draw();
+                if (now > lastTimerCall) {
+                    draw();
+                    lastTimerCall = now + FPS_60;
+                }
             }
         };
         for (int i = 0 ; i < NO_OF_STARS ; i++) { stars[i] = spawnStar(); }
@@ -275,8 +283,10 @@ public class SpaceFX extends Application {
     }
 
     @Override public void stop() {
-        Platform.exit();
-        System.exit(0);
+        if (!IS_BROWSER) {
+            Platform.exit();
+            System.exit(0);
+        }
     }
 
 
