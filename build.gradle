@@ -11,7 +11,7 @@ buildscript {
     dependencies {
         classpath 'com.google.gradle:osdetector-gradle-plugin:1.6.2'
         classpath 'org.javamodularity:moduleplugin:1.6.0'
-        classpath "org.beryx:badass-jlink-plugin:2.16.4"
+        classpath 'org.beryx:badass-jlink-plugin:2.16.4'
         classpath 'com.sandec.jpro:jpro-plugin-gradle:2019.2.1-SNAPSHOT'
     }
 }
@@ -44,6 +44,7 @@ dependencies {
     compile "org.openjfx:javafx-graphics:11:$platform"
     compile "org.openjfx:javafx-controls:11:$platform"
     compile "org.openjfx:javafx-media:11:$platform"
+    compile "com.sandec.jpro:jpro-webapi:2019.2.1-SNAPSHOT"
 }
 
 mainClassName = 'eu.hansolo.spacefx.SpaceFX'
