@@ -19,8 +19,8 @@ here [jpro](https://www.jpro.one/?page=docs/current/1.1/).
 
 ### Building a native package
 If you would like to build a native package you should have at least JDK 13 installed
-on your machine. Do a `gradle clean build jar` on the command line and execute
-the build app script e.g. `bash build_app.sh`. If everything worked ok you will
-find the native app in the folder `/build/installer`.
+on your machine. Make sure you run on Java13 and do a `gradle clean build jar` on the 
+command line and execute the build app script e.g. `bash build_app.sh`. If everything 
+worked ok you will find the native app in the folder `/build/installer`.
 To build a native package you will need the early access release of the 
 jpackage tool. Please find more info [here](https://github.com/dlemmermann/JPackageScriptFX).

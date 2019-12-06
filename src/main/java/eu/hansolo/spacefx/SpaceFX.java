@@ -257,7 +257,7 @@ public class SpaceFX extends Application {
                 }
             } else if (e.getCode() == KeyCode.P && !gameOverScreen) {
                 background.setImage(nebularImg);
-                mediaPlayer.stop();
+                mediaPlayer.pause();
                 gameMediaPlayer.play();
                 running = true;
                 timer.start();
@@ -594,7 +594,7 @@ public class SpaceFX extends Application {
         for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) { asteroids[i] = spawnAsteroid(); }
         for (int i = 0 ; i < NO_OF_ENEMIES ; i ++) { enemies[i] = spawnEnemy(); }
 
-        gameMediaPlayer.stop();
+        gameMediaPlayer.pause();
 
         KeyFrame kf0 = new KeyFrame(Duration.ZERO, new KeyValue(background.imageProperty(), gameOverImg));
         KeyFrame kf1 = new KeyFrame(Duration.seconds(5), new KeyValue(background.imageProperty(), startImg));
