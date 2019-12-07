@@ -62,8 +62,8 @@ public class SpaceFX extends Application {
     private static final    long               FPS_60                  = 0_016_666_666l;
     private static final    long               FPS_30                  = 0_033_333_333l;
     private static final    long               FPS_10                  = 0_100_000_000l;
-    private static final    int                NO_OF_STARS             = 20;
-    private static final    int                NO_OF_ASTEROIDS         = 20;
+    private static final    int                NO_OF_STARS             = 15;
+    private static final    int                NO_OF_ASTEROIDS         = 15;
     private static final    int                NO_OF_ENEMIES           = 3;
     private static final    double             VELOCITY_FACTOR_X       = 1.0;
     private static final    double             VELOCITY_FACTOR_Y       = 1.0;
@@ -72,6 +72,8 @@ public class SpaceFX extends Application {
     private static final    int                SHIELDS                 = 10;
     private static final    int                DEFLECTOR_SHIELD_TIME   = 5000;
     private static final    Color              SCORE_COLOR             = Color.rgb(51, 210, 206);
+    private static final    double             TORPEDO_SPEED           = 6;
+    private static final    double             ENEMY_TORPEDO_SPEED     = 5;
     private static final    String             SPACE_BOY;
     private static          String             spaceBoyName;
     private static final    boolean            IS_BROWSER = WebAPI.isBrowser();
@@ -103,7 +105,7 @@ public class SpaceFX extends Application {
     private final           Image              enemyTorpedoImg         = new Image(getClass().getResourceAsStream("enemyTorpedo.png"), 21, 21, true, false);
     private final           Image              explosionImg            = new Image(getClass().getResourceAsStream("explosion.png"), 960, 768, true, false);
     private final           Image              spaceShipExplosionImg   = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800, 600, true, false);
-    private final           Image              hitImg                  = new Image(getClass().getResourceAsStream("torpedoHit.png"), 400, 160, true, false);
+    private final           Image              hitImg                  = new Image(getClass().getResourceAsStream("torpedoHit1.png"), 400, 160, true, false);
     private final           AudioClip          laserSound              = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
     private final           AudioClip          enemyLaserSound         = new AudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm());
     private final           AudioClip          explosionSound          = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
@@ -178,6 +180,10 @@ public class SpaceFX extends Application {
         gameMediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
         gameMediaPlayer.setVolume(0.2);
 
+        // Adjust audio clip volumes
+        explosionSound.setVolume(0.5);
+        torpedoHitSound.setVolume(0.5);
+        
         // Variable initialization
         background            = new ImageView(startImg);
         canvas                = new Canvas(WIDTH, HEIGHT);
@@ -309,62 +315,62 @@ public class SpaceFX extends Application {
         // Draw Stars and Asteroids
         for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
             // Draw Stars
-            Star s = stars[i];
-            ctx.fillOval(s.x, s.y, s.size, s.size);
-            s.x += s.vX;
-            s.y += s.vY;
+            Star star = stars[i];
+            ctx.fillOval(star.x, star.y, star.size, star.size);
+            star.x += star.vX;
+            star.y += star.vY;
             // Respawn star
-            if(s.y > HEIGHT + s.size) {
+            if(star.y > HEIGHT + star.size) {
                 stars[i].x = RND.nextDouble() * WIDTH;
-                stars[i].y = -s.size;
+                stars[i].y = -star.size;
             }
 
             // Draw Asteroids
-            Asteroid p = asteroids[i];
+            Asteroid asteroid = asteroids[i];
 
             ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.scale(p.scale, p.scale);
-            ctx.translate(p.width * (-0.5), p.height * (-0.5));
+            ctx.translate(asteroid.x, asteroid.y);
+            ctx.scale(asteroid.scale, asteroid.scale);
+            ctx.translate(asteroid.width * (-0.5), asteroid.height * (-0.5));
 
             ctx.save();
-            ctx.translate(p.width * 0.5, p.height * 0.5);
-            ctx.rotate(p.rot);
-            ctx.translate(-p.width * 0.5, -p.height * 0.5);
-            ctx.drawImage(p.image, 0, 0);
+            ctx.translate(asteroid.width * 0.5, asteroid.height * 0.5);
+            ctx.rotate(asteroid.rot);
+            ctx.translate(-asteroid.width * 0.5, -asteroid.height * 0.5);
+            ctx.drawImage(asteroid.image, 0, 0);
             ctx.restore();
             ctx.restore();
 
-            p.x += p.vX;
-            p.y += p.vY;
+            asteroid.x += asteroid.vX;
+            asteroid.y += asteroid.vY;
 
-            if (p.rotateRight) {
-                p.rot += p.vR;
-                if (p.rot > 360) { p.rot = 0; }
+            if (asteroid.rotateRight) {
+                asteroid.rot += asteroid.vR;
+                if (asteroid.rot > 360) { asteroid.rot = 0; }
             } else {
-                p.rot -= p.vR;
-                if (p.rot < 0) { p.rot = 360; }
+                asteroid.rot -= asteroid.vR;
+                if (asteroid.rot < 0) { asteroid.rot = 360; }
             }
 
             // Respawn Asteroid
-            if(p.y > HEIGHT + p.height) {
-                //asteroids[i].x = RND.nextDouble() * WIDTH;
-                //asteroids[i].y = -p.image.getHeight();
+            if(asteroid.x < 0 - asteroid.width ||
+               asteroid.x > WIDTH + asteroid.width ||
+               asteroid.y > HEIGHT + asteroid.height) {
                 asteroids[i] = spawnAsteroid();
             }
 
             // Check for torpedo hits
             for (Torpedo torpedo : torpedos) {
-                if (torpedo.intersects(p.getBounds())) {
-                    p.hits--;
-                    if (p.hits == 0) {
-                        explosions.add(new Explosion(p.x - Explosion.FRAME_WIDTH * 0.5 * p.scale, p.y - Explosion.FRAME_HEIGHT * 0.5 * p.scale, p.vX, p.vY, p.scale));
-                        score += p.value;
+                if (torpedo.intersects(asteroid.getBounds())) {
+                    asteroid.hits--;
+                    if (asteroid.hits == 0) {
+                        explosions.add(new Explosion(asteroid.x - Explosion.FRAME_WIDTH * 0.5 * asteroid.scale, asteroid.y - Explosion.FRAME_HEIGHT * 0.5 * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
+                        score += asteroid.value;
                         asteroids[i] = spawnAsteroid();
                         torpedosToRemove.add(torpedo);
                         playSound(explosionSound);
                     } else {
-                        hits.add(new Hit(torpedo.x - Hit.FRAME_WIDTH * 0.5, p.y - Hit.FRAME_HEIGHT * 0.25, p.vX, p.vY));
+                        hits.add(new Hit(torpedo.x - Hit.FRAME_WIDTH * 0.5, asteroid.y - Hit.FRAME_HEIGHT * 0.25, asteroid.vX, asteroid.vY));
                         torpedosToRemove.add(torpedo);
                         playSound(torpedoHitSound);
                     }
@@ -372,7 +378,7 @@ public class SpaceFX extends Application {
             }
 
             // Check for space ship hit
-            if (!destroy && spaceShipBounds.intersects(p.getBounds())) {
+            if (!destroy && spaceShipBounds.intersects(asteroid.getBounds())) {
                 spaceShipExplosion.countX = 0;
                 spaceShipExplosion.countY = 0;
                 spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
@@ -380,7 +386,7 @@ public class SpaceFX extends Application {
                 asteroids[i]              = spawnAsteroid();
                 if (spaceShip.shield) {
                     playSound(explosionSound);
-                    explosions.add(new Explosion(p.x - Explosion.FRAME_WIDTH * 0.5 * p.scale, p.y - Explosion.FRAME_HEIGHT * 0.5 * p.scale, p.vX, p.vY, p.scale));
+                    explosions.add(new Explosion(asteroid.x - Explosion.FRAME_WIDTH * 0.5 * asteroid.scale, asteroid.y - Explosion.FRAME_HEIGHT * 0.5 * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
                 } else {
                     playSound(spaceShipExplosionSound);
                     destroy = true;
@@ -394,34 +400,42 @@ public class SpaceFX extends Application {
 
         // Draw Enemies
         for (int i = 0 ; i < NO_OF_ENEMIES ; i++) {
-            Enemy e = enemies[i];
+            Enemy enemy = enemies[i];
 
             ctx.save();
-            ctx.translate(e.x, e.y);
-            ctx.drawImage(e.image, 0, 0);
+            ctx.translate(enemy.x + enemy.width * (-0.5), enemy.y + enemy.height * (-0.5));
+            ctx.save();
+            ctx.translate(enemy.width * 0.5, enemy.height * 0.5);
+            ctx.rotate(enemy.rot);
+            ctx.translate(-enemy.width * 0.5, -enemy.height * 0.5);
+            ctx.drawImage(enemy.image, 0, 0);
+            ctx.restore();
             ctx.restore();
 
+
             // Fire if spaceship is below enemy
-            if (e.x > spaceShip.x - 2 && e.x < spaceShip.x + 2) {
-                if (e.y - e.lastShotY > 15) {
-                    spawnEnemyTorpedo(e.x + e.width / 2, e.y);
-                    e.lastShotY = e.y;
+            if (enemy.x > spaceShip.x - 2 && enemy.x < spaceShip.x + 2) {
+                if (enemy.y - enemy.lastShotY > 15) {
+                    spawnEnemyTorpedo(enemy.x, enemy.y, enemy.vX, enemy.vY);
+                    enemy.lastShotY = enemy.y;
                 }
             }
 
-            e.x += e.vX;
-            e.y += e.vY;
+            enemy.x += enemy.vX;
+            enemy.y += enemy.vY;
 
             // Respawn Enemy
-            if(e.y > HEIGHT + e.height) {
+            if (enemy.x < -enemy.width ||
+                enemy.x > WIDTH + enemy.width ||
+                enemy.y > HEIGHT + enemy.height) {
                 enemies[i] = spawnEnemy();
             }
 
             // Check for torpedo hits
             for (Torpedo torpedo : torpedos) {
-                if (torpedo.intersects(e.getBounds())) {
-                    explosions.add(new Explosion(e.x - Explosion.FRAME_WIDTH * 0.125, e.y - Explosion.FRAME_HEIGHT * 0.125, e.vX, e.vY, 0.5));
-                    score += e.value;
+                if (torpedo.intersects(enemy.getBounds())) {
+                    explosions.add(new Explosion(enemy.x - Explosion.FRAME_WIDTH * 0.125, enemy.y - Explosion.FRAME_HEIGHT * 0.125, enemy.vX, enemy.vY, 0.5));
+                    score += enemy.value;
                     enemies[i] = spawnEnemy();
                     torpedosToRemove.add(torpedo);
                     playSound(spaceShipExplosionSound);
@@ -429,7 +443,7 @@ public class SpaceFX extends Application {
             }
 
             // Check for space ship hit
-            if (!destroy && spaceShipBounds.intersects(e.getBounds())) {
+            if (!destroy && spaceShipBounds.intersects(enemy.getBounds())) {
                 spaceShipExplosion.countX = 0;
                 spaceShipExplosion.countY = 0;
                 spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
@@ -437,7 +451,7 @@ public class SpaceFX extends Application {
                 enemies[i]                = spawnEnemy();
                 playSound(spaceShipExplosionSound);
                 if (spaceShip.shield) {
-                    explosions.add(new Explosion(e.x - Explosion.FRAME_WIDTH * 0.125, e.y - Explosion.FRAME_HEIGHT * 0.125, e.vX, e.vY, 0.5));
+                    explosions.add(new Explosion(enemy.x - Explosion.FRAME_WIDTH * 0.125, enemy.y - Explosion.FRAME_HEIGHT * 0.125, enemy.vX, enemy.vY, 0.5));
                 } else {
                     destroy = true;
                     noOfLifes--;
@@ -450,7 +464,7 @@ public class SpaceFX extends Application {
 
         // Draw Torpedos
         for (Torpedo torpedo : torpedos) {
-            torpedo.y -= torpedo.dY;
+            torpedo.y -= torpedo.vY;
             if (torpedo.y < -torpedo.height) {
                 torpedosToRemove.add(torpedo);
             }
@@ -460,7 +474,8 @@ public class SpaceFX extends Application {
 
         // Draw EnemyTorpedos
         for (EnemyTorpedo enemyTorpedo : enemyTorpedos) {
-            enemyTorpedo.y += enemyTorpedo.dY;
+            enemyTorpedo.x += enemyTorpedo.vX;
+            enemyTorpedo.y += enemyTorpedo.vY;
             if (!destroy && enemyTorpedo.intersects(spaceShip.getBounds())) {
                 enemyTorpedosToRemove.add(enemyTorpedo);
                 if (spaceShip.shield) {
@@ -481,38 +496,38 @@ public class SpaceFX extends Application {
         enemyTorpedos.removeAll(enemyTorpedosToRemove);
 
         // Draw Explosions
-        for (Explosion e : explosions) {
-            ctx.drawImage(explosionImg, e.countX * Explosion.FRAME_WIDTH, e.countY * Explosion.FRAME_HEIGHT, Explosion.FRAME_WIDTH, Explosion.FRAME_HEIGHT, e.x, e.y, Explosion.FRAME_WIDTH * e.scale, Explosion.FRAME_HEIGHT * e.scale);
-            e.x += e.vX;
-            e.y += e.vY;
-            e.countX++;
-            if (e.countX == 5) {
-                e.countY++;
-                if (e.countX == 5 && e.countY == 4) {
-                    explosionsToRemove.add(e);
+        for (Explosion explosion : explosions) {
+            ctx.drawImage(explosionImg, explosion.countX * Explosion.FRAME_WIDTH, explosion.countY * Explosion.FRAME_HEIGHT, Explosion.FRAME_WIDTH, Explosion.FRAME_HEIGHT, explosion.x, explosion.y, Explosion.FRAME_WIDTH * explosion.scale, Explosion.FRAME_HEIGHT * explosion.scale);
+            explosion.x += explosion.vX;
+            explosion.y += explosion.vY;
+            explosion.countX++;
+            if (explosion.countX == 5) {
+                explosion.countY++;
+                if (explosion.countX == 5 && explosion.countY == 4) {
+                    explosionsToRemove.add(explosion);
                 }
-                e.countX = 0;
-                if (e.countY == 4) {
-                    e.countY = 0;
+                explosion.countX = 0;
+                if (explosion.countY == 4) {
+                    explosion.countY = 0;
                 }
             }
         }
         explosions.removeAll(explosionsToRemove);
 
         // Draw Hits
-        for (Hit h : hits) {
-            ctx.drawImage(hitImg, h.countX * Hit.FRAME_WIDTH, h.countY * Hit.FRAME_HEIGHT, Hit.FRAME_WIDTH, Hit.FRAME_HEIGHT, h.x, h.y, Hit.FRAME_WIDTH, Hit.FRAME_HEIGHT);
-            h.x += h.vX;
-            h.y += h.vY;
-            h.countX++;
-            if (h.countX == 5) {
-                h.countY++;
-                if (h.countX == 5 && h.countY == 2) {
-                    hitsToRemove.add(h);
+        for (Hit hit : hits) {
+            ctx.drawImage(hitImg, hit.countX * Hit.FRAME_WIDTH, hit.countY * Hit.FRAME_HEIGHT, Hit.FRAME_WIDTH, Hit.FRAME_HEIGHT, hit.x, hit.y, Hit.FRAME_WIDTH, Hit.FRAME_HEIGHT);
+            hit.x += hit.vX;
+            hit.y += hit.vY;
+            hit.countX++;
+            if (hit.countX == 5) {
+                hit.countY++;
+                if (hit.countX == 5 && hit.countY == 2) {
+                    hitsToRemove.add(hit);
                 }
-                h.countX = 0;
-                if (h.countY == 2) {
-                    h.countY = 0;
+                hit.countX = 0;
+                if (hit.countY == 2) {
+                    hit.countY = 0;
                 }
             }
         }
@@ -609,8 +624,9 @@ public class SpaceFX extends Application {
         playSound(laserSound);
     }
 
-    private void spawnEnemyTorpedo(final double x, final double y) {
-        enemyTorpedos.add(new EnemyTorpedo(enemyTorpedoImg, x, y));
+    private void spawnEnemyTorpedo(final double x, final double y, final double vX, final double vY) {
+        double vFactor = ENEMY_TORPEDO_SPEED / vY; // make sure the speed is always the defined one
+        enemyTorpedos.add(new EnemyTorpedo(enemyTorpedoImg, x, y, vFactor * vX, vFactor * vY));
         playSound(enemyLaserSound);
     }
 
@@ -790,8 +806,8 @@ public class SpaceFX extends Application {
         private       double y;
         private       double width;
         private       double height;
-        private       double dX;
-        private       double dY;
+        private       double vX;
+        private       double vY;
 
 
         public Torpedo(final Image image) {
@@ -803,8 +819,8 @@ public class SpaceFX extends Application {
             this.y      = y - image.getHeight();
             this.width  = image.getWidth();
             this.height = image.getHeight();
-            this.dX     = 0;
-            this.dY     = 5;
+            this.vX = 0;
+            this.vY = TORPEDO_SPEED;
         }
 
         public Rectangle2D getBounds() { return new Rectangle2D(x - width * 0.5, y - height * 0.5, width, height); }
@@ -876,14 +892,14 @@ public class SpaceFX extends Application {
     }
 
     private class Enemy {
-        public  static final int     MAX_NO_OF_SHOTS = 5;
-        private static final int     MAX_VALUE       = 49;
-        private final        Random  rnd             = new Random();
-        private final        double  xVariation      = 1;
-        private final        double  minSpeedY       = 3;
+        private static final int     MAX_VALUE  = 49;
+        private final        Random  rnd        = new Random();
+        private final        double  xVariation = 1;
+        private final        double  minSpeedY  = 3;
         private final        Image   image;
         private              double  x;
         private              double  y;
+        private              double  rot;
         private              double  width;
         private              double  height;
         private              double  size;
@@ -917,6 +933,9 @@ public class SpaceFX extends Application {
             vX = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
             vY = (((rnd.nextDouble() * 1.5) + minSpeedY) * vYVariation) * VELOCITY_FACTOR_Y;
 
+            // Rotation
+            rot = Math.toDegrees(Math.atan2(vY, vX)) - 90;
+
             // Related to laser fire
             lastShotY = 0;
         }
@@ -939,18 +958,18 @@ public class SpaceFX extends Application {
         private       double y;
         private       double width;
         private       double height;
-        private       double dX;
-        private       double dY;
+        private       double vX;
+        private       double vY;
 
 
-        public EnemyTorpedo(final Image image, final double x, final double y) {
+        public EnemyTorpedo(final Image image, final double x, final double y, final double vX, final double vY) {
             this.image  = image;
             this.x      = x - image.getWidth() / 2.0;
             this.y      = y;
             this.width  = image.getWidth();
             this.height = image.getHeight();
-            this.dX     = 0;
-            this.dY     = 5;
+            this.vX     = vX;
+            this.vY     = vY;
         }
 
         public Rectangle2D getBounds() { return new Rectangle2D(x - width * 0.5, y - height * 0.5, width, height); }
