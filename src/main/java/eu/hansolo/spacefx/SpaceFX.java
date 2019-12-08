@@ -61,8 +61,8 @@ public class SpaceFX extends Application {
     private static final    long               FPS_60                  = 0_016_666_666l;
     private static final    long               FPS_30                  = 0_033_333_333l;
     private static final    long               FPS_10                  = 0_100_000_000l;
-    private static final    int                NO_OF_STARS             = 15;
-    private static final    int                NO_OF_ASTEROIDS         = 15;
+    private static final    int                NO_OF_STARS             = 20;
+    private static final    int                NO_OF_ASTEROIDS         = 20;
     private static final    int                NO_OF_ENEMIES           = 3;
     private static final    double             VELOCITY_FACTOR_X       = 1.0;
     private static final    double             VELOCITY_FACTOR_Y       = 1.0;
@@ -210,7 +210,7 @@ public class SpaceFX extends Application {
             @Override public void handle(final long now) {
                 if (now > lastTimerCall) {
                     draw();
-                    lastTimerCall = now + FPS_10;
+                    lastTimerCall = now + FPS_60;
                 }
             }
         };
