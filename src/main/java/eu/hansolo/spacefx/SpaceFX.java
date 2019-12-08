@@ -61,8 +61,8 @@ public class SpaceFX extends Application {
     private static final    long               FPS_60                  = 0_016_666_666l;
     private static final    long               FPS_30                  = 0_033_333_333l;
     private static final    long               FPS_10                  = 0_100_000_000l;
-    private static final    int                NO_OF_STARS             = 20;
-    private static final    int                NO_OF_ASTEROIDS         = 20;
+    private static final    int                NO_OF_STARS             = 15;
+    private static final    int                NO_OF_ASTEROIDS         = 15;
     private static final    int                NO_OF_ENEMIES           = 3;
     private static final    double             VELOCITY_FACTOR_X       = 1.0;
     private static final    double             VELOCITY_FACTOR_Y       = 1.0;
@@ -73,6 +73,7 @@ public class SpaceFX extends Application {
     private static final    Color              SCORE_COLOR             = Color.rgb(51, 210, 206);
     private static final    double             TORPEDO_SPEED           = 6;
     private static final    double             ENEMY_TORPEDO_SPEED     = 5;
+    private static final    int                ENEMY_FIRE_SENSITIVITY  = 10;
     private static final    String             SPACE_BOY;
     private static          String             spaceBoyName;
     private static final    boolean            IS_BROWSER = WebAPI.isBrowser();
@@ -418,7 +419,7 @@ public class SpaceFX extends Application {
             ctx.restore();
 
             // Fire if spaceship is below enemy
-            if (enemy.x > spaceShip.x - 2 && enemy.x < spaceShip.x + 2) {
+            if (enemy.x > spaceShip.x - ENEMY_FIRE_SENSITIVITY && enemy.x < spaceShip.x + ENEMY_FIRE_SENSITIVITY) {
                 if (enemy.y - enemy.lastShotY > 15) {
                     spawnEnemyTorpedo(enemy.x, enemy.y, enemy.vX, enemy.vY);
                     enemy.lastShotY = enemy.y;
