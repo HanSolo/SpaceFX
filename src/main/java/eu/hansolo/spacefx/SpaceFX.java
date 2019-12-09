@@ -52,105 +52,105 @@ import java.util.Random;
 
 
 public class SpaceFX extends Application {
-    private static final Random             RND                     = new Random();
-    private static final double             WIDTH                   = 700;
-    private static final double             HEIGHT                  = 700;
-    private static final double             SHIELD_INDICATOR_X      = WIDTH * 0.73;
-    private static final double             SHIELD_INDICATOR_Y      = HEIGHT * 0.06;
-    private static final double             SHIELD_INDICATOR_WIDTH  = WIDTH * 0.26;
-    private static final double             SHIELD_INDICATOR_HEIGHT = HEIGHT * 0.01428571;
-    private static final long               FPS_60                  = 0_016_666_666l;
-    private static final long               FPS_30                  = 0_033_333_333l;
-    private static final long               FPS_10                  = 0_100_000_000l;
-    private static final long               FPS_2                   = 0_500_000_000l;
-    private static final int                NO_OF_STARS             = 15;
-    private static final int                NO_OF_ASTEROIDS         = 15;
-    private static final int                NO_OF_ENEMIES           = 3;
-    private static final double             VELOCITY_FACTOR_X       = 1.0;
-    private static final double             VELOCITY_FACTOR_Y       = 1.0;
-    private static final double             VELOCITY_FACTOR_R       = 1.0;
-    private static final int                LIFES                   = 5;
-    private static final int                SHIELDS                 = 10;
-    private static final int                DEFLECTOR_SHIELD_TIME   = 5000;
-    private static final Color              SCORE_COLOR             = Color.rgb(51, 210, 206);
-    private static final double             TORPEDO_SPEED           = 6;
-    private static final double             ENEMY_TORPEDO_SPEED     = 5;
-    private static final int                ENEMY_FIRE_SENSITIVITY  = 10;
-    private static final String             SPACE_BOY;
-    private static       String             spaceBoyName;
-    private static final boolean            IS_BROWSER              = WebAPI.isBrowser();
-    private              boolean            running;
-    private              boolean            gameOverScreen;
-    private final        Image              startImg                = new Image(getClass().getResourceAsStream("startscreen.png"));
-    private final        Image              gameOverImg             = new Image(getClass().getResourceAsStream("gameover.png"));
-    private final        Image              backgroundImg           = new Image(SpaceFX.class.getResourceAsStream("background.png"));
-    private final        Image              starFieldImg            = new Image(SpaceFX.class.getResourceAsStream("starfield.png"));
-    private final        Image[]            asteroidImages          = { new Image(getClass().getResourceAsStream("asteroid1.png"), 140, 140, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid2.png"), 140, 140, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid3.png"), 140, 140, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid4.png"), 110, 110, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid5.png"), 100, 100, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid6.png"), 120, 120, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid7.png"), 110, 110, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid8.png"), 100, 100, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid9.png"), 130, 130, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid10.png"), 120, 120, true, false),
-                                                                        new Image(getClass().getResourceAsStream("asteroid11.png"), 140, 140, true, false) };
-    private final        Image[]            enemyImages             = { new Image(getClass().getResourceAsStream("enemy1.png"), 56, 56, true, false),
-                                                                        new Image(getClass().getResourceAsStream("enemy2.png"), 50, 50, true, false),
-                                                                        new Image(getClass().getResourceAsStream("enemy3.png"), 72, 72, true, false) };
-    private final        Image              spaceshipImg            = new Image(getClass().getResourceAsStream("fighter.png"), 48, 48, true, false);
-    private final        Image              spaceshipThrustImg      = new Image(getClass().getResourceAsStream("fighterThrust.png"), 48, 48, true, false);
-    private final        Image              miniSpaceshipImg        = new Image(getClass().getResourceAsStream("fighter.png"), 16, 16, true, false);
-    private final        Image              deflectorShieldImg      = new Image(getClass().getResourceAsStream("deflectorshield.png"), 100, 100, true, false);
-    private final        Image              miniDeflectorShieldImg  = new Image(getClass().getResourceAsStream("deflectorshield.png"), 16, 16, true, false);
-    private final        Image              torpedoImg              = new Image(getClass().getResourceAsStream("torpedo.png"), 17, 20, true, false);
-    private final        Image              enemyTorpedoImg         = new Image(getClass().getResourceAsStream("enemyTorpedo.png"), 21, 21, true, false);
-    private final        Image              explosionImg            = new Image(getClass().getResourceAsStream("explosion.png"), 960, 768, true, false);
-    private final        Image              spaceShipExplosionImg   = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800, 600, true, false);
-    private final        Image              hitImg                  = new Image(getClass().getResourceAsStream("torpedoHit2.png"), 400, 160, true, false);
-    private final        AudioClip          laserSound              = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
-    private final        AudioClip          enemyLaserSound         = new AudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm());
-    private final        AudioClip          explosionSound          = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
-    private final        AudioClip          torpedoHitSound         = new AudioClip(getClass().getResource("hit.wav").toExternalForm());
-    private final        AudioClip          spaceShipExplosionSound = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
-    private final        AudioClip          gameoverSound           = new AudioClip(getClass().getResource("gameover.wav").toExternalForm());
-    private final        AudioClip          shieldHitSound          = new AudioClip(getClass().getResource("shieldhit.wav").toExternalForm());
-    private final        AudioClip          deflectorShieldSound    = new AudioClip(getClass().getResource("deflectorshieldSound.wav").toExternalForm());
-    private final        Media              gameSoundTheme          = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
-    private final        Media              soundTheme              = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
-    private final        MediaPlayer        gameMediaPlayer         = new MediaPlayer(gameSoundTheme);
-    private final        MediaPlayer        mediaPlayer             = new MediaPlayer(soundTheme);
-    private final        Text               scoreText               = new Text("0");
-    private final        double             deflectorShieldRadius   = deflectorShieldImg.getRequestedWidth() * 0.5;
-    private              Font               scoreFont;
-    private              Timeline           timeline;
-    private              ImageView          background;
-    private              ImageView          starField;
-    private              Canvas             canvas;
-    private              GraphicsContext    ctx;
-    private              Star[]             stars;
-    private              Asteroid[]         asteroids;
-    private              Enemy[]            enemies;
-    private              SpaceShip          spaceShip;
-    private              SpaceShipExplosion spaceShipExplosion;
-    private              List<Torpedo>      torpedos;
-    private              List<Torpedo>      torpedosToRemove;
-    private              List<EnemyTorpedo> enemyTorpedos;
-    private              List<EnemyTorpedo> enemyTorpedosToRemove;
-    private              List<Explosion>    explosions;
-    private              List<Explosion>    explosionsToRemove;
-    private              List<Hit>          hits;
-    private              List<Hit>          hitsToRemove;
-    private              long               score;
-    private              double             scorePosX;
-    private              double             scorePosY;
-    private              boolean            hasBeenHit;
-    private              int                noOfLifes;
-    private              int                noOfShields;
-    private              long               lastShieldActivated;
-    private              long               lastTimerCall;
-    private              AnimationTimer     timer;
+    private static final Random              RND                     = new Random();
+    private static final double              WIDTH                   = 700;
+    private static final double              HEIGHT                  = 700;
+    private static final double              SHIELD_INDICATOR_X      = WIDTH * 0.73;
+    private static final double              SHIELD_INDICATOR_Y      = HEIGHT * 0.06;
+    private static final double              SHIELD_INDICATOR_WIDTH  = WIDTH * 0.26;
+    private static final double              SHIELD_INDICATOR_HEIGHT = HEIGHT * 0.01428571;
+    private static final long                FPS_60                  = 0_016_666_666l;
+    private static final long                FPS_30                  = 0_033_333_333l;
+    private static final long                FPS_10                  = 0_100_000_000l;
+    private static final long                FPS_2                   = 0_500_000_000l;
+    private static final int                 NO_OF_STARS             = 15;
+    private static final int                 NO_OF_ASTEROIDS         = 15;
+    private static final int                 NO_OF_ENEMIES           = 3;
+    private static final double              VELOCITY_FACTOR_X       = 1.0;
+    private static final double              VELOCITY_FACTOR_Y       = 1.0;
+    private static final double              VELOCITY_FACTOR_R       = 1.0;
+    private static final int                 LIFES                   = 5;
+    private static final int                 SHIELDS                 = 10;
+    private static final int                 DEFLECTOR_SHIELD_TIME   = 5000;
+    private static final Color               SCORE_COLOR             = Color.rgb(51, 210, 206);
+    private static final double              TORPEDO_SPEED           = 6;
+    private static final double              ENEMY_TORPEDO_SPEED     = 5;
+    private static final int                 ENEMY_FIRE_SENSITIVITY  = 10;
+    private static final String              SPACE_BOY;
+    private static       String              spaceBoyName;
+    private static final boolean             IS_BROWSER              = WebAPI.isBrowser();
+    private              boolean             running;
+    private              boolean             gameOverScreen;
+    private final        Image               startImg                = new Image(getClass().getResourceAsStream("startscreen.png"));
+    private final        Image               gameOverImg             = new Image(getClass().getResourceAsStream("gameover.png"));
+    private final        Image               backgroundImg           = new Image(SpaceFX.class.getResourceAsStream("background.png"));
+    private final        Image               starFieldImg            = new Image(SpaceFX.class.getResourceAsStream("starfield.png"));
+    private final        Image[]             asteroidImages          = { new Image(getClass().getResourceAsStream("asteroid1.png"), 140, 140, true, false),
+                                                                         new Image(getClass().getResourceAsStream("asteroid2.png"), 140, 140, true, false),
+                                                                         new Image(getClass().getResourceAsStream("asteroid3.png"), 140, 140, true, false),
+                                                                         new Image(getClass().getResourceAsStream("asteroid4.png"), 110, 110, true, false),
+                                                                         new Image(getClass().getResourceAsStream("asteroid5.png"), 100, 100, true, false),
+                                                                         new Image(getClass().getResourceAsStream("asteroid6.png"), 120, 120, true, false),
+                                                                         new Image(getClass().getResourceAsStream("asteroid7.png"), 110, 110, true, false),
+                                                                         new Image(getClass().getResourceAsStream("asteroid8.png"), 100, 100, true, false),
+                                                                         new Image(getClass().getResourceAsStream("asteroid9.png"), 130, 130, true, false),
+                                                                         new Image(getClass().getResourceAsStream("asteroid10.png"), 120, 120, true, false),
+                                                                         new Image(getClass().getResourceAsStream("asteroid11.png"), 140, 140, true, false) };
+    private final        Image[]             enemyImages             = { new Image(getClass().getResourceAsStream("enemy1.png"), 56, 56, true, false),
+                                                                         new Image(getClass().getResourceAsStream("enemy2.png"), 50, 50, true, false),
+                                                                         new Image(getClass().getResourceAsStream("enemy3.png"), 72, 72, true, false) };
+    private final        Image               spaceshipImg            = new Image(getClass().getResourceAsStream("fighter.png"), 48, 48, true, false);
+    private final        Image               spaceshipThrustImg      = new Image(getClass().getResourceAsStream("fighterThrust.png"), 48, 48, true, false);
+    private final        Image               miniSpaceshipImg        = new Image(getClass().getResourceAsStream("fighter.png"), 16, 16, true, false);
+    private final        Image               deflectorShieldImg      = new Image(getClass().getResourceAsStream("deflectorshield.png"), 100, 100, true, false);
+    private final        Image               miniDeflectorShieldImg  = new Image(getClass().getResourceAsStream("deflectorshield.png"), 16, 16, true, false);
+    private final        Image               torpedoImg              = new Image(getClass().getResourceAsStream("torpedo.png"), 17, 20, true, false);
+    private final        Image               enemyTorpedoImg         = new Image(getClass().getResourceAsStream("enemyTorpedo.png"), 21, 21, true, false);
+    private final        Image               explosionImg            = new Image(getClass().getResourceAsStream("explosion.png"), 960, 768, true, false);
+    private final        Image               spaceShipExplosionImg   = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800, 600, true, false);
+    private final        Image               hitImg                  = new Image(getClass().getResourceAsStream("torpedoHit2.png"), 400, 160, true, false);
+    private final        AudioClip           laserSound              = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
+    private final        AudioClip           enemyLaserSound         = new AudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm());
+    private final        AudioClip           explosionSound          = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
+    private final        AudioClip           torpedoHitSound         = new AudioClip(getClass().getResource("hit.wav").toExternalForm());
+    private final        AudioClip           spaceShipExplosionSound = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
+    private final        AudioClip           gameoverSound           = new AudioClip(getClass().getResource("gameover.wav").toExternalForm());
+    private final        AudioClip           shieldHitSound          = new AudioClip(getClass().getResource("shieldhit.wav").toExternalForm());
+    private final        AudioClip           deflectorShieldSound    = new AudioClip(getClass().getResource("deflectorshieldSound.wav").toExternalForm());
+    private final        Media               gameSoundTheme          = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
+    private final        Media               soundTheme              = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
+    private final        MediaPlayer         gameMediaPlayer         = new MediaPlayer(gameSoundTheme);
+    private final        MediaPlayer         mediaPlayer             = new MediaPlayer(soundTheme);
+    private final        Text                scoreText               = new Text("0");
+    private final        double              deflectorShieldRadius   = deflectorShieldImg.getRequestedWidth() * 0.5;
+    private              Font                scoreFont;
+    private              Timeline            timeline;
+    private              ImageView           background;
+    private              ImageView           starField;
+    private              Canvas              canvas;
+    private              GraphicsContext     ctx;
+    private              Star[]              stars;
+    private              Asteroid[]          asteroids;
+    private              Enemy[]             enemies;
+    private              SpaceShip           spaceShip;
+    private              SpaceShipExplosion  spaceShipExplosion;
+    private              List<Torpedo>       torpedos;
+    private              List<Torpedo>       torpedosToRemove;
+    private              List<EnemyTorpedo>  enemyTorpedos;
+    private              List<EnemyTorpedo>  enemyTorpedosToRemove;
+    private              List<Explosion>     explosions;
+    private              List<Explosion>     explosionsToRemove;
+    private              List<Hit>           hits;
+    private              List<Hit>           hitsToRemove;
+    private              long                score;
+    private              double              scorePosX;
+    private              double              scorePosY;
+    private              boolean             hasBeenHit;
+    private              int                 noOfLifes;
+    private              int                 noOfShields;
+    private              long                lastShieldActivated;
+    private              long                lastTimerCall;
+    private              AnimationTimer      timer;
 
     static {
         try {
@@ -588,6 +588,9 @@ public class SpaceFX extends Application {
         timer.stop();
         scoreText.setText(Long.toString(score));
         scoreText.setVisible(true);
+        explosions.clear();
+        torpedos.clear();
+        enemyTorpedos.clear();
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
         for (int i = 0 ; i < NO_OF_STARS ; i++) { stars[i] = spawnStar(); }
         for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) { asteroids[i] = spawnAsteroid(); }
@@ -779,17 +782,17 @@ public class SpaceFX extends Application {
         private void update() {
             x += vX;
             y += vY;
-            if (spaceShip.x + spaceShip.width > WIDTH) {
-                spaceShip.x = WIDTH - spaceShip.width;
+            if (spaceShip.x + spaceShip.width * 0.5 > WIDTH) {
+                spaceShip.x = WIDTH - spaceShip.width * 0.5;
             }
-            if (spaceShip.x < 0) {
-                spaceShip.x = 0;
+            if (spaceShip.x - spaceShip.width * 0.5 < 0) {
+                spaceShip.x = spaceShip.width * 0.5;
             }
-            if (spaceShip.y + spaceShip.height > HEIGHT) {
-                spaceShip.y = HEIGHT - spaceShip.height;
+            if (spaceShip.y + spaceShip.height * 0.5 > HEIGHT) {
+                spaceShip.y = HEIGHT - spaceShip.height * 0.5;
             }
-            if (spaceShip.y < 0) {
-                spaceShip.y = 0;
+            if (spaceShip.y - spaceShip.height * 0.5< 0) {
+                spaceShip.y = spaceShip.height * 0.5;
             }
         }
     }
