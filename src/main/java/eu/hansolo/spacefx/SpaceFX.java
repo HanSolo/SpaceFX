@@ -52,6 +52,16 @@ import java.util.Random;
 
 
 public class SpaceFX extends Application {
+    //----------- Switches to switch on/off different features ----------------
+    private static final boolean             PLAY_SOUND              = true;
+    private static final boolean             PLAY_MUSIC              = true;
+    private static final boolean             SHOW_BACKGROUND         = true;
+    private static final boolean             SHOW_STARS              = true;
+    private static final boolean             SHOW_ENEMIES            = true;
+    private static final boolean             SHOW_ASTEROIDS          = true;
+    private static final int                 NO_OF_ASTEROIDS         = SHOW_ASTEROIDS ? 15 : 0;
+    private static final int                 NO_OF_ENEMIES           = SHOW_ENEMIES ? 3 : 0;
+    //-------------------------------------------------------------------------
     private static final Random              RND                     = new Random();
     private static final double              WIDTH                   = 700;
     private static final double              HEIGHT                  = 700;
@@ -63,9 +73,6 @@ public class SpaceFX extends Application {
     private static final long                FPS_30                  = 0_033_333_333l;
     private static final long                FPS_10                  = 0_100_000_000l;
     private static final long                FPS_2                   = 0_500_000_000l;
-    private static final int                 NO_OF_STARS             = 15;
-    private static final int                 NO_OF_ASTEROIDS         = 15;
-    private static final int                 NO_OF_ENEMIES           = 3;
     private static final double              VELOCITY_FACTOR_X       = 1.0;
     private static final double              VELOCITY_FACTOR_Y       = 1.0;
     private static final double              VELOCITY_FACTOR_R       = 1.0;
@@ -174,7 +181,7 @@ public class SpaceFX extends Application {
             noOfLifes      = LIFES;
             noOfShields    = SHIELDS;
             score          = 0;
-            mediaPlayer.play();
+            if (PLAY_MUSIC) { mediaPlayer.play(); }
         });
 
         // Mediaplayer for background music
@@ -183,7 +190,7 @@ public class SpaceFX extends Application {
 
         // Mediaplayer for game background music
         gameMediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-        gameMediaPlayer.setVolume(0.2);
+        gameMediaPlayer.setVolume(0.5);
 
         // Adjust audio clip volumes
         explosionSound.setVolume(0.5);
@@ -194,7 +201,7 @@ public class SpaceFX extends Application {
         starField             = new ImageView(starFieldImg);
         canvas                = new Canvas(WIDTH, HEIGHT);
         ctx                   = canvas.getGraphicsContext2D();
-        stars                 = new Star[NO_OF_STARS];
+        stars                 = new Star[NO_OF_ASTEROIDS];
         asteroids             = new Asteroid[NO_OF_ASTEROIDS];
         enemies               = new Enemy[NO_OF_ENEMIES];
         spaceShip             = new SpaceShip(spaceshipImg, spaceshipThrustImg);
@@ -215,30 +222,40 @@ public class SpaceFX extends Application {
         timer                 = new AnimationTimer() {
             @Override public void handle(final long now) {
                 if (now > lastTimerCall) {
-                    draw();
                     lastTimerCall = now + FPS_60;
                     if (running) {
-                        double backgroundViewportY = background.getViewport().getMinY() - 0.5;
-                        if (backgroundViewportY <= 0) {
-                            backgroundViewportY = backgroundImg.getHeight() - HEIGHT;
+                        if (SHOW_BACKGROUND) {
+                            double backgroundViewportY = background.getViewport().getMinY() - 0.5;
+                            if (backgroundViewportY <= 0) {
+                                backgroundViewportY = backgroundImg.getHeight() - HEIGHT;
+                            }
+                            background.setViewport(new Rectangle2D(0, backgroundViewportY, WIDTH, HEIGHT));
                         }
-                        double starFieldViewportY = starField.getViewport().getMinY() - 0.75;
-                        if (starFieldViewportY <= 0) {
-                            starFieldViewportY = starFieldImg.getHeight() - HEIGHT;
+                        if (SHOW_STARS) {
+                            double starFieldViewportY = starField.getViewport().getMinY() - 0.75;
+                            if (starFieldViewportY <= 0) {
+                                starFieldViewportY = starFieldImg.getHeight() - HEIGHT;
+                            }
+                            starField.setViewport(new Rectangle2D(0, starFieldViewportY, WIDTH, HEIGHT));
                         }
-                        background.setViewport(new Rectangle2D(0, backgroundViewportY, WIDTH, HEIGHT));
-                        starField.setViewport(new Rectangle2D(0, starFieldViewportY, WIDTH, HEIGHT));
                     }
+                    draw();
                 }
             }
         };
         // 2079
-        for (int i = 0 ; i < NO_OF_STARS ; i++) { stars[i] = spawnStar(); }
-        for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) { asteroids[i] = spawnAsteroid(); }
+        for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
+            asteroids[i] = spawnAsteroid();
+            stars[i]     = spawnStar();
+        }
         for (int i = 0 ; i < NO_OF_ENEMIES ; i ++) { enemies[i] = spawnEnemy(); }
 
         scorePosX = WIDTH * 0.5;
         scorePosY = 30;
+
+
+        background.setManaged(SHOW_BACKGROUND);
+        background.setVisible(SHOW_BACKGROUND);
 
         starField.setVisible(false);
         starField.setManaged(false);
@@ -292,12 +309,16 @@ public class SpaceFX extends Application {
                 }
             } else if (e.getCode() == KeyCode.P && !gameOverScreen) {
                 background.setImage(backgroundImg);
-                mediaPlayer.pause();
-                gameMediaPlayer.play();
+                if (PLAY_MUSIC) {
+                    mediaPlayer.pause();
+                    gameMediaPlayer.play();
+                }
                 background.setViewport(new Rectangle2D(0, backgroundImg.getHeight() - HEIGHT, WIDTH, HEIGHT));
-                starField.setViewport(new Rectangle2D(0, starFieldImg.getHeight() - HEIGHT, WIDTH, HEIGHT));
-                starField.setManaged(true);
-                starField.setVisible(true);
+                if (SHOW_STARS) {
+                    starField.setViewport(new Rectangle2D(0, starFieldImg.getHeight() - HEIGHT, WIDTH, HEIGHT));
+                    starField.setManaged(true);
+                    starField.setVisible(true);
+                }
                 running = true;
                 timer.start();
             }
@@ -318,7 +339,7 @@ public class SpaceFX extends Application {
         stage.show();
 
         // Start playing background music
-        mediaPlayer.play();
+        if (PLAY_MUSIC) { mediaPlayer.play(); }
     }
 
     @Override public void stop() {
@@ -592,11 +613,15 @@ public class SpaceFX extends Application {
         torpedos.clear();
         enemyTorpedos.clear();
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        for (int i = 0 ; i < NO_OF_STARS ; i++) { stars[i] = spawnStar(); }
-        for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) { asteroids[i] = spawnAsteroid(); }
+        for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
+            asteroids[i] = spawnAsteroid();
+            stars[i]     = spawnStar();
+        }
         for (int i = 0 ; i < NO_OF_ENEMIES ; i ++) { enemies[i] = spawnEnemy(); }
 
-        gameMediaPlayer.pause();
+        if (PLAY_MUSIC) {
+            gameMediaPlayer.pause();
+        }
 
         KeyFrame kf0 = new KeyFrame(Duration.ZERO, new KeyValue(background.imageProperty(), gameOverImg));
         KeyFrame kf1 = new KeyFrame(Duration.seconds(5), new KeyValue(background.imageProperty(), startImg));
@@ -608,7 +633,9 @@ public class SpaceFX extends Application {
 
     // Play audio clips in a separate thread
     private void playSound(final AudioClip audioClip) {
-        new Thread(() -> audioClip.play()).run();
+        if (PLAY_SOUND) {
+            new Thread(() -> audioClip.play()).run();
+        }
     }
 
 
