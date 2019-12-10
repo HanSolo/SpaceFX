@@ -558,6 +558,7 @@ public class SpaceFX extends Application {
 
             // Draw score
             ctx.setFill(SCORE_COLOR);
+            ctx.setFont(scoreFont);
             ctx.fillText(Long.toString(score), scorePosX, scorePosY);
 
             // Draw lifes
@@ -622,7 +623,8 @@ public class SpaceFX extends Application {
             ctx.clearRect(0, 0, WIDTH, HEIGHT);
             ctx.drawImage(gameOverImg, 0, 0, WIDTH, HEIGHT);
             ctx.setFill(SCORE_COLOR);
-            ctx.fillText(Long.toString(score), scorePosX, scorePosY);
+            ctx.setFont(spaceBoy(60));
+            ctx.fillText(Long.toString(score), scorePosX, HEIGHT * 0.25);
             playSound(gameoverSound);
         });
         pauseBeforeGameOverScreen.play();
