@@ -378,6 +378,7 @@ public class SpaceFX extends Application {
         // Draw Asteroids
         for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
             Asteroid asteroid = asteroids[i];
+            asteroid.update(i);
             ctx.save();
             ctx.translate(asteroid.cX, asteroid.cY);
             ctx.rotate(asteroid.rot);
@@ -385,7 +386,6 @@ public class SpaceFX extends Application {
             ctx.translate(-asteroid.imgCenterX, -asteroid.imgCenterY);
             ctx.drawImage(asteroid.image, 0, 0);
             ctx.restore();
-            asteroid.update(i);
 
             // Check for torpedo hits
             for (Torpedo torpedo : torpedos) {
@@ -770,7 +770,7 @@ public class SpaceFX extends Application {
             this.image = image;
 
             // Position
-            x   = rnd.nextDouble() * WIDTH - image.getWidth();
+            x   = rnd.nextDouble() * WIDTH;
             y   = -image.getHeight();
             rot = 0;
 
@@ -786,10 +786,10 @@ public class SpaceFX extends Application {
             // Random Speed
             vYVariation = (rnd.nextDouble() * 0.5) + 0.2;
 
-            width   = image.getWidth() * scale;
-            height  = image.getHeight() * scale;
-            size    = width > height ? width : height;
-            radius  = size * 0.5;
+            width      = image.getWidth() * scale;
+            height     = image.getHeight() * scale;
+            size       = width > height ? width : height;
+            radius     = size * 0.5;
             imgCenterX = image.getWidth() * 0.5;
             imgCenterY = image.getHeight() * 0.5;
 
@@ -817,7 +817,7 @@ public class SpaceFX extends Application {
             }
 
             // Respawn asteroid
-            if(x < 0 - size || x + size > WIDTH + size || y > HEIGHT + size) {
+            if(x < 0 - radius || x + radius > WIDTH + radius || y > HEIGHT + radius) {
                 asteroids[i] = spawnAsteroid();
             }
         }
