@@ -18,23 +18,15 @@ package eu.hansolo.spacefx;
 
 import com.jpro.webapi.WebAPI;
 import javafx.animation.AnimationTimer;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.Insets;
-import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
@@ -47,8 +39,11 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 public class SpaceFX extends Application {
@@ -88,6 +83,10 @@ public class SpaceFX extends Application {
     private static final boolean             IS_BROWSER              = WebAPI.isBrowser();
     private              boolean             running;
     private              boolean             gameOverScreen;
+    private              boolean             hallOfFameScreen;
+    private              List<Player>        hallOfFame;
+    private              boolean             inputAllowed;
+    private              Text                userName;
     private final        Image               startImg                = new Image(getClass().getResourceAsStream("startscreen.png"));
     private final        Image               gameOverImg             = new Image(getClass().getResourceAsStream("gameover.png"));
     private final        Image               backgroundImg           = new Image(SpaceFX.class.getResourceAsStream("background.png"));
@@ -128,12 +127,10 @@ public class SpaceFX extends Application {
     private final        Media               soundTheme              = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
     private final        MediaPlayer         gameMediaPlayer         = new MediaPlayer(gameSoundTheme);
     private final        MediaPlayer         mediaPlayer             = new MediaPlayer(soundTheme);
-    private final        Text                scoreText               = new Text("0");
     private final        double              deflectorShieldRadius   = deflectorShieldImg.getRequestedWidth() * 0.5;
     private              Font                scoreFont;
-    private              Timeline            timeline;
-    private              ImageView           background;
-    private              ImageView           starField;
+    private              double              backgroundViewportY;
+    private              double              starFieldViewportY;
     private              Canvas              canvas;
     private              GraphicsContext     ctx;
     private              Star[]              stars;
@@ -169,20 +166,26 @@ public class SpaceFX extends Application {
 
     // ******************** Methods *******************************************
     @Override public void init() {
-        scoreFont      = spaceBoy(30);
-        running        = false;
-        gameOverScreen = false;
+        scoreFont        = spaceBoy(30);
+        running          = false;
+        gameOverScreen   = false;
+        hallOfFameScreen = false;
 
-        timeline = new Timeline();
-        timeline.setOnFinished(e -> {
-            gameOverScreen = false;
-            scoreText.setVisible(false);
-            hasBeenHit = false;
-            noOfLifes      = LIFES;
-            noOfShields    = SHIELDS;
-            score          = 0;
-            if (PLAY_MUSIC) { mediaPlayer.play(); }
-        });
+        // PreFill hall of fame
+        Player p1 = new Player("--", 0l);
+        Player p2 = new Player("--", 0l);
+        Player p3 = new Player("--", 0l);
+        hallOfFame = new ArrayList<>(3);
+        hallOfFame.add(p1);
+        hallOfFame.add(p2);
+        hallOfFame.add(p3);
+        inputAllowed = false;
+        userName = new Text("--");
+        userName.setFont(spaceBoy(30));
+        userName.setTextOrigin(VPos.CENTER);
+        userName.setTextAlignment(TextAlignment.CENTER);
+        userName.setManaged(false);
+        userName.setVisible(false);
 
         // Mediaplayer for background music
         mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
@@ -197,8 +200,8 @@ public class SpaceFX extends Application {
         torpedoHitSound.setVolume(0.5);
         
         // Variable initialization
-        background            = new ImageView(startImg);
-        starField             = new ImageView(starFieldImg);
+        backgroundViewportY   = backgroundImg.getHeight() - HEIGHT;
+        starFieldViewportY    = starFieldImg.getHeight() - HEIGHT;
         canvas                = new Canvas(WIDTH, HEIGHT);
         ctx                   = canvas.getGraphicsContext2D();
         stars                 = new Star[NO_OF_ASTEROIDS];
@@ -223,27 +226,11 @@ public class SpaceFX extends Application {
             @Override public void handle(final long now) {
                 if (now > lastTimerCall) {
                     lastTimerCall = now + FPS_60;
-                    if (running) {
-                        if (SHOW_BACKGROUND) {
-                            double backgroundViewportY = background.getViewport().getMinY() - 0.5;
-                            if (backgroundViewportY <= 0) {
-                                backgroundViewportY = backgroundImg.getHeight() - HEIGHT;
-                            }
-                            background.setViewport(new Rectangle2D(0, backgroundViewportY, WIDTH, HEIGHT));
-                        }
-                        if (SHOW_STARS) {
-                            double starFieldViewportY = starField.getViewport().getMinY() - 0.75;
-                            if (starFieldViewportY <= 0) {
-                                starFieldViewportY = starFieldImg.getHeight() - HEIGHT;
-                            }
-                            starField.setViewport(new Rectangle2D(0, starFieldViewportY, WIDTH, HEIGHT));
-                        }
-                    }
                     draw();
                 }
             }
         };
-        // 2079
+
         for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
             asteroids[i] = spawnAsteroid();
             stars[i]     = spawnStar();
@@ -253,31 +240,15 @@ public class SpaceFX extends Application {
         scorePosX = WIDTH * 0.5;
         scorePosY = 30;
 
-
-        background.setManaged(SHOW_BACKGROUND);
-        background.setVisible(SHOW_BACKGROUND);
-
-        starField.setVisible(false);
-        starField.setManaged(false);
-
         // Preparing GraphicsContext
         ctx.setFont(scoreFont);
         ctx.setTextAlign(TextAlignment.CENTER);
         ctx.setTextBaseline(VPos.CENTER);
-
-        // Score label (visible in game over screen)
-        scoreText.setFont(spaceBoy(60));
-        scoreText.setMouseTransparent(true);
-        scoreText.setFill(Color.rgb(51, 210, 206));
-        scoreText.setTextOrigin(VPos.CENTER);
-        scoreText.setVisible(false);
-        scoreText.setTranslateY(-HEIGHT * 0.25);
+        ctx.drawImage(startImg, 0, 0);
     }
 
     @Override public void start(final Stage stage) {
-        StackPane pane = new StackPane(background, starField, scoreText, canvas);
-        pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-
+        StackPane pane = new StackPane(canvas);
         Scene scene = new Scene(pane);
 
         // Setup key listener
@@ -308,16 +279,16 @@ public class SpaceFX extends Application {
                         break;
                 }
             } else if (e.getCode() == KeyCode.P && !gameOverScreen) {
-                background.setImage(backgroundImg);
+                ctx.clearRect(0, 0, WIDTH, HEIGHT);
+                if (SHOW_BACKGROUND) {
+                    ctx.drawImage(backgroundImg, 0, 0);
+                }
+                if (SHOW_STARS) {
+                    ctx.drawImage(starFieldImg, 0, 0);
+                }
                 if (PLAY_MUSIC) {
                     mediaPlayer.pause();
                     gameMediaPlayer.play();
-                }
-                background.setViewport(new Rectangle2D(0, backgroundImg.getHeight() - HEIGHT, WIDTH, HEIGHT));
-                if (SHOW_STARS) {
-                    starField.setViewport(new Rectangle2D(0, starFieldImg.getHeight() - HEIGHT, WIDTH, HEIGHT));
-                    starField.setManaged(true);
-                    starField.setVisible(true);
                 }
                 running = true;
                 timer.start();
@@ -330,6 +301,16 @@ public class SpaceFX extends Application {
                     case RIGHT: spaceShip.vX = 0; break;
                     case DOWN : spaceShip.vY = 0; break;
                     case LEFT : spaceShip.vX = 0; break;
+                }
+            }
+        });
+        scene.setOnKeyTyped(e -> {
+            if (inputAllowed) {
+                if (userName.getText().startsWith("_")) {
+                    userName.setText(e.getCharacter().toUpperCase() + "_");
+                } else if (userName.getText().endsWith("_")) {
+                    userName.setText(userName.getText().substring(0, 1) + e.getCharacter().toUpperCase());
+                    inputAllowed = false;
                 }
             }
         });
@@ -357,6 +338,20 @@ public class SpaceFX extends Application {
         explosionsToRemove.clear();
         hitsToRemove.clear();
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+        // Draw background
+        backgroundViewportY -= 0.5;
+        if (backgroundViewportY <= 0) {
+            backgroundViewportY = backgroundImg.getHeight() - HEIGHT;
+        }
+        ctx.drawImage(backgroundImg, 0, backgroundViewportY, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT);
+
+        // Draw star field
+        starFieldViewportY -= 0.75;
+        if (starFieldViewportY <= 0) {
+            starFieldViewportY = starFieldImg.getHeight() - HEIGHT;
+        }
+        ctx.drawImage(starFieldImg, 0, starFieldViewportY, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT);
 
         ctx.setFill(Color.rgb(255, 255, 255, 0.9));
 
@@ -600,34 +595,71 @@ public class SpaceFX extends Application {
 
     // Game Over
     private void gameOver() {
+        timer.stop();
         running        = false;
         gameOverScreen = true;
-        background.setImage(backgroundImg);
-        background.setViewport(new Rectangle2D(0, 0, WIDTH, HEIGHT));
-        starField.setVisible(false);
-        starField.setManaged(false);
-        timer.stop();
-        scoreText.setText(Long.toString(score));
-        scoreText.setVisible(true);
-        explosions.clear();
-        torpedos.clear();
-        enemyTorpedos.clear();
-        ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
-            asteroids[i] = spawnAsteroid();
-            stars[i]     = spawnStar();
-        }
-        for (int i = 0 ; i < NO_OF_ENEMIES ; i ++) { enemies[i] = spawnEnemy(); }
-
         if (PLAY_MUSIC) {
             gameMediaPlayer.pause();
         }
 
-        KeyFrame kf0 = new KeyFrame(Duration.ZERO, new KeyValue(background.imageProperty(), gameOverImg));
-        KeyFrame kf1 = new KeyFrame(Duration.seconds(5), new KeyValue(background.imageProperty(), startImg));
-        timeline.getKeyFrames().setAll(kf0, kf1);
-        timeline.play();
-        playSound(gameoverSound);
+        PauseTransition pauseBeforeGameOverScreen = new PauseTransition(Duration.millis(1000));
+        pauseBeforeGameOverScreen.setOnFinished(e -> {
+            checkForHighScore(new Player("", score));
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+            ctx.drawImage(gameOverImg, 0, 0, WIDTH, HEIGHT);
+            ctx.setFill(SCORE_COLOR);
+            ctx.fillText(Long.toString(score), scorePosX, scorePosY);
+            playSound(gameoverSound);
+        });
+        pauseBeforeGameOverScreen.play();
+
+        PauseTransition pauseInGameOverScreen = new PauseTransition(Duration.millis(5000));
+        pauseInGameOverScreen.setOnFinished(e -> {
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+            ctx.drawImage(startImg, 0, 0);
+
+            gameOverScreen = false;
+            explosions.clear();
+            torpedos.clear();
+            enemyTorpedos.clear();
+            for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
+                asteroids[i] = spawnAsteroid();
+                stars[i]     = spawnStar();
+            }
+            for (int i = 0 ; i < NO_OF_ENEMIES ; i ++) {
+                enemies[i] = spawnEnemy();
+            }
+            hasBeenHit  = false;
+            noOfLifes   = LIFES;
+            noOfShields = SHIELDS;
+            score       = 0;
+            if (PLAY_MUSIC) {
+                mediaPlayer.play();
+            }
+        });
+        pauseInGameOverScreen.play();
+    }
+
+
+    // Check for highscore
+    private void checkForHighScore(final Player player) {
+        if (player.score < hallOfFame.get(2).score) {
+            return;
+        }
+
+        // Ask for player name
+        inputAllowed = true;
+        userName.setVisible(true);
+        userName.setManaged(true);
+        userName.setX(WIDTH * 0.5);
+        userName.setY(HEIGHT * 0.75);
+
+        hallOfFame.add(player);
+        Collections.sort(hallOfFame);
+        hallOfFame = hallOfFame.stream().limit(3).collect(Collectors.toList());
+
+        // Show hall of fame
+
     }
 
 
@@ -1094,6 +1126,24 @@ public class SpaceFX extends Application {
             } else if (y > HEIGHT) {
                 enemyTorpedosToRemove.add(EnemyTorpedo.this);
             }
+        }
+    }
+
+    private class Player implements Comparable<Player> {
+        private final String id;
+        private       String name;
+        private       Long   score;
+
+
+        public Player(final String name, final Long score) {
+            this.id    = UUID.randomUUID().toString();
+            this.name  = name;
+            this.score = score;
+        }
+
+
+        @Override public int compareTo(final Player player) {
+            return Long.compare(player.score, this.score);
         }
     }
 }
