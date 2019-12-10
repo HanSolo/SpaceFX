@@ -108,7 +108,7 @@ public class SpaceFX extends Application {
                                                                          new Image(getClass().getResourceAsStream("asteroid11.png"), 140, 140, true, false) };
     private final        Image[]             enemyImages             = { new Image(getClass().getResourceAsStream("enemy1.png"), 56, 56, true, false),
                                                                          new Image(getClass().getResourceAsStream("enemy2.png"), 50, 50, true, false),
-                                                                         new Image(getClass().getResourceAsStream("enemy3.png"), 72, 72, true, false) };
+                                                                         new Image(getClass().getResourceAsStream("enemy3.png"), 68, 68, true, false) };
     private final        Image               spaceshipImg            = new Image(getClass().getResourceAsStream("fighter.png"), 48, 48, true, false);
     private final        Image               spaceshipThrustImg      = new Image(getClass().getResourceAsStream("fighterThrust.png"), 48, 48, true, false);
     private final        Image               miniSpaceshipImg        = new Image(getClass().getResourceAsStream("fighter.png"), 16, 16, true, false);
@@ -770,7 +770,7 @@ public class SpaceFX extends Application {
             this.image = image;
 
             // Position
-            x   = rnd.nextDouble() * WIDTH;
+            x   = rnd.nextDouble() * WIDTH - image.getWidth();
             y   = -image.getHeight();
             rot = 0;
 
@@ -855,17 +855,17 @@ public class SpaceFX extends Application {
         private void update() {
             x += vX;
             y += vY;
-            if (spaceShip.x + spaceShip.width * 0.5 > WIDTH) {
-                spaceShip.x = WIDTH - spaceShip.width * 0.5;
+            if (x + width * 0.5 > WIDTH) {
+                x = WIDTH - width * 0.5;
             }
-            if (spaceShip.x - spaceShip.width * 0.5 < 0) {
-                spaceShip.x = spaceShip.width * 0.5;
+            if (x - width * 0.5 < 0) {
+                x = width * 0.5;
             }
-            if (spaceShip.y + spaceShip.height * 0.5 > HEIGHT) {
-                spaceShip.y = HEIGHT - spaceShip.height * 0.5;
+            if (y + height * 0.5 > HEIGHT) {
+                y = HEIGHT - height * 0.5;
             }
-            if (spaceShip.y - spaceShip.height * 0.5< 0) {
-                spaceShip.y = spaceShip.height * 0.5;
+            if (y - height * 0.5< 0) {
+                y = height * 0.5;
             }
         }
     }
