@@ -972,7 +972,7 @@ public class SpaceFX extends Application {
             if (countX == MAX_FRAME_X) {
                 countX = 0;
                 countY++;
-                if (countY == SpaceShipExplosion.MAX_FRAME_Y) {
+                if (countY == MAX_FRAME_Y) {
                     countY = 0;
                 }
                 if (countX == 0 && countY == 0) {
