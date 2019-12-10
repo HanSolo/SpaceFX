@@ -21,12 +21,16 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
@@ -54,8 +58,9 @@ public class SpaceFX extends Application {
     private static final boolean             SHOW_STARS              = true;
     private static final boolean             SHOW_ENEMIES            = true;
     private static final boolean             SHOW_ASTEROIDS          = true;
-    private static final int                 NO_OF_ASTEROIDS         = SHOW_ASTEROIDS ? 15 : 0;
-    private static final int                 NO_OF_ENEMIES           = SHOW_ENEMIES ? 3 : 0;
+    private static final int                 NO_OF_STARS             = SHOW_STARS     ? 200 : 0;
+    private static final int                 NO_OF_ASTEROIDS         = SHOW_ASTEROIDS ? 15  : 0;
+    private static final int                 NO_OF_ENEMIES           = SHOW_ENEMIES   ? 3   : 0;
     //-------------------------------------------------------------------------
     private static final Random              RND                     = new Random();
     private static final double              WIDTH                   = 700;
@@ -89,8 +94,7 @@ public class SpaceFX extends Application {
     private              Text                userName;
     private final        Image               startImg                = new Image(getClass().getResourceAsStream("startscreen.png"));
     private final        Image               gameOverImg             = new Image(getClass().getResourceAsStream("gameover.png"));
-    private final        Image               backgroundImg           = new Image(SpaceFX.class.getResourceAsStream("background.png"));
-    private final        Image               starFieldImg            = new Image(SpaceFX.class.getResourceAsStream("starfield.png"));
+    private final        Image               backgroundImg           = new Image(SpaceFX.class.getResourceAsStream("background.jpg"));
     private final        Image[]             asteroidImages          = { new Image(getClass().getResourceAsStream("asteroid1.png"), 140, 140, true, false),
                                                                          new Image(getClass().getResourceAsStream("asteroid2.png"), 140, 140, true, false),
                                                                          new Image(getClass().getResourceAsStream("asteroid3.png"), 140, 140, true, false),
@@ -130,7 +134,6 @@ public class SpaceFX extends Application {
     private final        double              deflectorShieldRadius   = deflectorShieldImg.getRequestedWidth() * 0.5;
     private              Font                scoreFont;
     private              double              backgroundViewportY;
-    private              double              starFieldViewportY;
     private              Canvas              canvas;
     private              GraphicsContext     ctx;
     private              Star[]              stars;
@@ -200,11 +203,10 @@ public class SpaceFX extends Application {
         torpedoHitSound.setVolume(0.5);
         
         // Variable initialization
-        backgroundViewportY   = backgroundImg.getHeight() - HEIGHT;
-        starFieldViewportY    = starFieldImg.getHeight() - HEIGHT;
+        backgroundViewportY   = 2079; //backgroundImg.getHeight() - HEIGHT;
         canvas                = new Canvas(WIDTH, HEIGHT);
         ctx                   = canvas.getGraphicsContext2D();
-        stars                 = new Star[NO_OF_ASTEROIDS];
+        stars                 = new Star[NO_OF_STARS];
         asteroids             = new Asteroid[NO_OF_ASTEROIDS];
         enemies               = new Enemy[NO_OF_ENEMIES];
         spaceShip             = new SpaceShip(spaceshipImg, spaceshipThrustImg);
@@ -231,11 +233,9 @@ public class SpaceFX extends Application {
             }
         };
 
-        for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
-            asteroids[i] = spawnAsteroid();
-            stars[i]     = spawnStar();
-        }
-        for (int i = 0 ; i < NO_OF_ENEMIES ; i ++) { enemies[i] = spawnEnemy(); }
+        initStars();
+        initAsteroids();
+        initEnemies();
 
         scorePosX = WIDTH * 0.5;
         scorePosY = 30;
@@ -247,8 +247,28 @@ public class SpaceFX extends Application {
         ctx.drawImage(startImg, 0, 0);
     }
 
+    private void initStars() {
+        for (int i = 0 ; i < NO_OF_STARS ; i++) {
+            Star star = spawnStar();
+            star.y = RND.nextDouble() * HEIGHT;
+            stars[i] = star;
+        }
+    }
+
+    private void initAsteroids() {
+        for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
+            asteroids[i] = spawnAsteroid();
+        }
+    }
+
+    private void initEnemies() {
+        for (int i = 0 ; i < NO_OF_ENEMIES ; i ++) { enemies[i] = spawnEnemy(); }
+    }
+
     @Override public void start(final Stage stage) {
         StackPane pane = new StackPane(canvas);
+        pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+
         Scene scene = new Scene(pane);
 
         // Setup key listener
@@ -282,9 +302,6 @@ public class SpaceFX extends Application {
                 ctx.clearRect(0, 0, WIDTH, HEIGHT);
                 if (SHOW_BACKGROUND) {
                     ctx.drawImage(backgroundImg, 0, 0);
-                }
-                if (SHOW_STARS) {
-                    ctx.drawImage(starFieldImg, 0, 0);
                 }
                 if (PLAY_MUSIC) {
                     mediaPlayer.pause();
@@ -340,29 +357,26 @@ public class SpaceFX extends Application {
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
         // Draw background
-        backgroundViewportY -= 0.5;
-        if (backgroundViewportY <= 0) {
-            backgroundViewportY = backgroundImg.getHeight() - HEIGHT;
+        if (SHOW_BACKGROUND) {
+            backgroundViewportY -= 0.5;
+            if (backgroundViewportY <= 0) {
+                backgroundViewportY = 2079; //backgroundImg.getHeight() - HEIGHT;
+            }
+            ctx.drawImage(backgroundImg, 0, backgroundViewportY, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT);
         }
-        ctx.drawImage(backgroundImg, 0, backgroundViewportY, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT);
 
-        // Draw star field
-        starFieldViewportY -= 0.75;
-        if (starFieldViewportY <= 0) {
-            starFieldViewportY = starFieldImg.getHeight() - HEIGHT;
+        // Draw Stars
+        if (SHOW_STARS) {
+            ctx.setFill(Color.rgb(255, 255, 255, 0.9));
+            for (int i = 0; i < NO_OF_STARS; i++) {
+                Star star = stars[i];
+                ctx.fillOval(star.x, star.y, star.size, star.size);
+                star.update(i);
+            }
         }
-        ctx.drawImage(starFieldImg, 0, starFieldViewportY, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT);
 
-        ctx.setFill(Color.rgb(255, 255, 255, 0.9));
-
-        // Draw Stars and Asteroids
+        // Draw Asteroids
         for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
-            // Draw Stars
-            Star star = stars[i];
-            ctx.fillOval(star.x, star.y, star.size, star.size);
-            star.update(i);
-
-            // Draw Asteroids
             Asteroid asteroid = asteroids[i];
             ctx.save();
             ctx.translate(asteroid.cX, asteroid.cY);
@@ -622,13 +636,11 @@ public class SpaceFX extends Application {
             explosions.clear();
             torpedos.clear();
             enemyTorpedos.clear();
-            for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
-                asteroids[i] = spawnAsteroid();
-                stars[i]     = spawnStar();
-            }
-            for (int i = 0 ; i < NO_OF_ENEMIES ; i ++) {
-                enemies[i] = spawnEnemy();
-            }
+            initStars();
+            initAsteroids();
+            initEnemies();
+            spaceShip.x = WIDTH * 0.5;
+            spaceShip.y = HEIGHT - 2 * spaceShip.image.getHeight();
             hasBeenHit  = false;
             noOfLifes   = LIFES;
             noOfShields = SHIELDS;
@@ -696,18 +708,18 @@ public class SpaceFX extends Application {
 
         public Star() {
             // Random size
-            size = (rnd.nextDouble() * 1.0) + 2;
+            size = rnd.nextInt(2) + 1;
 
             // Position
-            x = rnd.nextDouble() * WIDTH;
+            x = (int)(rnd.nextDouble() * WIDTH);
             y = -size;
 
             // Random Speed
             vYVariation = (rnd.nextDouble() * 0.5) + 0.2;
 
             // Velocity
-            vX = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
-            vY = (((rnd.nextDouble() * 1.5) + minSpeedY) * vYVariation) * VELOCITY_FACTOR_Y;
+            vX = (int) (Math.round((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X);
+            vY = (int) (Math.round(((rnd.nextDouble() * 1.5) + minSpeedY) * vYVariation) * VELOCITY_FACTOR_Y);
         }
 
 
@@ -717,7 +729,7 @@ public class SpaceFX extends Application {
 
             // Respawn star
             if(y > HEIGHT + size) {
-                stars[i].x = RND.nextDouble() * WIDTH;
+                stars[i].x = (int) (RND.nextDouble() * WIDTH);
                 stars[i].y = -size;
             }
         }
@@ -826,14 +838,14 @@ public class SpaceFX extends Application {
         public SpaceShip(final Image image, final Image imageThrust) {
             this.image       = image;
             this.imageThrust = imageThrust;
-            this.x           = WIDTH / 2.0;
+            this.x           = WIDTH * 0.5;
             this.y           = HEIGHT - 2 * image.getHeight();
             this.width       = image.getWidth();
             this.height      = image.getHeight();
             this.size        = width > height ? width : height;
             this.radius      = size * 0.5;
-            this.vX = 0;
-            this.vY = 0;
+            this.vX          = 0;
+            this.vY          = 0;
             this.shield      = false;
         }
 
