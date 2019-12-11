@@ -397,7 +397,6 @@ public class SpaceFX extends Application {
                     if (asteroid.hits == 0) {
                         explosions.add(new Explosion(asteroid.cX - Explosion.FRAME_CENTER * asteroid.scale, asteroid.cY - Explosion.FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
                         score += asteroid.value;
-                        //asteroids[i] = spawnAsteroid();
                         asteroids[i].respawn();
                         torpedosToRemove.add(torpedo);
                         playSound(explosionSound);
@@ -422,7 +421,6 @@ public class SpaceFX extends Application {
                     spaceShipExplosion.countY = 0;
                     spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
                     spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
-                    //asteroids[i]              = spawnAsteroid();
                     asteroids[i].respawn();
                     if (spaceShip.shield) {
                         playSound(explosionSound);
