@@ -224,11 +224,12 @@ public class SpaceFX extends Application {
         noOfLifes             = LIFES;
         noOfShields           = SHIELDS;
         lastShieldActivated   = 0;
+        long deltaTime        = IS_BROWSER ? FPS_30 : FPS_60;
         timer                 = new AnimationTimer() {
             @Override public void handle(final long now) {
                 if (now > lastTimerCall) {
-                    lastTimerCall = now + FPS_60;
-                    draw();
+                    lastTimerCall = now + deltaTime;
+                    updateAndDraw();
                 }
             }
         };
@@ -348,8 +349,8 @@ public class SpaceFX extends Application {
     }
 
 
-    // Draw method which will be called by animation timer
-    private void draw() {
+    // Update and draw
+    private void updateAndDraw() {
         torpedosToRemove.clear();
         enemyTorpedosToRemove.clear();
         explosionsToRemove.clear();
@@ -370,8 +371,8 @@ public class SpaceFX extends Application {
             ctx.setFill(Color.rgb(255, 255, 255, 0.9));
             for (int i = 0; i < NO_OF_STARS; i++) {
                 Star star = stars[i];
-                ctx.fillOval(star.x, star.y, star.size, star.size);
                 star.update(i);
+                ctx.fillOval(star.x, star.y, star.size, star.size);
             }
         }
 
@@ -416,9 +417,9 @@ public class SpaceFX extends Application {
                 if (hit) {
                     spaceShipExplosion.countX = 0;
                     spaceShipExplosion.countY = 0;
-                    spaceShipExplosion.x = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
-                    spaceShipExplosion.y = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
-                    asteroids[i] = spawnAsteroid();
+                    spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
+                    spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
+                    asteroids[i]              = spawnAsteroid();
                     if (spaceShip.shield) {
                         playSound(explosionSound);
                         explosions.add(
@@ -439,6 +440,7 @@ public class SpaceFX extends Application {
         // Draw Enemies
         for (int i = 0 ; i < NO_OF_ENEMIES ; i++) {
             Enemy enemy = enemies[i];
+            enemy.update(i);
             ctx.save();
             ctx.translate(enemy.x - enemy.radius, enemy.y - enemy.radius);
             ctx.save();
@@ -455,7 +457,6 @@ public class SpaceFX extends Application {
                     enemy.lastShotY = enemy.y;
                 }
             }
-            enemy.update(i);
 
             // Check for torpedo hits
             for (Torpedo torpedo : torpedos) {
@@ -479,9 +480,9 @@ public class SpaceFX extends Application {
                 if (hit) {
                     spaceShipExplosion.countX = 0;
                     spaceShipExplosion.countY = 0;
-                    spaceShipExplosion.x = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
-                    spaceShipExplosion.y = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
-                    enemies[i] = spawnEnemy();
+                    spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
+                    spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
+                    enemies[i]                = spawnEnemy();
                     playSound(spaceShipExplosionSound);
                     if (spaceShip.shield) {
                         explosions.add(new Explosion(enemy.x - Explosion.FRAME_WIDTH * 0.125, enemy.y - Explosion.FRAME_HEIGHT * 0.125, enemy.vX, enemy.vY, 0.5));
@@ -512,15 +513,15 @@ public class SpaceFX extends Application {
 
         // Draw Explosions
         for (Explosion explosion : explosions) {
-            ctx.drawImage(explosionImg, explosion.countX * Explosion.FRAME_WIDTH, explosion.countY * Explosion.FRAME_HEIGHT, Explosion.FRAME_WIDTH, Explosion.FRAME_HEIGHT, explosion.x, explosion.y, Explosion.FRAME_WIDTH * explosion.scale, Explosion.FRAME_HEIGHT * explosion.scale);
             explosion.update();
+            ctx.drawImage(explosionImg, explosion.countX * Explosion.FRAME_WIDTH, explosion.countY * Explosion.FRAME_HEIGHT, Explosion.FRAME_WIDTH, Explosion.FRAME_HEIGHT, explosion.x, explosion.y, Explosion.FRAME_WIDTH * explosion.scale, Explosion.FRAME_HEIGHT * explosion.scale);
         }
         explosions.removeAll(explosionsToRemove);
 
         // Draw Hits
         for (Hit hit : hits) {
-            ctx.drawImage(hitImg, hit.countX * Hit.FRAME_WIDTH, hit.countY * Hit.FRAME_HEIGHT, Hit.FRAME_WIDTH, Hit.FRAME_HEIGHT, hit.x, hit.y, Hit.FRAME_WIDTH, Hit.FRAME_HEIGHT);
             hit.update();
+            ctx.drawImage(hitImg, hit.countX * Hit.FRAME_WIDTH, hit.countY * Hit.FRAME_HEIGHT, Hit.FRAME_WIDTH, Hit.FRAME_HEIGHT, hit.x, hit.y, Hit.FRAME_WIDTH, Hit.FRAME_HEIGHT);
         }
         hits.removeAll(hitsToRemove);
 
@@ -528,11 +529,10 @@ public class SpaceFX extends Application {
         if (noOfLifes > 0) {
             // Draw Spaceship or it's explosion
             if (hasBeenHit) {
+                spaceShipExplosion.update();
                 ctx.drawImage(spaceShipExplosionImg, spaceShipExplosion.countX * spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.countY * spaceShipExplosion.FRAME_HEIGHT,
                               spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.FRAME_HEIGHT, spaceShip.x - spaceShipExplosion.FRAME_CENTER, spaceShip.y - spaceShipExplosion.FRAME_CENTER,
                               spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.FRAME_HEIGHT);
-
-                spaceShipExplosion.update();
             } else {
                 // Draw space ship
                 spaceShip.update();
@@ -580,7 +580,7 @@ public class SpaceFX extends Application {
     }
 
     private Asteroid spawnAsteroid() {
-        return new Asteroid(asteroidImages[RND.nextInt(asteroidImages.length - 1)]);
+        return new Asteroid(asteroidImages[RND.nextInt(asteroidImages.length)]);
     }
 
     private Enemy spawnEnemy() {
@@ -641,12 +641,14 @@ public class SpaceFX extends Application {
             initStars();
             initAsteroids();
             initEnemies();
-            spaceShip.x = WIDTH * 0.5;
-            spaceShip.y = HEIGHT - 2 * spaceShip.image.getHeight();
-            hasBeenHit  = false;
-            noOfLifes   = LIFES;
-            noOfShields = SHIELDS;
-            score       = 0;
+            spaceShip.x  = WIDTH * 0.5;
+            spaceShip.y  = HEIGHT - 2 * spaceShip.image.getHeight();
+            spaceShip.vX = 0;
+            spaceShip.vY = 0;
+            hasBeenHit   = false;
+            noOfLifes    = LIFES;
+            noOfShields  = SHIELDS;
+            score        = 0;
             if (PLAY_MUSIC) {
                 mediaPlayer.play();
             }
@@ -817,7 +819,7 @@ public class SpaceFX extends Application {
             }
 
             // Respawn asteroid
-            if(x < 0 - radius || x + radius > WIDTH + radius || y > HEIGHT + radius) {
+            if(x < -size || x - radius > WIDTH || y - height > HEIGHT) {
                 asteroids[i] = spawnAsteroid();
             }
         }
@@ -977,8 +979,8 @@ public class SpaceFX extends Application {
                 }
                 if (countX == 0 && countY == 0) {
                     hasBeenHit = false;
-                    spaceShip.x = WIDTH / 2.0;
-                    spaceShip.y = HEIGHT - 2 * spaceShip.size;
+                    spaceShip.x = WIDTH * 0.5;
+                    spaceShip.y = HEIGHT - 2 * spaceShip.height;
                 }
             }
         }
