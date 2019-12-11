@@ -60,7 +60,7 @@ public class SpaceFX extends Application {
     private static final boolean             SHOW_ASTEROIDS          = true;
     private static final int                 NO_OF_STARS             = SHOW_STARS     ? 200 : 0;
     private static final int                 NO_OF_ASTEROIDS         = SHOW_ASTEROIDS ? 15  : 0;
-    private static final int                 NO_OF_ENEMIES           = SHOW_ENEMIES   ? 3   : 0;
+    private static final int                 NO_OF_ENEMIES           = SHOW_ENEMIES   ? 5   : 0;
     //-------------------------------------------------------------------------
     private static final Random              RND                     = new Random();
     private static final double              WIDTH                   = 700;
@@ -250,7 +250,7 @@ public class SpaceFX extends Application {
 
     private void initStars() {
         for (int i = 0 ; i < NO_OF_STARS ; i++) {
-            Star star = spawnStar();
+            Star star =  new Star();
             star.y = RND.nextDouble() * HEIGHT;
             stars[i] = star;
         }
@@ -258,12 +258,14 @@ public class SpaceFX extends Application {
 
     private void initAsteroids() {
         for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
-            asteroids[i] = spawnAsteroid();
+            asteroids[i] = new Asteroid(asteroidImages[RND.nextInt(asteroidImages.length)]);
         }
     }
 
     private void initEnemies() {
-        for (int i = 0 ; i < NO_OF_ENEMIES ; i ++) { enemies[i] = spawnEnemy(); }
+        for (int i = 0 ; i < NO_OF_ENEMIES ; i ++) {
+            enemies[i] = new Enemy(enemyImages[RND.nextInt(enemyImages.length)]);
+        }
     }
 
     @Override public void start(final Stage stage) {
@@ -371,7 +373,7 @@ public class SpaceFX extends Application {
             ctx.setFill(Color.rgb(255, 255, 255, 0.9));
             for (int i = 0; i < NO_OF_STARS; i++) {
                 Star star = stars[i];
-                star.update(i);
+                star.update();
                 ctx.fillOval(star.x, star.y, star.size, star.size);
             }
         }
@@ -395,7 +397,8 @@ public class SpaceFX extends Application {
                     if (asteroid.hits == 0) {
                         explosions.add(new Explosion(asteroid.cX - Explosion.FRAME_CENTER * asteroid.scale, asteroid.cY - Explosion.FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
                         score += asteroid.value;
-                        asteroids[i] = spawnAsteroid();
+                        //asteroids[i] = spawnAsteroid();
+                        asteroids[i].respawn();
                         torpedosToRemove.add(torpedo);
                         playSound(explosionSound);
                     } else {
@@ -419,7 +422,8 @@ public class SpaceFX extends Application {
                     spaceShipExplosion.countY = 0;
                     spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
                     spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
-                    asteroids[i]              = spawnAsteroid();
+                    //asteroids[i]              = spawnAsteroid();
+                    asteroids[i].respawn();
                     if (spaceShip.shield) {
                         playSound(explosionSound);
                         explosions.add(
@@ -463,7 +467,7 @@ public class SpaceFX extends Application {
                 if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, enemy.x, enemy.y, enemy.radius)) {
                     explosions.add(new Explosion(enemy.x - Explosion.FRAME_WIDTH * 0.25, enemy.y - Explosion.FRAME_HEIGHT * 0.25, enemy.vX, enemy.vY, 0.5));
                     score += enemy.value;
-                    enemies[i] = spawnEnemy();
+                    enemies[i].respawn();
                     torpedosToRemove.add(torpedo);
                     playSound(spaceShipExplosionSound);
                 }
@@ -482,7 +486,7 @@ public class SpaceFX extends Application {
                     spaceShipExplosion.countY = 0;
                     spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
                     spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
-                    enemies[i]                = spawnEnemy();
+                    enemies[i].respawn();
                     playSound(spaceShipExplosionSound);
                     if (spaceShip.shield) {
                         explosions.add(new Explosion(enemy.x - Explosion.FRAME_WIDTH * 0.125, enemy.y - Explosion.FRAME_HEIGHT * 0.125, enemy.vX, enemy.vY, 0.5));
@@ -575,18 +579,6 @@ public class SpaceFX extends Application {
 
 
     // Spawn different objects
-    private Star spawnStar() {
-        return new Star();
-    }
-
-    private Asteroid spawnAsteroid() {
-        return new Asteroid(asteroidImages[RND.nextInt(asteroidImages.length)]);
-    }
-
-    private Enemy spawnEnemy() {
-        return new Enemy(enemyImages[RND.nextInt(enemyImages.length)]);
-    }
-
     private void spawnTorpedo(final double x, final double y) {
         torpedos.add(new Torpedo(torpedoImg, x, y));
         playSound(laserSound);
@@ -638,8 +630,9 @@ public class SpaceFX extends Application {
             explosions.clear();
             torpedos.clear();
             enemyTorpedos.clear();
-            initStars();
-            initAsteroids();
+            for (Star star : stars) { star.respawn(); }
+            for (Asteroid asteroid : asteroids) { asteroid.respawn(); }
+            for (Enemy enemy : enemies) { enemy.respawn(); }
             initEnemies();
             spaceShip.x  = WIDTH * 0.5;
             spaceShip.y  = HEIGHT - 2 * spaceShip.image.getHeight();
@@ -727,14 +720,18 @@ public class SpaceFX extends Application {
         }
 
 
-        private void update(final int i) {
+        private void respawn() {
+            x = (int) (RND.nextDouble() * WIDTH);
+            y = -size;
+        }
+
+        private void update() {
             x += vX;
             y += vY;
 
             // Respawn star
             if(y > HEIGHT + size) {
-                stars[i].x = (int) (RND.nextDouble() * WIDTH);
-                stars[i].y = -size;
+                respawn();
             }
         }
     }
@@ -745,7 +742,7 @@ public class SpaceFX extends Application {
         private final        double  xVariation     = 2;
         private final        double  minSpeedY      = 2;
         private final        double  minRotationR   = 0.1;
-        private final        Image   image;
+        private              Image   image;
         private              double  x;
         private              double  y;
         private              double  width;
@@ -770,7 +767,11 @@ public class SpaceFX extends Application {
         public Asteroid(final Image image) {
             // Image
             this.image = image;
+            init();
+        }
 
+
+        private void init() {
             // Position
             x   = rnd.nextDouble() * WIDTH;
             y   = -image.getHeight();
@@ -802,6 +803,10 @@ public class SpaceFX extends Application {
             rotateRight = rnd.nextBoolean();
         }
 
+        private void respawn() {
+            this.image = asteroidImages[RND.nextInt(asteroidImages.length)];
+            init();
+        }
 
         private void update(final int i) {
             x += vX;
@@ -820,7 +825,7 @@ public class SpaceFX extends Application {
 
             // Respawn asteroid
             if(x < -size || x - radius > WIDTH || y - height > HEIGHT) {
-                asteroids[i] = spawnAsteroid();
+                respawn();
             }
         }
     }
@@ -1033,7 +1038,7 @@ public class SpaceFX extends Application {
         private final        Random  rnd        = new Random();
         private final        double  xVariation = 1;
         private final        double  minSpeedY  = 3;
-        private final        Image   image;
+        private              Image   image;
         private              double  x;
         private              double  y;
         private              double  rot;
@@ -1051,7 +1056,11 @@ public class SpaceFX extends Application {
         public Enemy(final Image image) {
             // Image
             this.image = image;
+            init();
+        }
 
+
+        private void init() {
             // Position
             x = rnd.nextDouble() * WIDTH;
             y = -image.getHeight();
@@ -1078,6 +1087,10 @@ public class SpaceFX extends Application {
             lastShotY = 0;
         }
 
+        private void respawn() {
+            image = enemyImages[RND.nextInt(enemyImages.length)];
+            init();
+        }
 
         private void update(final int i) {
             x += vX;
@@ -1085,7 +1098,7 @@ public class SpaceFX extends Application {
 
             // Respawn Enemy
             if (x < -size || x > WIDTH + size || y > HEIGHT + size) {
-                enemies[i] = spawnEnemy();
+                respawn();
             }
         }
     }
