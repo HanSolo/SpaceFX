@@ -397,7 +397,7 @@ public class SpaceFX extends Application {
                     if (asteroid.hits == 0) {
                         explosions.add(new Explosion(asteroid.cX - Explosion.FRAME_CENTER * asteroid.scale, asteroid.cY - Explosion.FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
                         score += asteroid.value;
-                        asteroids[i].respawn();
+                        asteroid.respawn();
                         torpedosToRemove.add(torpedo);
                         playSound(explosionSound);
                     } else {
@@ -421,7 +421,7 @@ public class SpaceFX extends Application {
                     spaceShipExplosion.countY = 0;
                     spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
                     spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
-                    asteroids[i].respawn();
+                    asteroid.respawn();
                     if (spaceShip.shield) {
                         playSound(explosionSound);
                         explosions.add(
@@ -465,7 +465,7 @@ public class SpaceFX extends Application {
                 if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, enemy.x, enemy.y, enemy.radius)) {
                     explosions.add(new Explosion(enemy.x - Explosion.FRAME_WIDTH * 0.25, enemy.y - Explosion.FRAME_HEIGHT * 0.25, enemy.vX, enemy.vY, 0.5));
                     score += enemy.value;
-                    enemies[i].respawn();
+                    enemy.respawn();
                     torpedosToRemove.add(torpedo);
                     playSound(spaceShipExplosionSound);
                 }
@@ -484,7 +484,7 @@ public class SpaceFX extends Application {
                     spaceShipExplosion.countY = 0;
                     spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
                     spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
-                    enemies[i].respawn();
+                    enemy.respawn();
                     playSound(spaceShipExplosionSound);
                     if (spaceShip.shield) {
                         explosions.add(new Explosion(enemy.x - Explosion.FRAME_WIDTH * 0.125, enemy.y - Explosion.FRAME_HEIGHT * 0.125, enemy.vX, enemy.vY, 0.5));
