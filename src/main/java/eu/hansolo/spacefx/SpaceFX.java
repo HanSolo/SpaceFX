@@ -421,7 +421,6 @@ public class SpaceFX extends Application {
                     spaceShipExplosion.countY = 0;
                     spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
                     spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
-                    asteroid.respawn();
                     if (spaceShip.shield) {
                         playSound(explosionSound);
                         explosions.add(
@@ -435,6 +434,7 @@ public class SpaceFX extends Application {
                             gameOver();
                         }
                     }
+                    asteroid.respawn();
                 }
             }
         }
@@ -480,21 +480,22 @@ public class SpaceFX extends Application {
                     hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, enemy.x, enemy.y, enemy.radius);
                 }
                 if (hit) {
-                    spaceShipExplosion.countX = 0;
-                    spaceShipExplosion.countY = 0;
-                    spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
-                    spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
-                    enemy.respawn();
-                    playSound(spaceShipExplosionSound);
                     if (spaceShip.shield) {
                         explosions.add(new Explosion(enemy.x - Explosion.FRAME_WIDTH * 0.125, enemy.y - Explosion.FRAME_HEIGHT * 0.125, enemy.vX, enemy.vY, 0.5));
+                        playSound(spaceShipExplosionSound);
                     } else {
+                        spaceShipExplosion.countX = 0;
+                        spaceShipExplosion.countY = 0;
+                        spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
+                        spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
+                        playSound(spaceShipExplosionSound);
                         hasBeenHit = true;
                         noOfLifes--;
                         if (0 == noOfLifes) {
                             gameOver();
                         }
                     }
+                    enemy.respawn();
                 }
             }
         }
@@ -628,7 +629,6 @@ public class SpaceFX extends Application {
             explosions.clear();
             torpedos.clear();
             enemyTorpedos.clear();
-            for (Star star : stars) { star.respawn(); }
             for (Asteroid asteroid : asteroids) { asteroid.respawn(); }
             for (Enemy enemy : enemies) { enemy.respawn(); }
             initEnemies();
