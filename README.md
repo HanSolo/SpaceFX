@@ -7,7 +7,7 @@ Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 ![Overview](https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX.png)
 
 ### Youtube video
-I've recorded a little [video](https://www.youtube.com/watch?v=An1BdUGC6D4) that shows the game in action.
+I've recorded a little [video](https://youtu.be/IS71geUu9RE) that shows the game in action.
 
 
 ### Run SpaceFX in the browser using jpro
