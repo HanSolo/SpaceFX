@@ -138,12 +138,16 @@ public class SpaceFX extends Application {
     private final        Image                    rocketImg                  = new Image(getClass().getResourceAsStream("rocket.png"), 17, 50, true, false);
     private final        Image                    rocketExplosionImg         = new Image(getClass().getResourceAsStream("rocketExplosion.png"), 1024, 1792, true, false);
     private final        AudioClip                laserSound                 = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
+    private final        AudioClip                rocketLaunchSound          = new AudioClip(getClass().getResource("rocketLaunch.wav").toExternalForm());
+    private final        AudioClip                rocketExplosionSound       = new AudioClip(getClass().getResource("rocketExplosion.wav").toExternalForm());
     private final        AudioClip                enemyLaserSound            = new AudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm());
     private final        AudioClip                explosionSound             = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
     private final        AudioClip                torpedoHitSound            = new AudioClip(getClass().getResource("hit.wav").toExternalForm());
     private final        AudioClip                spaceShipExplosionSound    = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
+    private final        AudioClip                enemyBossExplosionSound    = new AudioClip(getClass().getResource("enemyBossExplosion.wav").toExternalForm());
     private final        AudioClip                gameoverSound              = new AudioClip(getClass().getResource("gameover.wav").toExternalForm());
     private final        AudioClip                shieldHitSound             = new AudioClip(getClass().getResource("shieldhit.wav").toExternalForm());
+    private final        AudioClip                enemyBossShieldHitSound    = new AudioClip(getClass().getResource("enemyBossShieldHit.wav").toExternalForm());
     private final        AudioClip                deflectorShieldSound       = new AudioClip(getClass().getResource("deflectorshieldSound.wav").toExternalForm());
     private final        Media                    gameSoundTheme             = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
     private final        Media                    soundTheme                 = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
@@ -494,7 +498,7 @@ public class SpaceFX extends Application {
                     score += asteroid.value;
                     asteroid.respawn();
                     rocketsToRemove.add(rocket);
-                    playSound(explosionSound);
+                    playSound(rocketExplosionSound);
                 }
             }
 
@@ -566,7 +570,7 @@ public class SpaceFX extends Application {
                     score += enemy.value;
                     enemy.respawn();
                     rocketsToRemove.add(rocket);
-                    playSound(spaceShipExplosionSound);
+                    playSound(rocketExplosionSound);
                 }
             }
 
@@ -628,11 +632,11 @@ public class SpaceFX extends Application {
                         score += enemyBoss.value;
                         enemyBossesToRemove.add(enemyBoss);
                         torpedosToRemove.add(torpedo);
-                        playSound(spaceShipExplosionSound);
+                        playSound(enemyBossExplosionSound);
                     } else {
                         enemyBossHits.add(new EnemyBossHit(torpedo.x - Hit.FRAME_CENTER, torpedo.y - Hit.FRAME_HEIGHT, enemyBoss.vX, enemyBoss.vY));
                         torpedosToRemove.add(torpedo);
-                        playSound(torpedoHitSound);
+                        playSound(enemyBossShieldHitSound);
                     }
                 }
             }
@@ -644,7 +648,7 @@ public class SpaceFX extends Application {
                     score += enemyBoss.value;
                     enemyBossesToRemove.add(enemyBoss);
                     rocketsToRemove.add(rocket);
-                    playSound(spaceShipExplosionSound);
+                    playSound(enemyBossExplosionSound);
                 }
             }
 
@@ -859,7 +863,7 @@ public class SpaceFX extends Application {
 
     private void spawnRocket(final double x, final double y) {
         rockets.add(new Rocket(rocketImg, x, y));
-        //playSound(rocketSound);
+        playSound(rocketLaunchSound);
     }
 
     private void spawnEnemyTorpedo(final double x, final double y, final double vX, final double vY) {
