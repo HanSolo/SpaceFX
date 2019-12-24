@@ -62,6 +62,17 @@ public class SpaceFX extends Application {
     private static final int                      NO_OF_ASTEROIDS            = SHOW_ASTEROIDS ? 15 : 0;
     private static final int                      NO_OF_ENEMIES              = SHOW_ENEMIES ? 5 : 0;
     //-------------------------------------------------------------------------
+    private static final int                      LIFES                      = 5;
+    private static final int                      SHIELDS                    = 10;
+    private static final int                      DEFLECTOR_SHIELD_TIME      = 5000;
+    private static final int                      MAX_NO_OF_ROCKETS          = 3;
+    private static final double                   TORPEDO_SPEED              = 6;
+    private static final double                   ROCKET_SPEED               = 4;
+    private static final double                   ENEMY_TORPEDO_SPEED        = 5;
+    private static final double                   ENEMY_BOSS_TORPEDO_SPEED   = 6;
+    private static final int                      ENEMY_FIRE_SENSITIVITY     = 10;
+    private static final long                     ENEMY_BOSS_ATTACK_INTERVAL = 20_000_000_000l;
+    private static final long                     CRYSTAL_SPAWN_INTERVAL     = 25_000_000_000l;
     private static final Random                   RND                        = new Random();
     private static final double                   WIDTH                      = 700;
     private static final double                   HEIGHT                     = 900;
@@ -76,18 +87,7 @@ public class SpaceFX extends Application {
     private static final double                   VELOCITY_FACTOR_X          = 1.0;
     private static final double                   VELOCITY_FACTOR_Y          = 1.0;
     private static final double                   VELOCITY_FACTOR_R          = 1.0;
-    private static final int                      LIFES                      = 5;
-    private static final int                      SHIELDS                    = 10;
-    private static final int                      DEFLECTOR_SHIELD_TIME      = 5000;
-    private static final int                      MAX_NO_OF_ROCKETS          = 3;
     private static final Color                    SCORE_COLOR                = Color.rgb(51, 210, 206);
-    private static final double                   TORPEDO_SPEED              = 6;
-    private static final double                   ROCKET_SPEED               = 4;
-    private static final double                   ENEMY_TORPEDO_SPEED        = 5;
-    private static final double                   ENEMY_BOSS_TORPEDO_SPEED   = 6;
-    private static final int                      ENEMY_FIRE_SENSITIVITY     = 10;
-    private static final long                     ENEMY_BOSS_ATTACK_INTERVAL = 20_000_000_000l;
-    private static final long                     CRYSTAL_SPAWN_INTERVAL     = 25_000_000_000l;
     private static final String                   SPACE_BOY;
     private static       String                   spaceBoyName;
     private static final boolean                  IS_BROWSER                 = WebAPI.isBrowser();
@@ -132,16 +132,17 @@ public class SpaceFX extends Application {
     private final        Image                    spaceShipExplosionImg      = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800, 600, true, false);
     private final        Image                    hitImg                     = new Image(getClass().getResourceAsStream("torpedoHit2.png"), 400, 160, true, false);
     private final        Image                    enemyBossHitImg            = new Image(getClass().getResourceAsStream("torpedoHit.png"), 400, 160, true, false);
-    private final        Image                    enemyBossExplosionImg      = new Image(getClass().getResourceAsStream("enemyBossExplosion.png"), 1024, 1792, true, false);
-    private final        Image                    crystalImg                 = new Image(getClass().getResourceAsStream("crystal.png"), 50, 50, true, false);
-    private final        Image                    crystalExplosionImg        = new Image(getClass().getResourceAsStream("crystalExplosion.png"), 1024, 1792, true, false);
+    private final        Image                    enemyBossExplosionImg      = new Image(getClass().getResourceAsStream("enemyBossExplosion.png"), 800, 1400, true, false);
+    private final        Image                    crystalImg                 = new Image(getClass().getResourceAsStream("crystal.png"), 100, 100, true, false);
+    private final        Image                    crystalExplosionImg        = new Image(getClass().getResourceAsStream("crystalExplosion.png"), 400, 700, true, false);
     private final        Image                    rocketImg                  = new Image(getClass().getResourceAsStream("rocket.png"), 17, 50, true, false);
-    private final        Image                    rocketExplosionImg         = new Image(getClass().getResourceAsStream("rocketExplosion.png"), 1024, 1792, true, false);
+    private final        Image                    rocketExplosionImg         = new Image(getClass().getResourceAsStream("rocketExplosion.png"), 512, 896, true, false);
     private final        AudioClip                laserSound                 = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
     private final        AudioClip                rocketLaunchSound          = new AudioClip(getClass().getResource("rocketLaunch.wav").toExternalForm());
     private final        AudioClip                rocketExplosionSound       = new AudioClip(getClass().getResource("rocketExplosion.wav").toExternalForm());
     private final        AudioClip                enemyLaserSound            = new AudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm());
     private final        AudioClip                explosionSound             = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
+    private final        AudioClip                asteroidExplosionSound     = new AudioClip(getClass().getResource("asteroidExplosion.wav").toExternalForm());
     private final        AudioClip                torpedoHitSound            = new AudioClip(getClass().getResource("hit.wav").toExternalForm());
     private final        AudioClip                spaceShipExplosionSound    = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
     private final        AudioClip                enemyBossExplosionSound    = new AudioClip(getClass().getResource("enemyBossExplosion.wav").toExternalForm());
@@ -149,6 +150,7 @@ public class SpaceFX extends Application {
     private final        AudioClip                shieldHitSound             = new AudioClip(getClass().getResource("shieldhit.wav").toExternalForm());
     private final        AudioClip                enemyBossShieldHitSound    = new AudioClip(getClass().getResource("enemyBossShieldHit.wav").toExternalForm());
     private final        AudioClip                deflectorShieldSound       = new AudioClip(getClass().getResource("deflectorshieldSound.wav").toExternalForm());
+    private final        AudioClip                powerUpSound               = new AudioClip(getClass().getResource("powerUp.wav").toExternalForm());
     private final        Media                    gameSoundTheme             = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
     private final        Media                    soundTheme                 = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
     private final        MediaPlayer              gameMediaPlayer            = new MediaPlayer(gameSoundTheme);
@@ -482,11 +484,11 @@ public class SpaceFX extends Application {
                         score += asteroid.value;
                         asteroid.respawn();
                         torpedosToRemove.add(torpedo);
-                        playSound(explosionSound);
+                        playSound(asteroidExplosionSound);
                     } else {
                         hits.add(new Hit(torpedo.x - Hit.FRAME_CENTER, torpedo.y - Hit.FRAME_HEIGHT, asteroid.vX, asteroid.vY));
                         torpedosToRemove.add(torpedo);
-                        playSound(torpedoHitSound);
+                        playSound(asteroidExplosionSound);
                     }
                 }
             }
@@ -693,26 +695,6 @@ public class SpaceFX extends Application {
             ctx.drawImage(crystal.image, 0, 0);
             ctx.restore();
 
-            // Check for torpedo hits
-            for (Torpedo torpedo : torpedos) {
-                if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, crystal.cX, crystal.cY, crystal.radius)) {
-                    explosions.add(new Explosion(crystal.cX - Explosion.FRAME_CENTER, crystal.cY - Explosion.FRAME_CENTER, crystal.vX, crystal.vY, 1.0));
-                    crystalsToRemove.add(crystal);
-                    torpedosToRemove.add(torpedo);
-                    playSound(explosionSound);
-                }
-            }
-
-            // Check for rocket hits
-            for (Rocket rocket : rockets) {
-                if (isHitCircleCircle(rocket.x, rocket.y, rocket.radius, crystal.cX, crystal.cY, crystal.radius)) {
-                    rocketExplosions.add(new RocketExplosion(crystal.cX - RocketExplosion.FRAME_CENTER, crystal.cY - RocketExplosion.FRAME_CENTER, crystal.vX, crystal.vY, 1.0));
-                    crystalsToRemove.add(crystal);
-                    rocketsToRemove.add(rocket);
-                    playSound(explosionSound);
-                }
-            }
-
             // Check for space ship contact
             boolean hit;
             if (spaceShip.shield) {
@@ -723,7 +705,7 @@ public class SpaceFX extends Application {
             if (hit) {
                 if (noOfShields <= SHIELDS - 1) { noOfShields++; }
                 crystalExplosions.add(new CrystalExplosion(crystal.cX - CrystalExplosion.FRAME_CENTER, crystal.cY - CrystalExplosion.FRAME_CENTER, crystal.vX, crystal.vY, 1.0));
-                playSound(spaceShipExplosionSound);
+                playSound(powerUpSound);
                 crystalsToRemove.add(crystal);
             }
         }
@@ -1243,9 +1225,9 @@ public class SpaceFX extends Application {
     }
 
     private class RocketExplosion {
-        private static final double FRAME_WIDTH  = 256;
-        private static final double FRAME_HEIGHT = 256;
-        private static final double FRAME_CENTER = 128;
+        private static final double FRAME_WIDTH  = 128;
+        private static final double FRAME_HEIGHT = 128;
+        private static final double FRAME_CENTER = 64;
         private static final int    MAX_FRAME_X  = 4;
         private static final int    MAX_FRAME_Y  = 7;
         private              double x;
@@ -1375,9 +1357,9 @@ public class SpaceFX extends Application {
     }
 
     private class CrystalExplosion {
-        private static final double FRAME_WIDTH  = 256;
-        private static final double FRAME_HEIGHT = 256;
-        private static final double FRAME_CENTER = 128;
+        private static final double FRAME_WIDTH  = 100;
+        private static final double FRAME_HEIGHT = 100;
+        private static final double FRAME_CENTER = 50;
         private static final int    MAX_FRAME_X  = 4;
         private static final int    MAX_FRAME_Y  = 7;
         private              double x;
@@ -1687,9 +1669,9 @@ public class SpaceFX extends Application {
     }
 
     private class EnemyBossExplosion {
-        private static final double FRAME_WIDTH  = 256;
-        private static final double FRAME_HEIGHT = 256;
-        private static final double FRAME_CENTER = 128;
+        private static final double FRAME_WIDTH  = 200;
+        private static final double FRAME_HEIGHT = 200;
+        private static final double FRAME_CENTER = 100;
         private static final int    MAX_FRAME_X  = 4;
         private static final int    MAX_FRAME_Y  = 7;
         private              double x;
