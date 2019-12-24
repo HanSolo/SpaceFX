@@ -76,6 +76,8 @@ public class SpaceFX extends Application {
     private static final Random                   RND                        = new Random();
     private static final double                   WIDTH                      = 700;
     private static final double                   HEIGHT                     = 900;
+    private static final double                   FIRST_QUARTER_WIDTH        = WIDTH * 0.25;
+    private static final double                   LAST_QUARTER_WIDTH         = WIDTH * 0.75;
     private static final double                   SHIELD_INDICATOR_X         = WIDTH * 0.73;
     private static final double                   SHIELD_INDICATOR_Y         = HEIGHT * 0.06;
     private static final double                   SHIELD_INDICATOR_WIDTH     = WIDTH * 0.26;
@@ -1565,7 +1567,13 @@ public class SpaceFX extends Application {
             radius = size * 0.5;
 
             // Velocity
-            vX = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
+            if (x < FIRST_QUARTER_WIDTH) {
+                vX = (rnd.nextDouble() * 0.5) * VELOCITY_FACTOR_X;
+            } else if (x > LAST_QUARTER_WIDTH) {
+                vX = -(rnd.nextDouble() * 0.5) * VELOCITY_FACTOR_X;
+            } else {
+                vX = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
+            }
             vY = (((rnd.nextDouble() * 1.5) + minSpeedY) * vYVariation) * VELOCITY_FACTOR_Y;
 
             // Rotation
@@ -1636,7 +1644,13 @@ public class SpaceFX extends Application {
             radius = size * 0.5;
 
             // Velocity
-            vX = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
+            if (x < FIRST_QUARTER_WIDTH) {
+                vX = (rnd.nextDouble() * 0.5) * VELOCITY_FACTOR_X;
+            } else if (x > LAST_QUARTER_WIDTH) {
+                vX = -(rnd.nextDouble() * 0.5) * VELOCITY_FACTOR_X;
+            } else {
+                vX = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
+            }
             vY = (((rnd.nextDouble() * 1.5) + minSpeedY) * vYVariation) * VELOCITY_FACTOR_Y;
 
             // Rotation
@@ -1760,7 +1774,13 @@ public class SpaceFX extends Application {
             imgCenterY = image.getHeight() * 0.5;
 
             // Velocity
-            vX          = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
+            if (x < FIRST_QUARTER_WIDTH) {
+                vX = rnd.nextDouble() * VELOCITY_FACTOR_X;
+            } else if (x > LAST_QUARTER_WIDTH) {
+                vX = -rnd.nextDouble() * VELOCITY_FACTOR_X;
+            } else {
+                vX = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
+            }
             vY          = (((rnd.nextDouble() * 1.5) + minSpeedY) * vYVariation) * VELOCITY_FACTOR_Y;
             vR          = (((rnd.nextDouble()) * 0.5) + minRotationR) * VELOCITY_FACTOR_R;
             rotateRight = rnd.nextBoolean();
