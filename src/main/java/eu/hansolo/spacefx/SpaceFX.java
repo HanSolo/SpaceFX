@@ -215,7 +215,7 @@ public class SpaceFX extends Application {
 
     // ******************** Methods *******************************************
     @Override public void init() {
-        scoreFont        = spaceBoy(30);
+        scoreFont        = spaceBoy(60);
         running          = false;
         gameOverScreen   = false;
         hallOfFameScreen = false;
@@ -313,7 +313,7 @@ public class SpaceFX extends Application {
         initEnemies();
 
         scorePosX = WIDTH * 0.5;
-        scorePosY = 30;
+        scorePosY = 40;
 
         // Preparing GraphicsContext
         ctx.setFont(scoreFont);
@@ -444,6 +444,7 @@ public class SpaceFX extends Application {
         rocketExplosionsToRemove.clear();
         crystalsToRemove.clear();
         enemyBossesToRemove.clear();
+        enemyBossTorpedosToRemove.clear();
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
         // Draw background
@@ -490,7 +491,7 @@ public class SpaceFX extends Application {
                     } else {
                         hits.add(new Hit(torpedo.x - Hit.FRAME_CENTER, torpedo.y - Hit.FRAME_HEIGHT, asteroid.vX, asteroid.vY));
                         torpedosToRemove.add(torpedo);
-                        playSound(asteroidExplosionSound);
+                        playSound(torpedoHitSound);
                     }
                 }
             }
@@ -549,10 +550,12 @@ public class SpaceFX extends Application {
             ctx.restore();
             ctx.restore();
             // Fire if spaceship is below enemy
-            if (enemy.x > spaceShip.x - ENEMY_FIRE_SENSITIVITY && enemy.x < spaceShip.x + ENEMY_FIRE_SENSITIVITY) {
-                if (enemy.y - enemy.lastShotY > 15) {
-                    spawnEnemyTorpedo(enemy.x, enemy.y, enemy.vX, enemy.vY);
-                    enemy.lastShotY = enemy.y;
+            if (enemy.y < spaceShip.y) {
+                if (enemy.x > spaceShip.x - ENEMY_FIRE_SENSITIVITY && enemy.x < spaceShip.x + ENEMY_FIRE_SENSITIVITY) {
+                    if (enemy.y - enemy.lastShotY > 15) {
+                        spawnEnemyTorpedo(enemy.x, enemy.y, enemy.vX, enemy.vY);
+                        enemy.lastShotY = enemy.y;
+                    }
                 }
             }
 
@@ -1078,7 +1081,7 @@ public class SpaceFX extends Application {
             // Velocity
             vX          = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
             vY          = (((rnd.nextDouble() * 1.5) + minSpeedY * 1/scale) * vYVariation) * VELOCITY_FACTOR_Y;
-            vR          = (((rnd.nextDouble()) * 0.5) + minRotationR) * VELOCITY_FACTOR_R;
+            vR          = ((rnd.nextDouble() * 0.5) + minRotationR) * VELOCITY_FACTOR_R;
             rotateRight = rnd.nextBoolean();
         }
 
@@ -1660,7 +1663,7 @@ public class SpaceFX extends Application {
             lastShotY = 0;
 
             // No of hits
-            hits = 5; //RND.nextInt(5);
+            hits = 5;
         }
 
         private void update() {
