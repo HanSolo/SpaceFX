@@ -997,8 +997,8 @@ public class SpaceFX extends Application {
             vYVariation = (rnd.nextDouble() * 0.5) + 0.2;
 
             // Velocity
-            vX = (int) (Math.round((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X);
-            vY = (int) (Math.round(((rnd.nextDouble() * 1.5) + minSpeedY) * vYVariation) * VELOCITY_FACTOR_Y);
+            vX = (int) (Math.round((rnd.nextDouble() * xVariation) - xVariation * 0.5));
+            vY = (int) (Math.round(((rnd.nextDouble() * 1.5) + minSpeedY) * vYVariation));
         }
 
 
