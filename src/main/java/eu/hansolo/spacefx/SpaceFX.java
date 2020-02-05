@@ -957,7 +957,7 @@ public class SpaceFX extends Application {
     // Play audio clips in a separate thread
     private void playSound(final AudioClip audioClip) {
         if (PLAY_SOUND) {
-            new Thread(() -> audioClip.play()).run();
+            audioClip.play();
         }
     }
 
