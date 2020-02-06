@@ -12,7 +12,7 @@ buildscript {
         classpath 'com.google.gradle:osdetector-gradle-plugin:1.6.2'
         classpath 'org.javamodularity:moduleplugin:1.6.0'
         classpath 'org.beryx:badass-jlink-plugin:2.16.4'
-        classpath 'com.sandec.jpro:jpro-plugin-gradle:2019.2.2-SNAPSHOT2'
+        classpath 'com.sandec.jpro:jpro-plugin-gradle:2019.2.2'
     }
 }
 
@@ -44,7 +44,7 @@ dependencies {
     compile "org.openjfx:javafx-graphics:11:$platform"
     compile "org.openjfx:javafx-controls:11:$platform"
     compile "org.openjfx:javafx-media:11:$platform"
-    compile "com.sandec.jpro:jpro-webapi:2019.2.1-SNAPSHOT"
+    compile "com.sandec.jpro:jpro-webapi:2019.2.2"
 }
 
 mainClassName = 'eu.hansolo.spacefx.SpaceFX'
@@ -78,6 +78,6 @@ jpro {
     JVMArgs << '-Xmx1000m'
     visible          = false // Debug mode can also be used to create images via canvas and snapshot
     noRenderJobs     = true // false to enable snapshot support
-    jproVersion      = "2019.2.2-SNAPSHOT2"
+    jproVersion      = "2019.2.2"
     openURLOnStartup = false
 }
