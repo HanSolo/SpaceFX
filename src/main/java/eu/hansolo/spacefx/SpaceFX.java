@@ -52,158 +52,171 @@ import java.util.stream.Collectors;
 
 public class SpaceFX extends Application {
     //----------- Switches to switch on/off different features ----------------
-    private static final boolean                  PLAY_SOUND                 = true;
-    private static final boolean                  PLAY_MUSIC                 = true;
-    private static final boolean                  SHOW_BACKGROUND            = true;
-    private static final boolean                  SHOW_STARS                 = true;
-    private static final boolean                  SHOW_ENEMIES               = true;
-    private static final int                      NO_OF_STARS                = SHOW_STARS ? 200 : 0;
-    private static final int                      NO_OF_ENEMIES              = SHOW_ENEMIES ? 5 : 0;
+    private static final boolean                    PLAY_SOUND                 = false;
+    private static final boolean                    PLAY_MUSIC                 = false;
+    private static final boolean                    SHOW_BACKGROUND            = true;
+    private static final boolean                    SHOW_STARS                 = true;
+    private static final boolean                    SHOW_ENEMIES               = true;
+    private static final int                        NO_OF_STARS                = SHOW_STARS ? 200 : 0;
+    private static final int                        NO_OF_ENEMIES              = SHOW_ENEMIES ? 5 : 0;
     //-------------------------------------------------------------------------
-    private static final int                      LIFES                      = 5;
-    private static final int                      SHIELDS                    = 10;
-    private static final int                      DEFLECTOR_SHIELD_TIME      = 5000;
-    private static final int                      MAX_NO_OF_ROCKETS          = 3;
-    private static final double                   TORPEDO_SPEED              = 6;
-    private static final double                   ROCKET_SPEED               = 4;
-    private static final double                   ENEMY_TORPEDO_SPEED        = 5;
-    private static final double                   ENEMY_BOSS_TORPEDO_SPEED   = 6;
-    private static final int                      ENEMY_FIRE_SENSITIVITY     = 10;
-    private static final long                     ENEMY_BOSS_ATTACK_INTERVAL = 20_000_000_000l;
-    private static final long                     CRYSTAL_SPAWN_INTERVAL     = 25_000_000_000l;
-    private static final long                     WAVE_SPAWN_INTERVAL        = 20_000_000_000l;
-    private static final Random                   RND                        = new Random();
-    private static final double                   WIDTH                      = 700;
-    private static final double                   HEIGHT                     = 900;
-    private static final double                   FIRST_QUARTER_WIDTH        = WIDTH * 0.25;
-    private static final double                   LAST_QUARTER_WIDTH         = WIDTH * 0.75;
-    private static final double                   SHIELD_INDICATOR_X         = WIDTH * 0.73;
-    private static final double                   SHIELD_INDICATOR_Y         = HEIGHT * 0.06;
-    private static final double                   SHIELD_INDICATOR_WIDTH     = WIDTH * 0.26;
-    private static final double                   SHIELD_INDICATOR_HEIGHT    = HEIGHT * 0.01428571;
-    private static final long                     FPS_60                     = 0_016_666_666l;
-    private static final long                     FPS_30                     = 0_033_333_333l;
-    private static final long                     FPS_10                     = 0_100_000_000l;
-    private static final long                     FPS_2                      = 0_500_000_000l;
-    private static final double                   VELOCITY_FACTOR_X          = 1.0;
-    private static final double                   VELOCITY_FACTOR_Y          = 1.0;
-    private static final double                   VELOCITY_FACTOR_R          = 1.0;
-    private static final Color                    SCORE_COLOR                = Color.rgb(51, 210, 206);
-    private static final String                   SPACE_BOY;
-    private static       String                   spaceBoyName;
-    private static final boolean                  IS_BROWSER                 = WebAPI.isBrowser();
-    private              boolean                  running;
-    private              boolean                  gameOverScreen;
-    private              boolean                  hallOfFameScreen;
-    private              List<Player>             hallOfFame;
-    private              boolean                  inputAllowed;
-    private              Text                     userName;
-    private final        Image                    startImg                   = new Image(getClass().getResourceAsStream("startscreen.png"));
-    private final        Image                    gameOverImg                = new Image(getClass().getResourceAsStream("gameover.png"));
-    private final        Image                    backgroundImg              = new Image(SpaceFX.class.getResourceAsStream("background.jpg"));
-    private final        Image[]                  asteroidImages             = { new Image(getClass().getResourceAsStream("asteroid1.png"), 140, 140, true, false),
-                                                                                 new Image(getClass().getResourceAsStream("asteroid2.png"), 140, 140, true, false),
-                                                                                 new Image(getClass().getResourceAsStream("asteroid3.png"), 140, 140, true, false),
-                                                                                 new Image(getClass().getResourceAsStream("asteroid4.png"), 110, 110, true, false),
-                                                                                 new Image(getClass().getResourceAsStream("asteroid5.png"), 100, 100, true, false),
-                                                                                 new Image(getClass().getResourceAsStream("asteroid6.png"), 120, 120, true, false),
-                                                                                 new Image(getClass().getResourceAsStream("asteroid7.png"), 110, 110, true, false),
-                                                                                 new Image(getClass().getResourceAsStream("asteroid8.png"), 100, 100, true, false),
-                                                                                 new Image(getClass().getResourceAsStream("asteroid9.png"), 130, 130, true, false),
-                                                                                 new Image(getClass().getResourceAsStream("asteroid10.png"), 120, 120, true, false),
-                                                                                 new Image(getClass().getResourceAsStream("asteroid11.png"), 140, 140, true, false) };
-    private final        Image[]                  enemyImages                = { new Image(getClass().getResourceAsStream("enemy1.png"), 56, 56, true, false),
-                                                                                 new Image(getClass().getResourceAsStream("enemy2.png"), 50, 50, true, false),
-                                                                                 new Image(getClass().getResourceAsStream("enemy3.png"), 68, 68, true, false) };
-    private final        Image                    enemyBossImg0              = new Image(getClass().getResourceAsStream("enemyBoss0.png"), 100, 100, true, false);
-    private final        Image                    enemyBossImg1              = new Image(getClass().getResourceAsStream("enemyBoss1.png"), 100, 100, true, false);
-    private final        Image                    enemyBossImg2              = new Image(getClass().getResourceAsStream("enemyBoss2.png"), 100, 100, true, false);
-    private final        Image                    enemyBossImg3              = new Image(getClass().getResourceAsStream("enemyBoss3.png"), 100, 100, true, false);
-    private final        Image                    enemyBossImg4              = new Image(getClass().getResourceAsStream("enemyBoss4.png"), 100, 100, true, false);
-    private final        Image                    spaceshipImg               = new Image(getClass().getResourceAsStream("fighter.png"), 48, 48, true, false);
-    private final        Image                    spaceshipThrustImg         = new Image(getClass().getResourceAsStream("fighterThrust.png"), 48, 48, true, false);
-    private final        Image                    miniSpaceshipImg           = new Image(getClass().getResourceAsStream("fighter.png"), 16, 16, true, false);
-    private final        Image                    deflectorShieldImg         = new Image(getClass().getResourceAsStream("deflectorshield.png"), 100, 100, true, false);
-    private final        Image                    miniDeflectorShieldImg     = new Image(getClass().getResourceAsStream("deflectorshield.png"), 16, 16, true, false);
-    private final        Image                    torpedoImg                 = new Image(getClass().getResourceAsStream("torpedo.png"), 17, 20, true, false);
-    private final        Image                    enemyTorpedoImg            = new Image(getClass().getResourceAsStream("enemyTorpedo.png"), 21, 21, true, false);
-    private final        Image                    enemyBossTorpedoImg        = new Image(getClass().getResourceAsStream("enemyBossTorpedo.png"), 26, 26, true, false);
-    private final        Image                    explosionImg               = new Image(getClass().getResourceAsStream("explosion.png"), 960, 768, true, false);
-    private final        Image                    asteroidExplosionImg       = new Image(getClass().getResourceAsStream("asteroidExplosion.png"), 2048, 1792, true, false);
-    private final        Image                    spaceShipExplosionImg      = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800, 600, true, false);
-    private final        Image                    hitImg                     = new Image(getClass().getResourceAsStream("torpedoHit2.png"), 400, 160, true, false);
-    private final        Image                    enemyBossHitImg            = new Image(getClass().getResourceAsStream("torpedoHit.png"), 400, 160, true, false);
-    private final        Image                    enemyBossExplosionImg      = new Image(getClass().getResourceAsStream("enemyBossExplosion.png"), 800, 1400, true, false);
-    private final        Image                    crystalImg                 = new Image(getClass().getResourceAsStream("crystal.png"), 100, 100, true, false);
-    private final        Image                    crystalExplosionImg        = new Image(getClass().getResourceAsStream("crystalExplosion.png"), 400, 700, true, false);
-    private final        Image                    rocketImg                  = new Image(getClass().getResourceAsStream("rocket.png"), 17, 50, true, false);
-    private final        Image                    rocketExplosionImg         = new Image(getClass().getResourceAsStream("rocketExplosion.png"), 512, 896, true, false);
-    private final        AudioClip                laserSound                 = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
-    private final        AudioClip                rocketLaunchSound          = new AudioClip(getClass().getResource("rocketLaunch.wav").toExternalForm());
-    private final        AudioClip                rocketExplosionSound       = new AudioClip(getClass().getResource("rocketExplosion.wav").toExternalForm());
-    private final        AudioClip                enemyLaserSound            = new AudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm());
-    private final        AudioClip                explosionSound             = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
-    private final        AudioClip                asteroidExplosionSound     = new AudioClip(getClass().getResource("asteroidExplosion.wav").toExternalForm());
-    private final        AudioClip                torpedoHitSound            = new AudioClip(getClass().getResource("hit.wav").toExternalForm());
-    private final        AudioClip                spaceShipExplosionSound    = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
-    private final        AudioClip                enemyBossExplosionSound    = new AudioClip(getClass().getResource("enemyBossExplosion.wav").toExternalForm());
-    private final        AudioClip                gameoverSound              = new AudioClip(getClass().getResource("gameover.wav").toExternalForm());
-    private final        AudioClip                shieldHitSound             = new AudioClip(getClass().getResource("shieldhit.wav").toExternalForm());
-    private final        AudioClip                enemyBossShieldHitSound    = new AudioClip(getClass().getResource("enemyBossShieldHit.wav").toExternalForm());
-    private final        AudioClip                deflectorShieldSound       = new AudioClip(getClass().getResource("deflectorshieldSound.wav").toExternalForm());
-    private final        AudioClip                powerUpSound               = new AudioClip(getClass().getResource("powerUp.wav").toExternalForm());
-    private final        Media                    gameSoundTheme             = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
-    private final        Media                    soundTheme                 = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
-    private final        MediaPlayer              gameMediaPlayer            = new MediaPlayer(gameSoundTheme);
-    private final        MediaPlayer              mediaPlayer                = new MediaPlayer(soundTheme);
-    private final        double                   deflectorShieldRadius      = deflectorShieldImg.getRequestedWidth() * 0.5;
-    private              Font                     scoreFont;
-    private              double                   backgroundViewportY;
-    private              Canvas                   canvas;
-    private              GraphicsContext          ctx;
-    private              Star[]                   stars;
-    private              SpaceShip                spaceShip;
-    private              SpaceShipExplosion       spaceShipExplosion;
-    private              List<Wave>               waves;
-    private              List<Wave>               wavesToRemove;
-    private              List<EnemyBoss>          enemyBosses;
-    private              List<EnemyBoss>          enemyBossesToRemove;
-    private              List<Crystal>            crystals;
-    private              List<Crystal>            crystalsToRemove;
-    private              List<Torpedo>            torpedos;
-    private              List<Torpedo>            torpedosToRemove;
-    private              List<Rocket>             rockets;
-    private              List<Rocket>             rocketsToRemove;
-    private              List<RocketExplosion>    rocketExplosions;
-    private              List<RocketExplosion>    rocketExplosionsToRemove;
-    private              List<EnemyTorpedo>       enemyTorpedos;
-    private              List<EnemyTorpedo>       enemyTorpedosToRemove;
-    private              List<EnemyBossTorpedo>   enemyBossTorpedos;
-    private              List<EnemyBossTorpedo>   enemyBossTorpedosToRemove;
-    private              List<EnemyBossExplosion> enemyBossExplosions;
-    private              List<EnemyBossExplosion> enemyBossExplosionsToRemove;
-    private              List<Explosion>          explosions;
-    private              List<Explosion>          explosionsToRemove;
-    private              List<AsteroidExplosion>  asteroidExplosions;
-    private              List<AsteroidExplosion>  asteroidExplosionsToRemove;
-    private              List<CrystalExplosion>   crystalExplosions;
-    private              List<CrystalExplosion>   crystalExplosionsToRemove;
-    private              List<Hit>                hits;
-    private              List<Hit>                hitsToRemove;
-    private              List<EnemyBossHit>       enemyBossHits;
-    private              List<EnemyBossHit>       enemyBossHitsToRemove;
-    private              long                     score;
-    private              double                   scorePosX;
-    private              double                   scorePosY;
-    private              boolean                  hasBeenHit;
-    private              int                      noOfLifes;
-    private              int                      noOfShields;
-    private              long                     lastShieldActivated;
-    private              long                     lastEnemyBossAttack;
-    private              long                     lastCrystal;
-    private              long                     lastWave;
-    private              long                     lastTimerCall;
-    private              AnimationTimer           timer;
+    private static final int                        LIFES                      = 5;
+    private static final int                        SHIELDS                    = 10;
+    private static final int                        DEFLECTOR_SHIELD_TIME      = 5000;
+    private static final int                        MAX_NO_OF_ROCKETS          = 3;
+    private static final double                     TORPEDO_SPEED              = 6;
+    private static final double                     ROCKET_SPEED               = 4;
+    private static final double                     ENEMY_TORPEDO_SPEED        = 5;
+    private static final double                     ENEMY_BOSS_TORPEDO_SPEED   = 6;
+    private static final double                     ENEMY_BOSS_ROCKET_SPEED    = 4;
+    private static final double                     ENEMY_BOSS_SPEED           = 2;
+    private static final long                       ENEMY_BOSS_ATTACK_INTERVAL = 30_000_000_000l;
+    private static final long                       SHIELD_UP_SPAWN_INTERVAL   = 30_000_000_000l;
+    private static final long                       LIFE_UP_SPAWN_INTERVAL     = 60_000_000_000l;
+    private static final long                       WAVE_SPAWN_INTERVAL        = 7_000_000_000l;
+    private static final Random                     RND                        = new Random();
+    private static final double                     WIDTH                      = 700;
+    private static final double                     HEIGHT                     = 900;
+    private static final double                     FIRST_QUARTER_WIDTH        = WIDTH * 0.25;
+    private static final double                     LAST_QUARTER_WIDTH         = WIDTH * 0.75;
+    private static final double                     SHIELD_INDICATOR_X         = WIDTH * 0.73;
+    private static final double                     SHIELD_INDICATOR_Y         = HEIGHT * 0.06;
+    private static final double                     SHIELD_INDICATOR_WIDTH     = WIDTH * 0.26;
+    private static final double                     SHIELD_INDICATOR_HEIGHT    = HEIGHT * 0.01428571;
+    private static final long                       FPS_60                     = 0_016_666_666l;
+    private static final long                       FPS_30                     = 0_033_333_333l;
+    private static final long                       FPS_10                     = 0_100_000_000l;
+    private static final long                       FPS_2                      = 0_500_000_000l;
+    private static final double                     VELOCITY_FACTOR_X          = 1.0;
+    private static final double                     VELOCITY_FACTOR_Y          = 1.0;
+    private static final double                     VELOCITY_FACTOR_R          = 1.0;
+    private static final Color                      SCORE_COLOR                = Color.rgb(51, 210, 206);
+    private static final String                     SPACE_BOY;
+    private static       String                     spaceBoyName;
+    private static final boolean                    IS_BROWSER                 = WebAPI.isBrowser();
+    private static final WaveType[]                 waveTypes                  = { WaveType.TYPE_1, WaveType.TYPE_2, WaveType.TYPE_3, WaveType.TYPE_4, WaveType.TYPE_5 };
+    private              boolean                    running;
+    private              boolean                    gameOverScreen;
+    private              boolean                    hallOfFameScreen;
+    private              List<Player>               hallOfFame;
+    private              boolean                    inputAllowed;
+    private              Text                       userName;
+    private final        Image                      startImg                   = new Image(getClass().getResourceAsStream("startscreen.png"));
+    private final        Image                      gameOverImg                = new Image(getClass().getResourceAsStream("gameover.png"));
+    private final        Image                      backgroundImg              = new Image(SpaceFX.class.getResourceAsStream("background.jpg"));
+    private final        Image[]                    asteroidImages             = { new Image(getClass().getResourceAsStream("asteroid1.png"), 140, 140, true, false),
+                                                                                   new Image(getClass().getResourceAsStream("asteroid2.png"), 140, 140, true, false),
+                                                                                   new Image(getClass().getResourceAsStream("asteroid3.png"), 140, 140, true, false),
+                                                                                   new Image(getClass().getResourceAsStream("asteroid4.png"), 110, 110, true, false),
+                                                                                   new Image(getClass().getResourceAsStream("asteroid5.png"), 100, 100, true, false),
+                                                                                   new Image(getClass().getResourceAsStream("asteroid6.png"), 120, 120, true, false),
+                                                                                   new Image(getClass().getResourceAsStream("asteroid7.png"), 110, 110, true, false),
+                                                                                   new Image(getClass().getResourceAsStream("asteroid8.png"), 100, 100, true, false),
+                                                                                   new Image(getClass().getResourceAsStream("asteroid9.png"), 130, 130, true, false),
+                                                                                   new Image(getClass().getResourceAsStream("asteroid10.png"), 120, 120, true, false),
+                                                                                   new Image(getClass().getResourceAsStream("asteroid11.png"), 140, 140, true, false) };
+    private final        Image[]                    enemyImages                = { new Image(getClass().getResourceAsStream("enemy1.png"), 56, 56, true, false),
+                                                                                   new Image(getClass().getResourceAsStream("enemy2.png"), 50, 50, true, false),
+                                                                                   new Image(getClass().getResourceAsStream("enemy3.png"), 68, 68, true, false) };
+    private final        Image                      enemyBossImg0              = new Image(getClass().getResourceAsStream("enemyBoss0.png"), 100, 100, true, false);
+    private final        Image                      enemyBossImg1              = new Image(getClass().getResourceAsStream("enemyBoss1.png"), 100, 100, true, false);
+    private final        Image                      enemyBossImg2              = new Image(getClass().getResourceAsStream("enemyBoss2.png"), 100, 100, true, false);
+    private final        Image                      enemyBossImg3              = new Image(getClass().getResourceAsStream("enemyBoss3.png"), 100, 100, true, false);
+    private final        Image                      enemyBossImg4              = new Image(getClass().getResourceAsStream("enemyBoss4.png"), 100, 100, true, false);
+    private final        Image                      spaceshipImg               = new Image(getClass().getResourceAsStream("fighter.png"), 48, 48, true, false);
+    private final        Image                      spaceshipThrustImg         = new Image(getClass().getResourceAsStream("fighterThrust.png"), 48, 48, true, false);
+    private final        Image                      miniSpaceshipImg           = new Image(getClass().getResourceAsStream("fighter.png"), 16, 16, true, false);
+    private final        Image                      deflectorShieldImg         = new Image(getClass().getResourceAsStream("deflectorshield.png"), 100, 100, true, false);
+    private final        Image                      miniDeflectorShieldImg     = new Image(getClass().getResourceAsStream("deflectorshield.png"), 16, 16, true, false);
+    private final        Image                      torpedoImg                 = new Image(getClass().getResourceAsStream("torpedo.png"), 17, 20, true, false);
+    private final        Image                      enemyTorpedoImg            = new Image(getClass().getResourceAsStream("enemyTorpedo.png"), 21, 21, true, false);
+    private final        Image                      enemyBossTorpedoImg        = new Image(getClass().getResourceAsStream("enemyBossTorpedo.png"), 26, 26, true, false);
+    private final        Image                      enemyBossRocketImg         = new Image(getClass().getResourceAsStream("enemyBossRocket.png"), 17, 42, true, false);
+    private final        Image                      explosionImg               = new Image(getClass().getResourceAsStream("explosion.png"), 960, 768, true, false);
+    private final        Image                      asteroidExplosionImg       = new Image(getClass().getResourceAsStream("asteroidExplosion.png"), 2048, 1792, true, false);
+    private final        Image                      spaceShipExplosionImg      = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800, 600, true, false);
+    private final        Image                      hitImg                     = new Image(getClass().getResourceAsStream("torpedoHit2.png"), 400, 160, true, false);
+    private final        Image                      enemyBossHitImg            = new Image(getClass().getResourceAsStream("torpedoHit.png"), 400, 160, true, false);
+    private final        Image                      enemyBossExplosionImg      = new Image(getClass().getResourceAsStream("enemyBossExplosion.png"), 800, 1400, true, false);
+    private final        Image                      shieldUpImg                = new Image(getClass().getResourceAsStream("shieldUp.png"), 50, 50, true, false);
+    private final        Image                      lifeUpImg                  = new Image(getClass().getResourceAsStream("lifeUp.png"), 50, 50, true, false);
+    private final        Image                      upExplosionImg             = new Image(getClass().getResourceAsStream("upExplosion.png"), 400, 700, true, false);
+    private final        Image                      rocketExplosionImg         = new Image(getClass().getResourceAsStream("rocketExplosion.png"), 960, 768, true, false);
+    private final        Image                      rocketImg                  = new Image(getClass().getResourceAsStream("rocket.png"), 17, 50, true, false);
+    private final        Image                      enemyRocketExplosionImg    = new Image(getClass().getResourceAsStream("enemyRocketExplosion.png"), 512, 896, true, false);
+    private final        AudioClip                  laserSound                 = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
+    private final        AudioClip                  rocketLaunchSound          = new AudioClip(getClass().getResource("rocketLaunch.wav").toExternalForm());
+    private final        AudioClip                  rocketExplosionSound       = new AudioClip(getClass().getResource("rocketExplosion.wav").toExternalForm());
+    private final        AudioClip                  enemyLaserSound            = new AudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm());
+    private final        AudioClip                  explosionSound             = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
+    private final        AudioClip                  asteroidExplosionSound     = new AudioClip(getClass().getResource("asteroidExplosion.wav").toExternalForm());
+    private final        AudioClip                  torpedoHitSound            = new AudioClip(getClass().getResource("hit.wav").toExternalForm());
+    private final        AudioClip                  spaceShipExplosionSound    = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
+    private final        AudioClip                  enemyBossExplosionSound    = new AudioClip(getClass().getResource("enemyBossExplosion.wav").toExternalForm());
+    private final        AudioClip                  gameoverSound              = new AudioClip(getClass().getResource("gameover.wav").toExternalForm());
+    private final        AudioClip                  shieldHitSound             = new AudioClip(getClass().getResource("shieldhit.wav").toExternalForm());
+    private final        AudioClip                  enemyBossShieldHitSound    = new AudioClip(getClass().getResource("enemyBossShieldHit.wav").toExternalForm());
+    private final        AudioClip                  deflectorShieldSound       = new AudioClip(getClass().getResource("deflectorshieldSound.wav").toExternalForm());
+    private final        AudioClip                  powerUpSound               = new AudioClip(getClass().getResource("powerUp.wav").toExternalForm());
+    private final        Media                      gameSoundTheme             = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
+    private final        Media                      soundTheme                 = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
+    private final        MediaPlayer                gameMediaPlayer            = new MediaPlayer(gameSoundTheme);
+    private final        MediaPlayer                mediaPlayer                = new MediaPlayer(soundTheme);
+    private final        double                     deflectorShieldRadius      = deflectorShieldImg.getRequestedWidth() * 0.5;
+    private              Font                       scoreFont;
+    private              double                     backgroundViewportY;
+    private              Canvas                     canvas;
+    private              GraphicsContext            ctx;
+    private              Star[]                     stars;
+    private              SpaceShip                  spaceShip;
+    private              SpaceShipExplosion         spaceShipExplosion;
+    private              List<Wave>                 waves;
+    private              List<Wave>                 wavesToRemove;
+    private              List<EnemyBoss>            enemyBosses;
+    private              List<EnemyBoss>            enemyBossesToRemove;
+    private              List<ShieldUp>             shieldUps;
+    private              List<ShieldUp>             shieldUpsToRemove;
+    private              List<LifeUp>               lifeUps;
+    private              List<LifeUp>               lifeUpsToRemove;
+    private              List<Torpedo>              torpedos;
+    private              List<Torpedo>              torpedosToRemove;
+    private              List<Rocket>               rockets;
+    private              List<Rocket>               rocketsToRemove;
+    private              List<EnemyTorpedo>         enemyTorpedos;
+    private              List<EnemyTorpedo>         enemyTorpedosToRemove;
+    private              List<EnemyBossTorpedo>     enemyBossTorpedos;
+    private              List<EnemyBossTorpedo>     enemyBossTorpedosToRemove;
+    private              List<EnemyBossRocket>      enemyBossRockets;
+    private              List<EnemyBossRocket>      enemyBossRocketsToRemove;
+    private              List<EnemyBossExplosion>   enemyBossExplosions;
+    private              List<EnemyBossExplosion>   enemyBossExplosionsToRemove;
+    private              List<EnemyRocketExplosion> enemyRocketExplosions;
+    private              List<EnemyRocketExplosion> enemyRocketExplosionsToRemove;
+    private              List<RocketExplosion>      rocketExplosions;
+    private              List<RocketExplosion>      rocketExplosionsToRemove;
+    private              List<Explosion>            explosions;
+    private              List<Explosion>            explosionsToRemove;
+    private              List<AsteroidExplosion>    asteroidExplosions;
+    private              List<AsteroidExplosion>    asteroidExplosionsToRemove;
+    private              List<UpExplosion>          upExplosions;
+    private              List<UpExplosion>          upExplosionsToRemove;
+    private              List<Hit>                  hits;
+    private              List<Hit>                  hitsToRemove;
+    private              List<EnemyBossHit>         enemyBossHits;
+    private              List<EnemyBossHit>         enemyBossHitsToRemove;
+    private              long                       score;
+    private              double                     scorePosX;
+    private              double                     scorePosY;
+    private              boolean                    hasBeenHit;
+    private              int                        noOfLifes;
+    private              int                        noOfShields;
+    private              long                       lastShieldActivated;
+    private              long                       lastEnemyBossAttack;
+    private              long                       lastShieldUp;
+    private              long                       lastLifeUp;
+    private              long                       lastWave;
+    private              long                       lastTimerCall;
+    private              AnimationTimer             timer;
 
     static {
         try {
@@ -214,9 +227,9 @@ public class SpaceFX extends Application {
 
     // ******************** Methods *******************************************
     @Override public void init() {
-        scoreFont = spaceBoy(60);
-        running = false;
-        gameOverScreen = false;
+        scoreFont        = spaceBoy(60);
+        running          = false;
+        gameOverScreen   = false;
         hallOfFameScreen = false;
 
         // PreFill hall of fame
@@ -258,26 +271,32 @@ public class SpaceFX extends Application {
         wavesToRemove               = new ArrayList<>();
         enemyBosses                 = new ArrayList<>();
         enemyBossesToRemove         = new ArrayList<>();
-        crystals                    = new ArrayList<>();
-        crystalsToRemove            = new ArrayList<>();
+        shieldUps                   = new ArrayList<>();
+        shieldUpsToRemove           = new ArrayList<>();
+        lifeUps                     = new ArrayList<>();
+        lifeUpsToRemove             = new ArrayList<>();
         rockets                     = new ArrayList<>();
         rocketsToRemove             = new ArrayList<>();
         torpedos                    = new ArrayList<>();
         torpedosToRemove            = new ArrayList<>();
-        rocketExplosions            = new ArrayList<>();
-        rocketExplosionsToRemove    = new ArrayList<>();
+        enemyRocketExplosions = new ArrayList<>();
+        enemyRocketExplosionsToRemove = new ArrayList<>();
         explosions                  = new ArrayList<>();
         explosionsToRemove          = new ArrayList<>();
         asteroidExplosions          = new ArrayList<>();
         asteroidExplosionsToRemove  = new ArrayList<>();
-        crystalExplosions           = new ArrayList<>();
-        crystalExplosionsToRemove   = new ArrayList<>();
+        upExplosions                = new ArrayList<>();
+        upExplosionsToRemove        = new ArrayList<>();
         enemyTorpedos               = new ArrayList<>();
         enemyTorpedosToRemove       = new ArrayList<>();
         enemyBossTorpedos           = new ArrayList<>();
         enemyBossTorpedosToRemove   = new ArrayList<>();
+        enemyBossRockets            = new ArrayList<>();
+        enemyBossRocketsToRemove    = new ArrayList<>();
         enemyBossExplosions         = new ArrayList<>();
         enemyBossExplosionsToRemove = new ArrayList<>();
+        rocketExplosions = new ArrayList<>();
+        rocketExplosionsToRemove = new ArrayList<>();
         hits                        = new ArrayList<>();
         hitsToRemove                = new ArrayList<>();
         enemyBossHits               = new ArrayList<>();
@@ -288,7 +307,8 @@ public class SpaceFX extends Application {
         noOfShields                 = SHIELDS;
         lastShieldActivated         = 0;
         lastEnemyBossAttack         = System.nanoTime();
-        lastCrystal                 = System.nanoTime();
+        lastShieldUp                = System.nanoTime();
+        lastLifeUp                  = System.nanoTime();
         lastWave                    = System.nanoTime();
         long deltaTime              = IS_BROWSER ? FPS_30 : FPS_60;
         timer = new AnimationTimer() {
@@ -298,12 +318,16 @@ public class SpaceFX extends Application {
                     updateAndDraw();
                 }
                 if (now > lastEnemyBossAttack + ENEMY_BOSS_ATTACK_INTERVAL) {
-                    spawnEnemyBoss();
+                    spawnEnemyBoss(spaceShip);
                     lastEnemyBossAttack = now;
                 }
-                if (now > lastCrystal + CRYSTAL_SPAWN_INTERVAL) {
-                    spawnCrystal();
-                    lastCrystal = now;
+                if (now > lastShieldUp + SHIELD_UP_SPAWN_INTERVAL) {
+                    spawnShieldUp();
+                    lastShieldUp = now;
+                }
+                if (now > lastLifeUp + LIFE_UP_SPAWN_INTERVAL) {
+                    spawnLifeUp();
+                    lastLifeUp = now;
                 }
                 if (now > lastWave + WAVE_SPAWN_INTERVAL) {
                     spawnWave();
@@ -436,14 +460,18 @@ public class SpaceFX extends Application {
         enemyTorpedosToRemove.clear();
         explosionsToRemove.clear();
         hitsToRemove.clear();
-        enemyBossHitsToRemove.clear();
         asteroidExplosionsToRemove.clear();
-        enemyBossExplosionsToRemove.clear();
         rocketExplosionsToRemove.clear();
-        crystalsToRemove.clear();
-        enemyBossesToRemove.clear();
-        enemyBossTorpedosToRemove.clear();
+        enemyRocketExplosionsToRemove.clear();
+        upExplosionsToRemove.clear();
+        shieldUpsToRemove.clear();
+        lifeUpsToRemove.clear();
         wavesToRemove.clear();
+        enemyBossesToRemove.clear();
+        enemyBossHitsToRemove.clear();
+        enemyBossExplosionsToRemove.clear();
+        enemyBossTorpedosToRemove.clear();
+        enemyBossRocketsToRemove.clear();
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
         // Draw background
@@ -482,18 +510,11 @@ public class SpaceFX extends Application {
             ctx.translate(enemyBoss.x - enemyBoss.radius, enemyBoss.y - enemyBoss.radius);
             ctx.save();
             ctx.translate(enemyBoss.radius, enemyBoss.radius);
-            ctx.rotate(enemyBoss.rot);
+            ctx.rotate(enemyBoss.r);
             ctx.translate(-enemyBoss.radius, -enemyBoss.radius);
             ctx.drawImage(enemyBoss.image, 0, 0);
             ctx.restore();
             ctx.restore();
-            // Fire if spaceship is below enemy
-            if (enemyBoss.x > spaceShip.x - ENEMY_FIRE_SENSITIVITY && enemyBoss.x < spaceShip.x + ENEMY_FIRE_SENSITIVITY) {
-                if (enemyBoss.y - enemyBoss.lastShotY > 15) {
-                    spawnEnemyBossTorpedo(enemyBoss.x, enemyBoss.y, enemyBoss.vX, enemyBoss.vY);
-                    enemyBoss.lastShotY = enemyBoss.y;
-                }
-            }
 
             // Check for torpedo hits with enemy boss
             for (Torpedo torpedo : torpedos) {
@@ -558,31 +579,57 @@ public class SpaceFX extends Application {
         }
         enemyBosses.removeAll(enemyBossesToRemove);
 
-        // Draw Crystal
-        for (Crystal crystal : crystals) {
-            crystal.update();
+        // Draw ShieldUps
+        for (ShieldUp shieldUp : shieldUps) {
+            shieldUp.update();
             ctx.save();
-            ctx.translate(crystal.cX, crystal.cY);
-            ctx.rotate(crystal.rot);
-            ctx.translate(-crystal.imgCenterX, -crystal.imgCenterY);
-            ctx.drawImage(crystal.image, 0, 0);
+            ctx.translate(shieldUp.cX, shieldUp.cY);
+            ctx.rotate(shieldUp.rot);
+            ctx.translate(-shieldUp.imgCenterX, -shieldUp.imgCenterY);
+            ctx.drawImage(shieldUp.image, 0, 0);
             ctx.restore();
 
             // Check for space ship contact
             boolean hit;
             if (spaceShip.shield) {
-                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, crystal.cX, crystal.cY, crystal.radius);
+                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, shieldUp.cX, shieldUp.cY, shieldUp.radius);
             } else {
-                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, crystal.cX, crystal.cY, crystal.radius);
+                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, shieldUp.cX, shieldUp.cY, shieldUp.radius);
             }
             if (hit) {
                 if (noOfShields <= SHIELDS - 1) { noOfShields++; }
-                crystalExplosions.add(new CrystalExplosion(crystal.cX - CrystalExplosion.FRAME_CENTER, crystal.cY - CrystalExplosion.FRAME_CENTER, crystal.vX, crystal.vY, 1.0));
+                upExplosions.add(new UpExplosion(shieldUp.cX - UpExplosion.FRAME_CENTER, shieldUp.cY - UpExplosion.FRAME_CENTER, shieldUp.vX, shieldUp.vY, 1.0));
                 playSound(powerUpSound);
-                crystalsToRemove.add(crystal);
+                shieldUpsToRemove.add(shieldUp);
             }
         }
-        crystals.removeAll(crystalsToRemove);
+        shieldUps.removeAll(shieldUpsToRemove);
+
+        // Draw LifeUps
+        for (LifeUp lifeUp : lifeUps) {
+            lifeUp.update();
+            ctx.save();
+            ctx.translate(lifeUp.cX, lifeUp.cY);
+            ctx.rotate(lifeUp.rot);
+            ctx.translate(-lifeUp.imgCenterX, -lifeUp.imgCenterY);
+            ctx.drawImage(lifeUp.image, 0, 0);
+            ctx.restore();
+
+            // Check for space ship contact
+            boolean hit;
+            if (spaceShip.shield) {
+                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, lifeUp.cX, lifeUp.cY, lifeUp.radius);
+            } else {
+                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, lifeUp.cX, lifeUp.cY, lifeUp.radius);
+            }
+            if (hit) {
+                if (noOfLifes <= LIFES - 1) { noOfLifes++; }
+                upExplosions.add(new UpExplosion(lifeUp.cX - UpExplosion.FRAME_CENTER, lifeUp.cY - UpExplosion.FRAME_CENTER, lifeUp.vX, lifeUp.vY, 1.0));
+                playSound(powerUpSound);
+                lifeUpsToRemove.add(lifeUp);
+            }
+        }
+        lifeUps.removeAll(lifeUpsToRemove);
 
         // Draw Torpedos
         for (Torpedo torpedo : torpedos) {
@@ -612,6 +659,21 @@ public class SpaceFX extends Application {
         }
         enemyBossTorpedos.removeAll(enemyBossTorpedosToRemove);
 
+        // Draw EnemyBossRockets
+        for (EnemyBossRocket enemyBossRocket : enemyBossRockets) {
+            enemyBossRocket.update();
+            ctx.save();
+            ctx.translate(enemyBossRocket.x - enemyBossRocket.width / 2, enemyBossRocket.y - enemyBossRocket.height / 2);
+            ctx.save();
+            ctx.translate(enemyBossRocket.width / 2, enemyBossRocket.height / 2);
+            ctx.rotate(enemyBossRocket.r);
+            ctx.translate(-enemyBossRocket.width / 2, -enemyBossRocket.height / 2);
+            ctx.drawImage(enemyBossRocket.image, 0, 0);
+            ctx.restore();
+            ctx.restore();
+        }
+        enemyBossRockets.removeAll(enemyBossRocketsToRemove);
+
         // Draw Explosions
         for (Explosion explosion : explosions) {
             explosion.update();
@@ -632,12 +694,20 @@ public class SpaceFX extends Application {
         // Draw RocketExplosions
         for (RocketExplosion rocketExplosion : rocketExplosions) {
             rocketExplosion.update();
-            ctx.drawImage(rocketExplosionImg, rocketExplosion.countX * RocketExplosion.FRAME_WIDTH, rocketExplosion.countY * RocketExplosion.FRAME_HEIGHT, RocketExplosion.FRAME_WIDTH, RocketExplosion.FRAME_HEIGHT, rocketExplosion.x, rocketExplosion.y, RocketExplosion.FRAME_WIDTH * rocketExplosion.scale,
+            ctx.drawImage(rocketExplosionImg, rocketExplosion.countX * rocketExplosion.FRAME_WIDTH, rocketExplosion.countY * RocketExplosion.FRAME_HEIGHT, RocketExplosion.FRAME_WIDTH, RocketExplosion.FRAME_HEIGHT, rocketExplosion.x, rocketExplosion.y, RocketExplosion.FRAME_WIDTH * rocketExplosion.scale,
                           RocketExplosion.FRAME_HEIGHT * rocketExplosion.scale);
         }
         rocketExplosions.removeAll(rocketExplosionsToRemove);
 
-        // Draw EnemyBpssExplosions
+        // Draw EnemyRocketExplosions
+        for (EnemyRocketExplosion enemyRocketExplosion : enemyRocketExplosions) {
+            enemyRocketExplosion.update();
+            ctx.drawImage(enemyRocketExplosionImg, enemyRocketExplosion.countX * EnemyRocketExplosion.FRAME_WIDTH, enemyRocketExplosion.countY * EnemyRocketExplosion.FRAME_HEIGHT, EnemyRocketExplosion.FRAME_WIDTH, EnemyRocketExplosion.FRAME_HEIGHT, enemyRocketExplosion.x, enemyRocketExplosion.y, EnemyRocketExplosion.FRAME_WIDTH * enemyRocketExplosion.scale,
+                          EnemyRocketExplosion.FRAME_HEIGHT * enemyRocketExplosion.scale);
+        }
+        enemyRocketExplosions.removeAll(enemyRocketExplosionsToRemove);
+
+        // Draw EnemyBossExplosions
         for (EnemyBossExplosion enemyBossExplosion : enemyBossExplosions) {
             enemyBossExplosion.update();
             ctx.drawImage(enemyBossExplosionImg, enemyBossExplosion.countX * EnemyBossExplosion.FRAME_WIDTH, enemyBossExplosion.countY * EnemyBossExplosion.FRAME_HEIGHT,
@@ -646,13 +716,13 @@ public class SpaceFX extends Application {
         }
         enemyBossExplosions.removeAll(enemyBossExplosionsToRemove);
 
-        // Draw CrystalExplosions
-        for (CrystalExplosion crystalExplosion : crystalExplosions) {
-            crystalExplosion.update();
-            ctx.drawImage(crystalExplosionImg, crystalExplosion.countX * CrystalExplosion.FRAME_WIDTH, crystalExplosion.countY * CrystalExplosion.FRAME_HEIGHT, CrystalExplosion.FRAME_WIDTH, CrystalExplosion.FRAME_HEIGHT, crystalExplosion.x, crystalExplosion.y,
-                          CrystalExplosion.FRAME_WIDTH * crystalExplosion.scale, CrystalExplosion.FRAME_HEIGHT * crystalExplosion.scale);
+        // Draw UpExplosions
+        for (UpExplosion upExplosion : upExplosions) {
+            upExplosion.update();
+            ctx.drawImage(upExplosionImg, upExplosion.countX * UpExplosion.FRAME_WIDTH, upExplosion.countY * UpExplosion.FRAME_HEIGHT, UpExplosion.FRAME_WIDTH, UpExplosion.FRAME_HEIGHT, upExplosion.x, upExplosion.y,
+                          UpExplosion.FRAME_WIDTH * upExplosion.scale, UpExplosion.FRAME_HEIGHT * upExplosion.scale);
         }
-        crystalExplosions.removeAll(crystalExplosionsToRemove);
+        upExplosions.removeAll(upExplosionsToRemove);
 
         // Draw Hits
         for (Hit hit : hits) {
@@ -730,29 +800,37 @@ public class SpaceFX extends Application {
     }
 
     private void spawnEnemyTorpedo(final double x, final double y, final double vX, final double vY) {
-        double vFactor = ENEMY_TORPEDO_SPEED / vY; // make sure the speed is always the defined one
+        double vFactor = ENEMY_TORPEDO_SPEED / Math.abs(vY); // make sure the speed is always the defined one
         enemyTorpedos.add(new EnemyTorpedo(enemyTorpedoImg, x, y, vFactor * vX, vFactor * vY));
         playSound(enemyLaserSound);
     }
 
-    private void spawnEnemyBoss() {
-        enemyBosses.add(new EnemyBoss(enemyBossImg4));
+    private void spawnEnemyBoss(final SpaceShip spaceShip) {
+        enemyBosses.add(new EnemyBoss(spaceShip, enemyBossImg4, RND.nextBoolean()));
     }
 
-    private void spawnCrystal() {
-        crystals.add(new Crystal(crystalImg));
+    private void spawnShieldUp() {
+        shieldUps.add(new ShieldUp(shieldUpImg));
+    }
+
+    private void spawnLifeUp() {
+        lifeUps.add(new LifeUp(lifeUpImg));
     }
 
     private void spawnWave() {
-        waves.add(new Wave(spaceShip, 10, enemyImages[RND.nextInt(3)]));
+        waves.add(new Wave(waveTypes[RND.nextInt(5)], spaceShip, 10, enemyImages[RND.nextInt(3)], true));
     }
 
     private void spawnEnemyBossTorpedo(final double x, final double y, final double vX, final double vY) {
-        double vFactor = ENEMY_BOSS_TORPEDO_SPEED / vY; // make sure the speed is always the defined one
+        double vFactor = ENEMY_BOSS_TORPEDO_SPEED / Math.abs(vY); // make sure the speed is always the defined one
         enemyBossTorpedos.add(new EnemyBossTorpedo(enemyBossTorpedoImg, x, y, vFactor * vX, vFactor * vY));
         playSound(enemyLaserSound);
     }
 
+    private void spawnEnemyBossRocket(final double x, final double y) {
+        enemyBossRockets.add(new EnemyBossRocket(spaceShip, enemyBossRocketImg, x, y));
+        playSound(rocketLaunchSound);
+    }
 
     // Hit test
     private boolean isHitCircleCircle(final double c1X, final double c1Y, final double c1R, final double c2X, final double c2Y, final double c2R) {
@@ -794,7 +872,7 @@ public class SpaceFX extends Application {
             torpedos.clear();
             enemyTorpedos.clear();
             enemyBosses.clear();
-            crystals.clear();
+            shieldUps.clear();
             waves.clear();
             spaceShip.x  = WIDTH * 0.5;
             spaceShip.y  = HEIGHT - 2 * spaceShip.image.getHeight();
@@ -899,7 +977,7 @@ public class SpaceFX extends Application {
     }
 
 
-    private class SpaceShip {
+    public class SpaceShip {
         private final Image   image;
         private final Image   imageThrust;
         private       double  x;
@@ -947,7 +1025,7 @@ public class SpaceFX extends Application {
     }
 
 
-    private class Torpedo {
+    public class Torpedo {
         private final Image  image;
         private       double x;
         private       double y;
@@ -960,15 +1038,15 @@ public class SpaceFX extends Application {
 
 
         public Torpedo(final Image image, final double x, final double y) {
-            this.image = image;
-            this.x = x;
-            this.y = y - image.getHeight();
-            this.width = image.getWidth();
+            this.image  = image;
+            this.x      = x;
+            this.y      = y - image.getHeight();
+            this.width  = image.getWidth();
             this.height = image.getHeight();
-            this.size = width > height ? width : height;
+            this.size   = width > height ? width : height;
             this.radius = size * 0.5;
-            this.vX = 0;
-            this.vY = TORPEDO_SPEED;
+            this.vX     = 0;
+            this.vY     = TORPEDO_SPEED;
         }
 
 
@@ -981,7 +1059,7 @@ public class SpaceFX extends Application {
     }
 
 
-    private class Rocket {
+    public class Rocket {
         private final Image  image;
         private       double x;
         private       double y;
@@ -1019,7 +1097,7 @@ public class SpaceFX extends Application {
     }
 
 
-    private class RocketExplosion {
+    public class EnemyRocketExplosion {
         private static final double FRAME_WIDTH  = 128;
         private static final double FRAME_HEIGHT = 128;
         private static final double FRAME_CENTER = 64;
@@ -1034,7 +1112,7 @@ public class SpaceFX extends Application {
         private              int    countY;
 
 
-        public RocketExplosion(final double x, final double y, final double vX, final double vY, final double scale) {
+        public EnemyRocketExplosion(final double x, final double y, final double vX, final double vY, final double scale) {
             this.x = x;
             this.y = y;
             this.vX = vX;
@@ -1053,7 +1131,7 @@ public class SpaceFX extends Application {
             if (countX == MAX_FRAME_X) {
                 countY++;
                 if (countX == MAX_FRAME_X && countY == MAX_FRAME_Y) {
-                    rocketExplosionsToRemove.add(RocketExplosion.this);
+                    enemyRocketExplosionsToRemove.add(EnemyRocketExplosion.this);
                 }
                 countX = 0;
                 if (countY == MAX_FRAME_Y) {
@@ -1064,7 +1142,7 @@ public class SpaceFX extends Application {
     }
 
 
-    private class AsteroidExplosion {
+    public class AsteroidExplosion {
         private static final double FRAME_WIDTH  = 256;
         private static final double FRAME_HEIGHT = 256;
         private static final double FRAME_CENTER = 128;
@@ -1109,7 +1187,7 @@ public class SpaceFX extends Application {
     }
 
 
-    private class Explosion {
+    public class Explosion {
         private static final double FRAME_WIDTH  = 192;
         private static final double FRAME_HEIGHT = 192;
         private static final double FRAME_CENTER = 96;
@@ -1154,7 +1232,7 @@ public class SpaceFX extends Application {
     }
 
 
-    private class CrystalExplosion {
+    public class UpExplosion {
         private static final double FRAME_WIDTH  = 100;
         private static final double FRAME_HEIGHT = 100;
         private static final double FRAME_CENTER = 50;
@@ -1169,12 +1247,12 @@ public class SpaceFX extends Application {
         private              int    countY;
 
 
-        public CrystalExplosion(final double x, final double y, final double vX, final double vY, final double scale) {
-            this.x = x;
-            this.y = y;
-            this.vX = vX;
-            this.vY = vY;
-            this.scale = scale;
+        public UpExplosion(final double x, final double y, final double vX, final double vY, final double scale) {
+            this.x      = x;
+            this.y      = y;
+            this.vX     = vX;
+            this.vY     = vY;
+            this.scale  = scale;
             this.countX = 0;
             this.countY = 0;
         }
@@ -1188,7 +1266,7 @@ public class SpaceFX extends Application {
             if (countX == MAX_FRAME_X) {
                 countY++;
                 if (countX == MAX_FRAME_X && countY == MAX_FRAME_Y) {
-                    crystalExplosionsToRemove.add(CrystalExplosion.this);
+                    upExplosionsToRemove.add(UpExplosion.this);
                 }
                 countX = 0;
                 if (countY == MAX_FRAME_Y) {
@@ -1199,7 +1277,7 @@ public class SpaceFX extends Application {
     }
 
 
-    private class SpaceShipExplosion {
+    public class SpaceShipExplosion {
         private static final double FRAME_WIDTH  = 100;
         private static final double FRAME_HEIGHT = 100;
         private static final double FRAME_CENTER = 50;
@@ -1237,7 +1315,7 @@ public class SpaceFX extends Application {
     }
 
 
-    private class Hit {
+    public class Hit {
         private static final double FRAME_WIDTH  = 80;
         private static final double FRAME_HEIGHT = 80;
         private static final double FRAME_CENTER = 40;
@@ -1280,7 +1358,7 @@ public class SpaceFX extends Application {
     }
 
 
-    private class EnemyBossHit {
+    public class EnemyBossHit {
         private static final double FRAME_WIDTH  = 80;
         private static final double FRAME_HEIGHT = 80;
         private static final double FRAME_CENTER = 40;
@@ -1323,43 +1401,52 @@ public class SpaceFX extends Application {
     }
 
 
-    private class Enemy {
-        private static final int    MAX_VALUE  = 49;
-        private final        Random rnd        = new Random();
-        private final        double xVariation = 1;
-        private final        double minSpeedY  = 3;
-        private              Image  image;
-        private              double x;
-        private              double y;
-        private              double rot;
-        private              double width;
-        private              double height;
-        private              double size;
-        private              double radius;
-        private              double vX;
-        private              double vY;
-        private              double vYVariation;
-        private              int    value;
-        private              double lastShotY;
+    public class Enemy {
+        public  static final long      TIME_BETWEEN_SHOTS  = 500_000_000l;
+        public  static final double    HALF_ANGLE_OF_SIGHT = 5;
+        private static final int       MAX_VALUE           = 49;
+        private final        Random    rnd                 = new Random();
+        private final        WaveType  waveType;
+        private              int       frameCounter;
+        private              SpaceShip spaceShip;
+        public               Image     image;
+        public               boolean   attack;
+        private              double    oldX;
+        private              double    oldY;
+        public               double    x;
+        public               double    y;
+        public               double    r;
+        public               double    width;
+        public               double    height;
+        private              double    size;
+        public               double    radius;
+        public               double    vX;
+        public               double    vY;
+        public               int       value;
+        public               long      lastShot;
+        public               boolean   toBeRemoved;
 
 
-        public Enemy(final Image image) {
-            // Image
-            this.image = image;
+        public Enemy(final WaveType waveType, final SpaceShip spaceShip, final Image image, final boolean attack) {
+            this.waveType     = waveType;
+            this.frameCounter = 0;
+            this.spaceShip    = spaceShip;
+            this.image        = image;
+            this.attack       = attack;
+            this.toBeRemoved  = false;
             init();
         }
 
 
         private void init() {
-            // Position
-            x = rnd.nextDouble() * WIDTH;
-            y = -image.getHeight();
+            x    = waveType.coordinates.get(0).x;
+            y    = waveType.coordinates.get(0).y;
+            r    = waveType.coordinates.get(0).r;
+            oldX = x;
+            oldY = y;
 
             // Value
             value = rnd.nextInt(MAX_VALUE) + 1;
-
-            // Random Speed
-            vYVariation = (rnd.nextDouble() * 0.5) + 0.2;
 
             width  = image.getWidth();
             height = image.getHeight();
@@ -1367,60 +1454,79 @@ public class SpaceFX extends Application {
             radius = size * 0.5;
 
             // Velocity
-            if (x < FIRST_QUARTER_WIDTH) {
-                vX = (rnd.nextDouble() * 0.5) * VELOCITY_FACTOR_X;
-            } else if (x > LAST_QUARTER_WIDTH) {
-                vX = -(rnd.nextDouble() * 0.5) * VELOCITY_FACTOR_X;
-            } else {
-                vX = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
-            }
-            vY = (((rnd.nextDouble() * 1.5) + minSpeedY) * vYVariation) * VELOCITY_FACTOR_Y;
+            vX = 0;
+            vY = 1;
 
-            // Rotation
-            //rot = Math.toDegrees(Math.atan2(vY, vX)) - 90;
-
-            // Related to laser fire
-            lastShotY = 0;
+            lastShot = System.nanoTime();
         }
 
         private void update() {
-            x += vX;
-            y += vY;
+            if (toBeRemoved) { return; }
+            oldX = x;
+            oldY = y;
+            x    = waveType.coordinates.get(frameCounter).x;
+            y    = waveType.coordinates.get(frameCounter).y;
+            r    = waveType.coordinates.get(frameCounter).r;
+            vX   = x - oldX;
+            vY   = y - oldY;
 
-            rot = Math.toDegrees(Math.atan2(vY, vX)) - 90;
+            if (attack) {
+                if (System.nanoTime() - lastShot > TIME_BETWEEN_SHOTS) {
+                    double[] p0 = { x, y };
+                    double[] p1 = Helper.rotatePointAroundRotationCenter(x + HEIGHT * vX, y + HEIGHT * vY, x, y, -HALF_ANGLE_OF_SIGHT);
+                    double[] p2 = Helper.rotatePointAroundRotationCenter(x + HEIGHT * vX, y + HEIGHT * vY, x, y, HALF_ANGLE_OF_SIGHT);
 
-            // Respawn Enemy
-            if (x < -size || x > WIDTH + size || y > HEIGHT + size) {
+                    double area = 0.5 * (-p1[1] * p2[0] + p0[1] * (-p1[0] + p2[0]) + p0[0] * (p1[1] - p2[1]) + p1[0] * p2[1]);
+                    double s    = 1 / (2 * area) * (p0[1] * p2[0] - p0[0] * p2[1] + (p2[1] - p0[1]) * spaceShip.x + (p0[0] - p2[0]) * spaceShip.y);
+                    double t    = 1 / (2 * area) * (p0[0] * p1[1] - p0[1] * p1[0] + (p0[1] - p1[1]) * spaceShip.x + (p1[0] - p0[0]) * spaceShip.y);
+                    if (s > 0 && t > 0 && 1 - s - t > 0) {
+                        spawnEnemyTorpedo(x, y, vX * 2, vY * 2);
+                        lastShot = System.nanoTime();
+                    }
+                }
+            }
 
+            // Remove Enemy
+            frameCounter++;
+            if (frameCounter >= waveType.totalFrames) {
+                toBeRemoved = true;
             }
         }
     }
 
 
-    private class EnemyBoss {
-        private static final int    MAX_VALUE  = 99;
-        private final        Random rnd        = new Random();
-        private final        double xVariation = 1;
-        private final        double minSpeedY  = 3;
-        private              Image  image;
-        private              double x;
-        private              double y;
-        private              double rot;
-        private              double width;
-        private              double height;
-        private              double size;
-        private              double radius;
-        private              double vX;
-        private              double vY;
-        private              double vYVariation;
-        private              int    value;
-        private              double lastShotY;
-        private              int    hits;
+    public class EnemyBoss {
+        private static final int       MAX_VALUE            = 99;
+        private static final long      TIME_BETWEEN_SHOTS   = 500_000_000l;
+        private static final long      TIME_BETWEEN_ROCKETS = 5_000_000_000l;
+        private static final double    HALF_ANGLE_OF_SIGHT  = 10;
+        private final        Random    rnd                  = new Random();
+        private final        SpaceShip spaceShip;
+        private              Image     image;
+        private              double    x;
+        private              double    y;
+        private              double    r;
+        private              double    dX;
+        private              double    dY;
+        private              double    dist;
+        private              double    factor;
+        private              double    width;
+        private              double    height;
+        private              double    size;
+        private              double    radius;
+        private              double    vX;
+        private              double    vY;
+        private              int       value;
+        private              int       hits;
+        private              long      lastShot;
+        private              long      lastRocket;
+        private              boolean   hasRockets;
 
 
-        public EnemyBoss(final Image image) {
-            // Image
-            this.image = image;
+        public EnemyBoss(final SpaceShip spaceShip, final Image image, final boolean hasRockets) {
+            this.spaceShip  = spaceShip;
+            this.image      = image;
+            this.hasRockets = hasRockets;
             init();
         }
 
@@ -1433,37 +1539,61 @@ public class SpaceFX extends Application {
             // Value
             value = rnd.nextInt(MAX_VALUE) + 1;
 
-            // Random Speed
-            vYVariation = (rnd.nextDouble() * 0.5) + 0.2;
-
-            width = image.getWidth();
+            width  = image.getWidth();
             height = image.getHeight();
-            size = width > height ? width : height;
+            size   = width > height ? width : height;
             radius = size * 0.5;
 
             // Velocity
-            if (x < FIRST_QUARTER_WIDTH) {
-                vX = (rnd.nextDouble() * 0.5) * VELOCITY_FACTOR_X;
-            } else if (x > LAST_QUARTER_WIDTH) {
-                vX = -(rnd.nextDouble() * 0.5) * VELOCITY_FACTOR_X;
-            } else {
-                vX = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
-            }
-            vY = (((rnd.nextDouble() * 1.5) + minSpeedY) * vYVariation) * VELOCITY_FACTOR_Y;
-
-            // Rotation
-            rot = Math.toDegrees(Math.atan2(vY, vX)) - 90;
-
-            // Related to laser fire
-            lastShotY = 0;
+            vX = 0;
+            vY = ENEMY_BOSS_SPEED;
 
             // No of hits
             hits = 5;
         }
 
         private void update() {
+            dX     = spaceShip.x - x;
+            dY     = spaceShip.y - y;
+            dist   = Math.sqrt(dX * dX + dY * dY);
+            factor = ENEMY_BOSS_SPEED / dist;
+            vX     = dX * factor;
+            vY     = dY * factor;
+
             x += vX;
             y += vY;
+
+            r = Math.toDegrees(Math.atan2(vY, vX)) - 90;
+
+            if (hasRockets) {
+                if (System.nanoTime() - lastRocket > TIME_BETWEEN_ROCKETS) {
+                    double[] p0 = { x, y };
+                    double[] p1 = Helper.rotatePointAroundRotationCenter(x + HEIGHT * vX, y + HEIGHT * vY, x, y, -HALF_ANGLE_OF_SIGHT);
+                    double[] p2 = Helper.rotatePointAroundRotationCenter(x + HEIGHT * vX, y + HEIGHT * vY, x, y, HALF_ANGLE_OF_SIGHT);
+
+                    double area = 0.5 * (-p1[1] * p2[0] + p0[1] * (-p1[0] + p2[0]) + p0[0] * (p1[1] - p2[1]) + p1[0] * p2[1]);
+                    double s    = 1 / (2 * area) * (p0[1] * p2[0] - p0[0] * p2[1] + (p2[1] - p0[1]) * spaceShip.x + (p0[0] - p2[0]) * spaceShip.y);
+                    double t    = 1 / (2 * area) * (p0[0] * p1[1] - p0[1] * p1[0] + (p0[1] - p1[1]) * spaceShip.x + (p1[0] - p0[0]) * spaceShip.y);
+                    if (s > 0 && t > 0 && 1 - s - t > 0) {
+                        spawnEnemyBossRocket(x, y);
+                        lastRocket = System.nanoTime();
+                    }
+                }
+            } else {
+                if (System.nanoTime() - lastShot > TIME_BETWEEN_SHOTS) {
+                    double[] p0 = { x, y };
+                    double[] p1 = Helper.rotatePointAroundRotationCenter(x + HEIGHT * vX, y + HEIGHT * vY, x, y, -HALF_ANGLE_OF_SIGHT);
+                    double[] p2 = Helper.rotatePointAroundRotationCenter(x + HEIGHT * vX, y + HEIGHT * vY, x, y, HALF_ANGLE_OF_SIGHT);
+
+                    double area = 0.5 * (-p1[1] * p2[0] + p0[1] * (-p1[0] + p2[0]) + p0[0] * (p1[1] - p2[1]) + p1[0] * p2[1]);
+                    double s    = 1 / (2 * area) * (p0[1] * p2[0] - p0[0] * p2[1] + (p2[1] - p0[1]) * spaceShip.x + (p0[0] - p2[0]) * spaceShip.y);
+                    double t    = 1 / (2 * area) * (p0[0] * p1[1] - p0[1] * p1[0] + (p0[1] - p1[1]) * spaceShip.x + (p1[0] - p0[0]) * spaceShip.y);
+                    if (s > 0 && t > 0 && 1 - s - t > 0) {
+                        spawnEnemyBossTorpedo(x, y, vX, vY);
+                        lastShot = System.nanoTime();
+                    }
+                }
+            }
 
             switch (hits) {
                 case 5:
@@ -1491,7 +1621,7 @@ public class SpaceFX extends Application {
     }
 
 
-    private class EnemyBossExplosion {
+    public class EnemyBossExplosion {
         private static final double FRAME_WIDTH  = 200;
         private static final double FRAME_HEIGHT = 200;
         private static final double FRAME_CENTER = 100;
@@ -1507,11 +1637,11 @@ public class SpaceFX extends Application {
 
 
         public EnemyBossExplosion(final double x, final double y, final double vX, final double vY, final double scale) {
-            this.x = x;
-            this.y = y;
-            this.vX = vX;
-            this.vY = vY;
-            this.scale = scale;
+            this.x      = x;
+            this.y      = y;
+            this.vX     = vX;
+            this.vY     = vY;
+            this.scale  = scale;
             this.countX = 0;
             this.countY = 0;
         }
@@ -1536,7 +1666,52 @@ public class SpaceFX extends Application {
     }
 
 
-    private class Crystal {
+    public class RocketExplosion {
+        private static final double FRAME_WIDTH  = 192;
+        private static final double FRAME_HEIGHT = 192;
+        private static final double FRAME_CENTER = 96;
+        private static final int    MAX_FRAME_X  = 5;
+        private static final int    MAX_FRAME_Y  = 4;
+        private              double x;
+        private              double y;
+        private              double vX;
+        private              double vY;
+        private              double scale;
+        private              int    countX;
+        private              int    countY;
+
+
+        public RocketExplosion(final double x, final double y, final double vX, final double vY, final double scale) {
+            this.x      = x;
+            this.y      = y;
+            this.vX     = vX;
+            this.vY     = vY;
+            this.scale  = scale;
+            this.countX = 0;
+            this.countY = 0;
+        }
+
+
+        private void update() {
+            x += vX;
+            y += vY;
+
+            countX++;
+            if (countX == MAX_FRAME_X) {
+                countY++;
+                if (countX == MAX_FRAME_X && countY == MAX_FRAME_Y) {
+                    rocketExplosionsToRemove.add(RocketExplosion.this);
+                }
+                countX = 0;
+                if (countY == MAX_FRAME_Y) {
+                    countY = 0;
+                }
+            }
+        }
+    }
+
+
+    public class ShieldUp {
         private final Random  rnd          = new Random();
         private final double  xVariation   = 2;
         private final double  minSpeedY    = 2;
@@ -1560,7 +1735,7 @@ public class SpaceFX extends Application {
         private       double  vYVariation;
 
 
-        public Crystal(final Image image) {
+        public ShieldUp(final Image image) {
             // Image
             this.image = image;
             init();
@@ -1611,15 +1786,98 @@ public class SpaceFX extends Application {
                 if (rot < 0) { rot = 360; }
             }
 
-            // Respawn asteroid
+            // Remove shieldUp
             if (x < -size || x - radius > WIDTH || y - height > HEIGHT) {
-                crystalsToRemove.add(Crystal.this);
+                shieldUpsToRemove.add(ShieldUp.this);
             }
         }
     }
 
 
-    private class EnemyTorpedo {
+    public class LifeUp {
+        private final Random  rnd          = new Random();
+        private final double  xVariation   = 2;
+        private final double  minSpeedY    = 2;
+        private final double  minRotationR = 0.1;
+        private       Image   image;
+        private       double  x;
+        private       double  y;
+        private       double  width;
+        private       double  height;
+        private       double  size;
+        private       double  imgCenterX;
+        private       double  imgCenterY;
+        private       double  radius;
+        private       double  cX;
+        private       double  cY;
+        private       double  rot;
+        private       double  vX;
+        private       double  vY;
+        private       double  vR;
+        private       boolean rotateRight;
+        private       double  vYVariation;
+
+
+        public LifeUp(final Image image) {
+            // Image
+            this.image = image;
+            init();
+        }
+
+
+        private void init() {
+            // Position
+            x = rnd.nextDouble() * WIDTH;
+            y = -image.getHeight();
+            rot = 0;
+
+            // Random Speed
+            vYVariation = (rnd.nextDouble() * 0.5) + 0.2;
+
+            width = image.getWidth();
+            height = image.getHeight();
+            size = width > height ? width : height;
+            radius = size * 0.5;
+            imgCenterX = image.getWidth() * 0.5;
+            imgCenterY = image.getHeight() * 0.5;
+
+            // Velocity
+            if (x < FIRST_QUARTER_WIDTH) {
+                vX = rnd.nextDouble() * VELOCITY_FACTOR_X;
+            } else if (x > LAST_QUARTER_WIDTH) {
+                vX = -rnd.nextDouble() * VELOCITY_FACTOR_X;
+            } else {
+                vX = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
+            }
+            vY = (((rnd.nextDouble() * 1.5) + minSpeedY) * vYVariation) * VELOCITY_FACTOR_Y;
+            vR = (((rnd.nextDouble()) * 0.5) + minRotationR) * VELOCITY_FACTOR_R;
+            rotateRight = rnd.nextBoolean();
+        }
+
+        private void update() {
+            x += vX;
+            y += vY;
+
+            cX = x + imgCenterX;
+            cY = y + imgCenterY;
+
+            if (rotateRight) {
+                rot += vR;
+                if (rot > 360) { rot = 0; }
+            } else {
+                rot -= vR;
+                if (rot < 0) { rot = 360; }
+            }
+
+            // Remove lifeUp
+            if (x < -size || x - radius > WIDTH || y - height > HEIGHT) {
+                lifeUpsToRemove.add(LifeUp.this);
+            }
+        }
+    }
+
+
+    public class EnemyTorpedo {
         private final Image  image;
         private       double x;
         private       double y;
@@ -1668,14 +1926,14 @@ public class SpaceFX extends Application {
                         }
                     }
                 }
-            } else if (y > HEIGHT) {
+            } else if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT) {
                 enemyTorpedosToRemove.add(EnemyTorpedo.this);
             }
         }
     }
 
 
-    private class EnemyBossTorpedo {
+    public class EnemyBossTorpedo {
         private final Image  image;
         private       double x;
         private       double y;
@@ -1688,15 +1946,15 @@ public class SpaceFX extends Application {
 
 
         public EnemyBossTorpedo(final Image image, final double x, final double y, final double vX, final double vY) {
-            this.image = image;
-            this.x = x - image.getWidth() / 2.0;
-            this.y = y;
-            this.width = image.getWidth();
+            this.image  = image;
+            this.x      = x - image.getWidth() / 2.0;
+            this.y      = y;
+            this.width  = image.getWidth();
             this.height = image.getHeight();
-            this.size = width > height ? width : height;
+            this.size   = width > height ? width : height;
             this.radius = size * 0.5;
-            this.vX = vX;
-            this.vY = vY;
+            this.vX     = vX;
+            this.vY     = vY;
         }
 
 
@@ -1724,14 +1982,93 @@ public class SpaceFX extends Application {
                         }
                     }
                 }
-            } else if (y > HEIGHT) {
+            } else if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT) {
                 enemyBossTorpedosToRemove.add(EnemyBossTorpedo.this);
             }
         }
     }
 
 
-    private class Player implements Comparable<Player> {
+    public class EnemyBossRocket {
+        private final long      rocketLifespan = 2_500_000_000l;
+        private final SpaceShip spaceShip;
+        private final Image     image;
+        private       long      born;
+        private       double    x;
+        private       double    y;
+        private       double    r;
+        private       double    dX;
+        private       double    dY;
+        private       double    dist;
+        private       double    factor;
+        private       double    width;
+        private       double    height;
+        private       double    size;
+        private       double    radius;
+        private       double    vX;
+        private       double    vY;
+
+
+        public EnemyBossRocket(final SpaceShip spaceShip, final Image image, final double x, final double y) {
+            this.spaceShip = spaceShip;
+            this.image     = image;
+            this.x         = x - image.getWidth() / 2.0;
+            this.y         = y;
+            this.width     = image.getWidth();
+            this.height    = image.getHeight();
+            this.size      = width > height ? width : height;
+            this.radius    = size * 0.5;
+            this.vX        = 0;
+            this.vY        = 1;
+            this.born      = System.nanoTime();
+        }
+
+
+        private void update() {
+            dX     = spaceShip.x - x;
+            dY     = spaceShip.y - y;
+            dist   = Math.sqrt(dX * dX + dY * dY);
+            factor = ENEMY_BOSS_ROCKET_SPEED / dist;
+            vX     = dX * factor;
+            vY     = dY * factor;
+
+            x += vX;
+            y += vY;
+
+            r = Math.toDegrees(Math.atan2(vY, vX)) - 90;
+
+            if (!hasBeenHit) {
+                boolean hit;
+                if (spaceShip.shield) {
+                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
+                } else {
+                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
+                }
+                if (hit) {
+                    enemyBossRocketsToRemove.add(EnemyBossRocket.this);
+                    if (spaceShip.shield) {
+                        playSound(shieldHitSound);
+                    } else {
+                        hasBeenHit = true;
+                        playSound(spaceShipExplosionSound);
+                        noOfLifes--;
+                        if (0 == noOfLifes) {
+                            gameOver();
+                        }
+                    }
+                }
+            } else if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT) {
+                enemyBossRocketsToRemove.add(EnemyBossRocket.this);
+            }
+            if (System.nanoTime() - born > rocketLifespan) {
+                enemyRocketExplosions.add(new EnemyRocketExplosion(x - EnemyRocketExplosion.FRAME_WIDTH * 0.25, y - EnemyRocketExplosion.FRAME_HEIGHT * 0.25, vX, vY, 0.5));
+                enemyBossRocketsToRemove.add(EnemyBossRocket.this);
+            }
+        }
+    }
+
+
+    public class Player implements Comparable<Player> {
         private final String id;
         private       String name;
         private       Long   score;
@@ -1751,10 +2088,12 @@ public class SpaceFX extends Application {
 
 
     private class Wave {
-        private static final long        ENEMY_SPAWN_INTERVAL = 500_000_000l;
+        private static final long        ENEMY_SPAWN_INTERVAL = 250_000_000l;
+        private        final WaveType    waveType;
         private        final SpaceShip   spaceShip;
         private        final int         noOfEnemies;
         private        final Image       image;
+        private        final boolean     attack;
         private        final List<Enemy> enemies;
         private        final List<Enemy> enemiesToRemove;
         private              int         enemiesSpawned;
@@ -1762,10 +2101,12 @@ public class SpaceFX extends Application {
         private              boolean     isRunning;
 
 
-        public Wave(final SpaceShip spaceShip, final int noOfEnemies, final Image image) {
+        public Wave(final WaveType waveType, final SpaceShip spaceShip, final int noOfEnemies, final Image image, final boolean attack) {
+            this.waveType        = waveType;
             this.spaceShip       = spaceShip;
             this.noOfEnemies     = noOfEnemies;
             this.image           = image;
+            this.attack          = attack;
             this.enemies         = new ArrayList<>(noOfEnemies);
             this.enemiesToRemove = new ArrayList<>();
             this.enemiesSpawned  = 0;
@@ -1779,19 +2120,38 @@ public class SpaceFX extends Application {
                     spawnEnemy();
                     lastEnemySpawned = System.nanoTime();
                 }
+
                 enemies.forEach(enemy -> {
                     enemy.update();
+                    if (enemy.toBeRemoved) {
+                        enemiesToRemove.add(enemy);
+                    }
 
                     ctx.save();
                     ctx.translate(enemy.x - enemy.radius, enemy.y - enemy.radius);
                     ctx.save();
                     ctx.translate(enemy.radius, enemy.radius);
-                    ctx.rotate(enemy.rot);
+                    ctx.rotate(enemy.r);
                     ctx.translate(-enemy.radius, -enemy.radius);
                     ctx.drawImage(enemy.image, 0, 0);
                     ctx.restore();
                     ctx.restore();
 
+                    /* Check if spaceship is in line of sight and fire
+                    if (System.nanoTime() - enemy.lastShot > Enemy.TIME_BETWEEN_SHOTS) {
+                        double[] p0 = { enemy.x, enemy.y };
+                        double[] p1 = Helper.rotatePointAroundRotationCenter(enemy.x + HEIGHT * enemy.vX, enemy.y + HEIGHT * enemy.vY, enemy.x, enemy.y, -Enemy.HALF_ANGLE_OF_SIGHT);
+                        double[] p2 = Helper.rotatePointAroundRotationCenter(enemy.x + HEIGHT * enemy.vX, enemy.y + HEIGHT * enemy.vY, enemy.x, enemy.y, Enemy.HALF_ANGLE_OF_SIGHT);
+
+                        double area = 0.5 * (-p1[1] * p2[0] + p0[1] * (-p1[0] + p2[0]) + p0[0] * (p1[1] - p2[1]) + p1[0] * p2[1]);
+                        double s    = 1 / (2 * area) * (p0[1] * p2[0] - p0[0] * p2[1] + (p2[1] - p0[1]) * spaceShip.x + (p0[0] - p2[0]) * spaceShip.y);
+                        double t    = 1 / (2 * area) * (p0[0] * p1[1] - p0[1] * p1[0] + (p0[1] - p1[1]) * spaceShip.x + (p1[0] - p0[0]) * spaceShip.y);
+                        if (s > 0 && t > 0 && 1 - s - t > 0) {
+                            spawnEnemyTorpedo(enemy.x, enemy.y, enemy.vX * 2, enemy.vY * 2);
+                            enemy.lastShot = System.nanoTime();
+                        }
+                    }
+                    */
                     // Check for torpedo hits
                     for (Torpedo torpedo : torpedos) {
                         if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, enemy.x, enemy.y, enemy.radius)) {
@@ -1829,8 +2189,8 @@ public class SpaceFX extends Application {
                             } else {
                                 spaceShipExplosion.countX = 0;
                                 spaceShipExplosion.countY = 0;
-                                spaceShipExplosion.x = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
-                                spaceShipExplosion.y = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
+                                spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
+                                spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
                                 playSound(spaceShipExplosionSound);
                                 hasBeenHit = true;
                                 noOfLifes--;
@@ -1838,9 +2198,11 @@ public class SpaceFX extends Application {
                                     gameOver();
                                 }
                             }
+                            enemiesToRemove.add(enemy);
                         }
                     }
                 });
+
                 enemies.removeAll(enemiesToRemove);
                 enemiesToRemove.clear();
                 if (enemies.isEmpty() && enemiesSpawned == noOfEnemies) { isRunning = false; }
@@ -1848,11 +2210,7 @@ public class SpaceFX extends Application {
         }
 
         private void spawnEnemy() {
-            Enemy enemy = new Enemy(image);
-            enemy.x  = WIDTH + enemy.width;
-            enemy.y  = -enemy.height;
-            enemy.vX = -1.5;
-            enemy.vY = 4;
+            Enemy enemy = new Enemy(waveType, spaceShip, image, attack);
             enemies.add(enemy);
             enemiesSpawned++;
         }

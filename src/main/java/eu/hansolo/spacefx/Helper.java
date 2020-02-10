@@ -218,35 +218,6 @@ public class Helper {
     public static final boolean biggerThan(final double a, final double b) { return (a - b) > EPSILON; }
     public static final boolean lessThan(final double a, final double b) { return (b - a) > EPSILON; }
 
-    public static final List<Point> subdividePoints(final List<Point> newPoints, final int subDevisions) {
-        Point[] points = newPoints.toArray(new Point[0]);
-        return Arrays.asList(subdividePoints(points, subDevisions));
-    }
-    public static final Point[] subdividePoints(final Point[] points, final int subDevisions) {
-        assert points != null;
-        assert points.length >= 3;
-        int    noOfPoints = points.length;
-
-        Point[] subdividedPoints = new Point[((noOfPoints - 1) * subDevisions) + 1];
-
-        double increments = 1.0 / (double) subDevisions;
-
-        for (int i = 0 ; i < noOfPoints - 1 ; i++) {
-            Point p0 = i == 0 ? points[i] : points[i - 1];
-            Point p1 = points[i];
-            Point p2 = points[i + 1];
-            Point p3 = (i+2 == noOfPoints) ? points[i + 1] : points[i + 2];
-
-            CatmullRom crs = new CatmullRom(p0, p1, p2, p3);
-
-            for (int j = 0; j <= subDevisions; j++) {
-                subdividedPoints[(i * subDevisions) + j] = crs.q(j * increments);
-            }
-        }
-
-        return subdividedPoints;
-    }
-
     private static final Pair<Point[], Point[]> calcCurveControlPoints(Point[] dataPoints) {
         Point[] firstControlPoints;
         Point[] secondControlPoints;
@@ -636,5 +607,43 @@ public class Helper {
             }
         }
         return "";
+    }
+
+    /*
+     * t   -> Point in time  (Values between 0 - 1)
+     * ap0 -> AnchorPoint  (Start point of the curve)
+     * cp1 -> ControlPoint (Control point of the curve)
+     * ap2 -> AnchorPoint  (End point of the curve)
+     */
+    public static final double[] bezierCurve3Points(final double t, final double ap0x, final double ap0y, final double cp1x, final double cp1y, final double ap2x, final double ap2y) {
+        double oneMinusT         = (1 - t);
+        double oneMinusTSquared2 = (oneMinusT * oneMinusT);
+        double tSquared2         = t * t;
+
+        double x = oneMinusTSquared2 * ap0x + 2 * oneMinusT * t * cp1x + tSquared2 * ap2x;
+        double y = oneMinusTSquared2 * ap0y + 2 * oneMinusT * t * cp1y + tSquared2 * ap2y;
+        //double x = (1 - t) * (1 - t) * ap0x + 2 * (1 - t) * t * cp1x + t * t * ap2x;
+        //double y = (1 - t) * (1 - t) * ap0y + 2 * (1 - t) * t * cp1y + t * t * ap2y;
+        return new double[] { x, y };
+    }
+
+    /*
+     * t   -> Point in time  (Values between 0 - 1)
+     * ap0 -> AnchorPoint    (Start point of the curve)
+     * cp1 -> ControlPoint 1 (1st control point of the curve)
+     * cp2 -> ControlPoint 2 (2nd control point of the curve)
+     * ap3 -> AnchorPoint    (End point of the curve)
+     */
+    public static final double[] bezierCurve4Points(final double t, final double ap0x, final double ap0y, final double cp1x, final double cp1y, final double cp2x, final double cp2y, final double ap3x, final double ap3y) {
+        double oneMinusT         = (1 - t);
+        double oneMinusTSquared2 = (1 - t) * (1 - t);
+        double oneMinusTSquared3 = (1 - t) * (1 - t) * (1 - t);
+        double tSquared2         = t * t;
+        double txSquared3        = t * t * t;
+
+        double x = oneMinusTSquared3 * ap0x + 3 * oneMinusTSquared2 * t * cp1x + 3 * oneMinusT * tSquared2 * cp2x + txSquared3 * ap3x;
+        double y = oneMinusTSquared3 * ap0y + 3 * oneMinusTSquared2 * t * cp1y + 3 * oneMinusT * tSquared2 * cp2y + txSquared3 * ap3y;
+
+        return new double[] { x, y };
     }
 }
