@@ -57,8 +57,9 @@ public class SpaceFX extends Application {
     private static final boolean                    SHOW_BACKGROUND            = true;
     private static final boolean                    SHOW_STARS                 = true;
     private static final boolean                    SHOW_ENEMIES               = true;
+    private static final boolean                    SHOW_ASTEROIDS             = true;
     private static final int                        NO_OF_STARS                = SHOW_STARS ? 200 : 0;
-    private static final int                        NO_OF_ENEMIES              = SHOW_ENEMIES ? 5 : 0;
+    private static final int                        NO_OF_ASTEROIDS            = SHOW_ASTEROIDS ? 10 : 0;
     //-------------------------------------------------------------------------
     private static final int                        LIFES                      = 5;
     private static final int                        SHIELDS                    = 10;
@@ -73,7 +74,7 @@ public class SpaceFX extends Application {
     private static final long                       ENEMY_BOSS_ATTACK_INTERVAL = 30_000_000_000l;
     private static final long                       SHIELD_UP_SPAWN_INTERVAL   = 30_000_000_000l;
     private static final long                       LIFE_UP_SPAWN_INTERVAL     = 60_000_000_000l;
-    private static final long                       WAVE_SPAWN_INTERVAL        = 7_000_000_000l;
+    private static final long                       WAVE_SPAWN_INTERVAL        = 10_000_000_000l;
     private static final Random                     RND                        = new Random();
     private static final double                     WIDTH                      = 700;
     private static final double                     HEIGHT                     = 900;
@@ -132,7 +133,7 @@ public class SpaceFX extends Application {
     private final        Image                      enemyTorpedoImg            = new Image(getClass().getResourceAsStream("enemyTorpedo.png"), 21, 21, true, false);
     private final        Image                      enemyBossTorpedoImg        = new Image(getClass().getResourceAsStream("enemyBossTorpedo.png"), 26, 26, true, false);
     private final        Image                      enemyBossRocketImg         = new Image(getClass().getResourceAsStream("enemyBossRocket.png"), 17, 42, true, false);
-    private final        Image                      explosionImg               = new Image(getClass().getResourceAsStream("explosion.png"), 960, 768, true, false);
+    private final        Image                      explosionImg               = new Image(getClass().getResourceAsStream("explosion1.png"), 960, 768, true, false);
     private final        Image                      asteroidExplosionImg       = new Image(getClass().getResourceAsStream("asteroidExplosion.png"), 2048, 1792, true, false);
     private final        Image                      spaceShipExplosionImg      = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800, 600, true, false);
     private final        Image                      hitImg                     = new Image(getClass().getResourceAsStream("torpedoHit2.png"), 400, 160, true, false);
@@ -168,6 +169,7 @@ public class SpaceFX extends Application {
     private              Canvas                     canvas;
     private              GraphicsContext            ctx;
     private              Star[]                     stars;
+    private              Asteroid[]                 asteroids;
     private              SpaceShip                  spaceShip;
     private              SpaceShipExplosion         spaceShipExplosion;
     private              List<Wave>                 waves;
@@ -225,6 +227,7 @@ public class SpaceFX extends Application {
         SPACE_BOY = spaceBoyName;
     }
 
+
     // ******************** Methods *******************************************
     @Override public void init() {
         scoreFont        = spaceBoy(60);
@@ -265,6 +268,7 @@ public class SpaceFX extends Application {
         canvas                      = new Canvas(WIDTH, HEIGHT);
         ctx                         = canvas.getGraphicsContext2D();
         stars                       = new Star[NO_OF_STARS];
+        asteroids                   = new Asteroid[NO_OF_ASTEROIDS];
         spaceShip                   = new SpaceShip(spaceshipImg, spaceshipThrustImg);
         spaceShipExplosion          = new SpaceShipExplosion(0, 0);
         waves                       = new ArrayList<>();
@@ -329,7 +333,7 @@ public class SpaceFX extends Application {
                     spawnLifeUp();
                     lastLifeUp = now;
                 }
-                if (now > lastWave + WAVE_SPAWN_INTERVAL) {
+                if (now > lastWave + WAVE_SPAWN_INTERVAL && SHOW_ENEMIES) {
                     spawnWave();
                     lastWave = now;
                 }
@@ -337,6 +341,7 @@ public class SpaceFX extends Application {
         };
 
         initStars();
+        initAsteroids();
 
         scorePosX = WIDTH * 0.5;
         scorePosY = 40;
@@ -356,6 +361,12 @@ public class SpaceFX extends Application {
         }
     }
 
+    private void initAsteroids() {
+        for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
+            asteroids[i] = new Asteroid(asteroidImages[RND.nextInt(asteroidImages.length)]);
+        }
+    }
+
     @Override public void start(final Stage stage) {
         StackPane pane = new StackPane(canvas);
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -365,7 +376,7 @@ public class SpaceFX extends Application {
         // Setup key listener
         scene.setOnKeyPressed(e -> {
             if (running) {
-                switch (e.getCode()) {
+                switch(e.getCode()) {
                     case UP:
                         spaceShip.vY = -5;
                         break;
@@ -411,18 +422,10 @@ public class SpaceFX extends Application {
         scene.setOnKeyReleased(e -> {
             if (running) {
                 switch (e.getCode()) {
-                    case UP:
-                        spaceShip.vY = 0;
-                        break;
-                    case RIGHT:
-                        spaceShip.vX = 0;
-                        break;
-                    case DOWN:
-                        spaceShip.vY = 0;
-                        break;
-                    case LEFT:
-                        spaceShip.vX = 0;
-                        break;
+                    case UP   : spaceShip.vY = 0; break;
+                    case RIGHT: spaceShip.vX = 0; break;
+                    case DOWN : spaceShip.vY = 0; break;
+                    case LEFT : spaceShip.vX = 0; break;
                 }
             }
         });
@@ -490,6 +493,76 @@ public class SpaceFX extends Application {
                 Star star = stars[i];
                 star.update();
                 ctx.fillOval(star.x, star.y, star.size, star.size);
+            }
+        }
+
+        // Draw Asteroids
+        for (int i = 0 ; i < NO_OF_ASTEROIDS ; i++) {
+            Asteroid asteroid = asteroids[i];
+            asteroid.update();
+            ctx.save();
+            ctx.translate(asteroid.cX, asteroid.cY);
+            ctx.rotate(asteroid.rot);
+            ctx.scale(asteroid.scale, asteroid.scale);
+            ctx.translate(-asteroid.imgCenterX, -asteroid.imgCenterY);
+            ctx.drawImage(asteroid.image, 0, 0);
+            ctx.restore();
+
+            // Check for torpedo hits
+            for (Torpedo torpedo : torpedos) {
+                if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
+                    asteroid.hits--;
+                    if (asteroid.hits == 0) {
+                        asteroidExplosions.add(new AsteroidExplosion(asteroid.cX - AsteroidExplosion.FRAME_CENTER * asteroid.scale, asteroid.cY - AsteroidExplosion.FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
+                        score += asteroid.value;
+                        asteroid.respawn();
+                        torpedosToRemove.add(torpedo);
+                        playSound(asteroidExplosionSound);
+                    } else {
+                        hits.add(new Hit(torpedo.x - Hit.FRAME_CENTER, torpedo.y - Hit.FRAME_HEIGHT, asteroid.vX, asteroid.vY));
+                        torpedosToRemove.add(torpedo);
+                        playSound(torpedoHitSound);
+                    }
+                }
+            }
+
+            // Check for rocket hits
+            for (Rocket rocket : rockets) {
+                if (isHitCircleCircle(rocket.x, rocket.y, rocket.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
+                    rocketExplosions.add(new RocketExplosion(asteroid.cX - RocketExplosion.FRAME_CENTER * asteroid.scale, asteroid.cY - RocketExplosion.FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
+                    score += asteroid.value;
+                    asteroid.respawn();
+                    rocketsToRemove.add(rocket);
+                    playSound(rocketExplosionSound);
+                }
+            }
+
+            // Check for space ship hit
+            if (!hasBeenHit) {
+                boolean hit;
+                if (spaceShip.shield) {
+                    hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, asteroid.cX, asteroid.cY, asteroid.radius);
+                } else {
+                    hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, asteroid.cX, asteroid.cY, asteroid.radius);
+                }
+                if (hit) {
+                    spaceShipExplosion.countX = 0;
+                    spaceShipExplosion.countY = 0;
+                    spaceShipExplosion.x      = spaceShip.x - SpaceShipExplosion.FRAME_WIDTH;
+                    spaceShipExplosion.y      = spaceShip.y - SpaceShipExplosion.FRAME_HEIGHT;
+                    if (spaceShip.shield) {
+                        playSound(explosionSound);
+                        asteroidExplosions.add(new AsteroidExplosion(asteroid.cX - AsteroidExplosion.FRAME_CENTER * asteroid.scale, asteroid.cY - AsteroidExplosion.FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
+                    } else {
+                        playSound(spaceShipExplosionSound);
+                        hasBeenHit = true;
+                        noOfLifes--;
+                        if (0 == noOfLifes) {
+                            gameOver();
+                        }
+                    }
+                    asteroid.respawn();
+                }
             }
         }
 
@@ -776,12 +849,12 @@ public class SpaceFX extends Application {
             ctx.fillText(Long.toString(score), scorePosX, scorePosY);
 
             // Draw lifes
-            for (int i = 0; i < noOfLifes; i++) {
+            for (int i = 0 ; i < noOfLifes ; i++) {
                 ctx.drawImage(miniSpaceshipImg, i * miniSpaceshipImg.getWidth() + 10, 20);
             }
 
             // Draw shields
-            for (int i = 0; i < noOfShields; i++) {
+            for (int i = 0 ; i < noOfShields ; i++) {
                 ctx.drawImage(miniDeflectorShieldImg, WIDTH - i * (miniDeflectorShieldImg.getWidth() + 5), 20);
             }
         }
@@ -948,7 +1021,7 @@ public class SpaceFX extends Application {
             size = rnd.nextInt(2) + 1;
 
             // Position
-            x = (int) (rnd.nextDouble() * WIDTH);
+            x = (int)(rnd.nextDouble() * WIDTH);
             y = -size;
 
             // Random Speed
@@ -970,14 +1043,107 @@ public class SpaceFX extends Application {
             y += vY;
 
             // Respawn star
-            if (y > HEIGHT + size) {
+            if(y > HEIGHT + size) {
                 respawn();
             }
         }
     }
 
+    private class Asteroid {
+        private static final int     MAX_VALUE      = 10;
+        private final        Random  rnd            = new Random();
+        private final        double  xVariation     = 2;
+        private final        double  minSpeedY      = 2;
+        private final        double  minRotationR   = 0.1;
+        private              Image   image;
+        private              double  x;
+        private              double  y;
+        private              double  width;
+        private              double  height;
+        private              double  size;
+        private              double  imgCenterX;
+        private              double  imgCenterY;
+        private              double  radius;
+        private              double  cX;
+        private              double  cY;
+        private              double  rot;
+        private              double  vX;
+        private              double  vY;
+        private              double  vR;
+        private              boolean rotateRight;
+        private              double  scale;
+        private              double  vYVariation;
+        private              int     value;
+        private              int     hits;
 
-    public class SpaceShip {
+
+        public Asteroid(final Image image) {
+            // Image
+            this.image = image;
+            init();
+        }
+
+
+        private void init() {
+            // Position
+            x   = rnd.nextDouble() * WIDTH;
+            y   = -image.getHeight();
+            rot = 0;
+
+            // Random Size
+            scale = (rnd.nextDouble() * 0.4) + 0.4;
+
+            // No of hits (0.2 - 0.8)
+            hits = (int) (scale * 5.0);
+
+            // Value
+            value = (int) (1 / scale * MAX_VALUE);
+
+            // Random Speed
+            vYVariation = (rnd.nextDouble() * 0.5) + 0.2;
+
+            width      = image.getWidth() * scale;
+            height     = image.getHeight() * scale;
+            size       = width > height ? width : height;
+            radius     = size * 0.5;
+            imgCenterX = image.getWidth() * 0.5;
+            imgCenterY = image.getHeight() * 0.5;
+
+            // Velocity
+            vX          = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
+            vY          = (((rnd.nextDouble() * 1.5) + minSpeedY * 1/scale) * vYVariation) * VELOCITY_FACTOR_Y;
+            vR          = ((rnd.nextDouble() * 0.5) + minRotationR) * VELOCITY_FACTOR_R;
+            rotateRight = rnd.nextBoolean();
+        }
+
+        private void respawn() {
+            this.image = asteroidImages[RND.nextInt(asteroidImages.length)];
+            init();
+        }
+
+        private void update() {
+            x += vX;
+            y += vY;
+
+            cX = x + imgCenterX;
+            cY = y + imgCenterY;
+
+            if (rotateRight) {
+                rot += vR;
+                if (rot > 360) { rot = 0; }
+            } else {
+                rot -= vR;
+                if (rot < 0) { rot = 360; }
+            }
+
+            // Respawn asteroid
+            if(x < -size || x - radius > WIDTH || y - height > HEIGHT) {
+                respawn();
+            }
+        }
+    }
+
+    private class SpaceShip {
         private final Image   image;
         private final Image   imageThrust;
         private       double  x;
@@ -1024,8 +1190,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class Torpedo {
+    private class Torpedo {
         private final Image  image;
         private       double x;
         private       double y;
@@ -1058,8 +1223,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class Rocket {
+    private class Rocket {
         private final Image  image;
         private       double x;
         private       double y;
@@ -1096,8 +1260,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class EnemyRocketExplosion {
+    private class EnemyRocketExplosion {
         private static final double FRAME_WIDTH  = 128;
         private static final double FRAME_HEIGHT = 128;
         private static final double FRAME_CENTER = 64;
@@ -1141,8 +1304,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class AsteroidExplosion {
+    private class AsteroidExplosion {
         private static final double FRAME_WIDTH  = 256;
         private static final double FRAME_HEIGHT = 256;
         private static final double FRAME_CENTER = 128;
@@ -1186,8 +1348,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class Explosion {
+    private class Explosion {
         private static final double FRAME_WIDTH  = 192;
         private static final double FRAME_HEIGHT = 192;
         private static final double FRAME_CENTER = 96;
@@ -1231,8 +1392,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class UpExplosion {
+    private class UpExplosion {
         private static final double FRAME_WIDTH  = 100;
         private static final double FRAME_HEIGHT = 100;
         private static final double FRAME_CENTER = 50;
@@ -1276,8 +1436,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class SpaceShipExplosion {
+    private class SpaceShipExplosion {
         private static final double FRAME_WIDTH  = 100;
         private static final double FRAME_HEIGHT = 100;
         private static final double FRAME_CENTER = 50;
@@ -1314,8 +1473,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class Hit {
+    private class Hit {
         private static final double FRAME_WIDTH  = 80;
         private static final double FRAME_HEIGHT = 80;
         private static final double FRAME_CENTER = 40;
@@ -1357,8 +1515,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class EnemyBossHit {
+    private class EnemyBossHit {
         private static final double FRAME_WIDTH  = 80;
         private static final double FRAME_HEIGHT = 80;
         private static final double FRAME_CENTER = 40;
@@ -1400,8 +1557,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class Enemy {
+    private class Enemy {
         public  static final long      TIME_BETWEEN_SHOTS  = 500_000_000l;
         public  static final double    HALF_ANGLE_OF_SIGHT = 5;
         private static final int       MAX_VALUE           = 49;
@@ -1494,8 +1650,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class EnemyBoss {
+    private class EnemyBoss {
         private static final int       MAX_VALUE            = 99;
         private static final long      TIME_BETWEEN_SHOTS   = 500_000_000l;
         private static final long      TIME_BETWEEN_ROCKETS = 5_000_000_000l;
@@ -1620,8 +1775,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class EnemyBossExplosion {
+    private class EnemyBossExplosion {
         private static final double FRAME_WIDTH  = 200;
         private static final double FRAME_HEIGHT = 200;
         private static final double FRAME_CENTER = 100;
@@ -1665,8 +1819,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class RocketExplosion {
+    private class RocketExplosion {
         private static final double FRAME_WIDTH  = 192;
         private static final double FRAME_HEIGHT = 192;
         private static final double FRAME_CENTER = 96;
@@ -1710,8 +1863,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class ShieldUp {
+    private class ShieldUp {
         private final Random  rnd          = new Random();
         private final double  xVariation   = 2;
         private final double  minSpeedY    = 2;
@@ -1793,8 +1945,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class LifeUp {
+    private class LifeUp {
         private final Random  rnd          = new Random();
         private final double  xVariation   = 2;
         private final double  minSpeedY    = 2;
@@ -1876,8 +2027,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class EnemyTorpedo {
+    private class EnemyTorpedo {
         private final Image  image;
         private       double x;
         private       double y;
@@ -1932,8 +2082,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class EnemyBossTorpedo {
+    private class EnemyBossTorpedo {
         private final Image  image;
         private       double x;
         private       double y;
@@ -1988,8 +2137,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class EnemyBossRocket {
+    private class EnemyBossRocket {
         private final long      rocketLifespan = 2_500_000_000l;
         private final SpaceShip spaceShip;
         private final Image     image;
@@ -2067,8 +2215,7 @@ public class SpaceFX extends Application {
         }
     }
 
-
-    public class Player implements Comparable<Player> {
+    private class Player implements Comparable<Player> {
         private final String id;
         private       String name;
         private       Long   score;
@@ -2085,7 +2232,6 @@ public class SpaceFX extends Application {
             return Long.compare(player.score, this.score);
         }
     }
-
 
     private class Wave {
         private static final long        ENEMY_SPAWN_INTERVAL = 250_000_000l;
@@ -2137,21 +2283,6 @@ public class SpaceFX extends Application {
                     ctx.restore();
                     ctx.restore();
 
-                    /* Check if spaceship is in line of sight and fire
-                    if (System.nanoTime() - enemy.lastShot > Enemy.TIME_BETWEEN_SHOTS) {
-                        double[] p0 = { enemy.x, enemy.y };
-                        double[] p1 = Helper.rotatePointAroundRotationCenter(enemy.x + HEIGHT * enemy.vX, enemy.y + HEIGHT * enemy.vY, enemy.x, enemy.y, -Enemy.HALF_ANGLE_OF_SIGHT);
-                        double[] p2 = Helper.rotatePointAroundRotationCenter(enemy.x + HEIGHT * enemy.vX, enemy.y + HEIGHT * enemy.vY, enemy.x, enemy.y, Enemy.HALF_ANGLE_OF_SIGHT);
-
-                        double area = 0.5 * (-p1[1] * p2[0] + p0[1] * (-p1[0] + p2[0]) + p0[0] * (p1[1] - p2[1]) + p1[0] * p2[1]);
-                        double s    = 1 / (2 * area) * (p0[1] * p2[0] - p0[0] * p2[1] + (p2[1] - p0[1]) * spaceShip.x + (p0[0] - p2[0]) * spaceShip.y);
-                        double t    = 1 / (2 * area) * (p0[0] * p1[1] - p0[1] * p1[0] + (p0[1] - p1[1]) * spaceShip.x + (p1[0] - p0[0]) * spaceShip.y);
-                        if (s > 0 && t > 0 && 1 - s - t > 0) {
-                            spawnEnemyTorpedo(enemy.x, enemy.y, enemy.vX * 2, enemy.vY * 2);
-                            enemy.lastShot = System.nanoTime();
-                        }
-                    }
-                    */
                     // Check for torpedo hits
                     for (Torpedo torpedo : torpedos) {
                         if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, enemy.x, enemy.y, enemy.radius)) {
