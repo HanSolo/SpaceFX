@@ -52,8 +52,8 @@ import java.util.stream.Collectors;
 
 public class SpaceFX extends Application {
     //----------- Switches to switch on/off different features ----------------
-    private static final boolean                    PLAY_SOUND                 = false;
-    private static final boolean                    PLAY_MUSIC                 = false;
+    private static final boolean                    PLAY_SOUND                 = true;
+    private static final boolean                    PLAY_MUSIC                 = true;
     private static final boolean                    SHOW_BACKGROUND            = true;
     private static final boolean                    SHOW_STARS                 = true;
     private static final boolean                    SHOW_ENEMIES               = true;
@@ -71,7 +71,7 @@ public class SpaceFX extends Application {
     private static final double                     ENEMY_BOSS_TORPEDO_SPEED   = 6;
     private static final double                     ENEMY_BOSS_ROCKET_SPEED    = 4;
     private static final double                     ENEMY_BOSS_SPEED           = 2;
-    private static final long                       ENEMY_BOSS_ATTACK_INTERVAL = 30_000_000_000l;
+    private static final long                       ENEMY_BOSS_ATTACK_INTERVAL = 25_000_000_000l;
     private static final long                       SHIELD_UP_SPAWN_INTERVAL   = 30_000_000_000l;
     private static final long                       LIFE_UP_SPAWN_INTERVAL     = 60_000_000_000l;
     private static final long                       WAVE_SPAWN_INTERVAL        = 10_000_000_000l;
