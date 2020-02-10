@@ -947,6 +947,7 @@ public class SpaceFX extends Application {
             enemyBosses.clear();
             shieldUps.clear();
             waves.clear();
+            initAsteroids();
             spaceShip.x  = WIDTH * 0.5;
             spaceShip.y  = HEIGHT - 2 * spaceShip.image.getHeight();
             spaceShip.vX = 0;
