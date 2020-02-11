@@ -49,35 +49,11 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static eu.hansolo.spacefx.Config.*;
+
 
 public class SpaceFX extends Application {
-    //----------- Switches to switch on/off different features ----------------
-    private static final boolean                    PLAY_SOUND                 = true;
-    private static final boolean                    PLAY_MUSIC                 = true;
-    private static final boolean                    SHOW_BACKGROUND            = true;
-    private static final boolean                    SHOW_STARS                 = true;
-    private static final boolean                    SHOW_ENEMIES               = true;
-    private static final boolean                    SHOW_ASTEROIDS             = true;
-    private static final int                        NO_OF_STARS                = SHOW_STARS ? 200 : 0;
-    private static final int                        NO_OF_ASTEROIDS            = SHOW_ASTEROIDS ? 10 : 0;
-    //-------------------------------------------------------------------------
-    private static final int                        LIFES                      = 5;
-    private static final int                        SHIELDS                    = 10;
-    private static final int                        DEFLECTOR_SHIELD_TIME      = 5000;
-    private static final int                        MAX_NO_OF_ROCKETS          = 3;
-    private static final double                     TORPEDO_SPEED              = 6;
-    private static final double                     ROCKET_SPEED               = 4;
-    private static final double                     ENEMY_TORPEDO_SPEED        = 5;
-    private static final double                     ENEMY_BOSS_TORPEDO_SPEED   = 6;
-    private static final double                     ENEMY_BOSS_ROCKET_SPEED    = 4;
-    private static final double                     ENEMY_BOSS_SPEED           = 2;
-    private static final long                       ENEMY_BOSS_ATTACK_INTERVAL = 25_000_000_000l;
-    private static final long                       SHIELD_UP_SPAWN_INTERVAL   = 30_000_000_000l;
-    private static final long                       LIFE_UP_SPAWN_INTERVAL     = 60_000_000_000l;
-    private static final long                       WAVE_SPAWN_INTERVAL        = 10_000_000_000l;
     private static final Random                     RND                        = new Random();
-    private static final double                     WIDTH                      = 700;
-    private static final double                     HEIGHT                     = 900;
     private static final double                     FIRST_QUARTER_WIDTH        = WIDTH * 0.25;
     private static final double                     LAST_QUARTER_WIDTH         = WIDTH * 0.75;
     private static final double                     SHIELD_INDICATOR_X         = WIDTH * 0.73;
@@ -88,9 +64,6 @@ public class SpaceFX extends Application {
     private static final long                       FPS_30                     = 0_033_333_333l;
     private static final long                       FPS_10                     = 0_100_000_000l;
     private static final long                       FPS_2                      = 0_500_000_000l;
-    private static final double                     VELOCITY_FACTOR_X          = 1.0;
-    private static final double                     VELOCITY_FACTOR_Y          = 1.0;
-    private static final double                     VELOCITY_FACTOR_R          = 1.0;
     private static final Color                      SCORE_COLOR                = Color.rgb(51, 210, 206);
     private static final String                     SPACE_BOY;
     private static       String                     spaceBoyName;

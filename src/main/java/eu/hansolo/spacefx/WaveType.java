@@ -19,12 +19,12 @@ package eu.hansolo.spacefx;
 import java.util.ArrayList;
 import java.util.List;
 
+import static eu.hansolo.spacefx.Config.*;
+
 
 public enum WaveType {
     NONE(120), TYPE_1(120), TYPE_2(120), TYPE_3(120), TYPE_4(120), TYPE_5(360);
-
-    private static final double        WIDTH      = 700;
-    private static final double        HEIGTH     = 900;
+    
     private static final double        ENEMY_SIZE = 50;
     public  final double               totalFrames;
     public  final List<WaveCoordinate> coordinates;
@@ -41,49 +41,49 @@ public enum WaveType {
         switch(this.name()) {
             case "TYPE_1":
                 ap0  = new double[] { WIDTH + ENEMY_SIZE, -ENEMY_SIZE };
-                cp1  = new double[] { 0, HEIGTH * 0.35 };
-                cp2  = new double[] { WIDTH * 0.5, HEIGTH };
-                ap3  = new double[] { WIDTH + ENEMY_SIZE, HEIGTH * 0.5 };
+                cp1  = new double[] { 0, HEIGHT * 0.35 };
+                cp2  = new double[] { WIDTH * 0.5, HEIGHT };
+                ap3  = new double[] { WIDTH + ENEMY_SIZE, HEIGHT * 0.5 };
                 coordinates.addAll(addCoordinates(totalFrames, ap0, cp1, cp2, ap3));
                 break;
             case "TYPE_2":
                 ap0  = new double[] { -ENEMY_SIZE, -ENEMY_SIZE };
-                cp1  = new double[] { WIDTH, HEIGTH * 0.35 };
-                cp2  = new double[] { WIDTH * 0.5, HEIGTH };
-                ap3  = new double[] { -ENEMY_SIZE, HEIGTH * 0.5 };
+                cp1  = new double[] { WIDTH, HEIGHT * 0.35 };
+                cp2  = new double[] { WIDTH * 0.5, HEIGHT };
+                ap3  = new double[] { -ENEMY_SIZE, HEIGHT * 0.5 };
                 coordinates.addAll(addCoordinates(totalFrames, ap0, cp1, cp2, ap3));
                 break;
             case "TYPE_3":
                 ap0  = new double[] { -ENEMY_SIZE, -ENEMY_SIZE };
-                cp1  = new double[] { WIDTH * 0.5, HEIGTH * 0.35 };
-                cp2  = new double[] { 0, HEIGTH };
-                ap3  = new double[] { WIDTH + ENEMY_SIZE, HEIGTH * 0.5 };
+                cp1  = new double[] { WIDTH * 0.5, HEIGHT * 0.35 };
+                cp2  = new double[] { 0, HEIGHT };
+                ap3  = new double[] { WIDTH + ENEMY_SIZE, HEIGHT * 0.5 };
                 coordinates.addAll(addCoordinates(totalFrames, ap0, cp1, cp2, ap3));
                 break;
             case "TYPE_4":
                 ap0  = new double[] { WIDTH + ENEMY_SIZE, -ENEMY_SIZE };
-                cp1  = new double[] { WIDTH * 0.5, HEIGTH * 0.35 };
-                cp2  = new double[] { WIDTH, HEIGTH };
-                ap3  = new double[] { -ENEMY_SIZE, HEIGTH * 0.5 };
+                cp1  = new double[] { WIDTH * 0.5, HEIGHT * 0.35 };
+                cp2  = new double[] { WIDTH, HEIGHT };
+                ap3  = new double[] { -ENEMY_SIZE, HEIGHT * 0.5 };
                 coordinates.addAll(addCoordinates(totalFrames, ap0, cp1, cp2, ap3));
                 break;
             case "TYPE_5":
                 ap0  = new double[] { -ENEMY_SIZE, -ENEMY_SIZE };
-                cp1  = new double[] { WIDTH * 0.11428571, HEIGTH * 0.08888889 };
-                cp2  = new double[] { WIDTH * 0.09285714, HEIGTH * 0.53333333 };
-                ap3  = new double[] { WIDTH * 0.3, HEIGTH * 0.63888889 };
+                cp1  = new double[] { WIDTH * 0.11428571, HEIGHT * 0.08888889 };
+                cp2  = new double[] { WIDTH * 0.09285714, HEIGHT * 0.53333333 };
+                ap3  = new double[] { WIDTH * 0.3, HEIGHT * 0.63888889 };
                 coordinates.addAll(addCoordinates(totalFrames / 3, ap0, cp1, cp2, ap3));
 
-                ap0  = new double[] { WIDTH * 0.3, HEIGTH * 0.63888889 };
-                cp1  = new double[] { WIDTH, HEIGTH };
-                cp2  = new double[] { WIDTH * 1.08571429, HEIGTH * 0.22777778 };
-                ap3  = new double[] { WIDTH * 0.54285714, HEIGTH * 0.35555556 };
+                ap0  = new double[] { WIDTH * 0.3, HEIGHT * 0.63888889 };
+                cp1  = new double[] { WIDTH, HEIGHT };
+                cp2  = new double[] { WIDTH * 1.08571429, HEIGHT * 0.22777778 };
+                ap3  = new double[] { WIDTH * 0.54285714, HEIGHT * 0.35555556 };
                 coordinates.addAll(addCoordinates(totalFrames / 3, ap0, cp1, cp2, ap3));
 
-                ap0  = new double[] { WIDTH * 0.54285714, HEIGTH * 0.35555556 };
-                cp1  = new double[] { WIDTH * 0.3, HEIGTH * 0.41111111 };
-                cp2  = new double[] { WIDTH * -0.37539683, HEIGTH * 0.8 };
-                ap3  = new double[] { WIDTH * 0.76, HEIGTH + ENEMY_SIZE };
+                ap0  = new double[] { WIDTH * 0.54285714, HEIGHT * 0.35555556 };
+                cp1  = new double[] { WIDTH * 0.3, HEIGHT * 0.41111111 };
+                cp2  = new double[] { WIDTH * -0.37539683, HEIGHT * 0.8 };
+                ap3  = new double[] { WIDTH * 0.76, HEIGHT + ENEMY_SIZE };
                 coordinates.addAll(addCoordinates(totalFrames / 3, ap0, cp1, cp2, ap3));
                 break;
             case "NONE":
