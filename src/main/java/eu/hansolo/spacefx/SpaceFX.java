@@ -538,7 +538,7 @@ public class SpaceFX extends Application {
             }
 
             // Check for space ship hit
-            if (!hasBeenHit) {
+            if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
                     hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, asteroid.cX, asteroid.cY, asteroid.radius);
@@ -623,7 +623,7 @@ public class SpaceFX extends Application {
 
 
             // Check for space ship hit with enemy boss
-            if (!hasBeenHit) {
+            if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
                     hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, enemyBoss.x, enemyBoss.y, enemyBoss.radius);
@@ -819,11 +819,15 @@ public class SpaceFX extends Application {
                 ctx.drawImage(spaceShipExplosionImg, spaceShipExplosion.countX * spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.countY * spaceShipExplosion.FRAME_HEIGHT,
                               spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.FRAME_HEIGHT, spaceShip.x - spaceShipExplosion.FRAME_CENTER, spaceShip.y - spaceShipExplosion.FRAME_CENTER,
                               spaceShipExplosion.FRAME_WIDTH, spaceShipExplosion.FRAME_HEIGHT);
+                spaceShip.respawn();
             } else {
                 // Draw space ship
                 spaceShip.update();
 
+                ctx.save();
+                ctx.setGlobalAlpha(spaceShip.isVulnerable ? 1.0 : 0.5);
                 ctx.drawImage((0 == spaceShip.vX && 0 == spaceShip.vY) ? spaceShip.image : spaceShip.imageThrust, spaceShip.x - spaceShip.radius, spaceShip.y - spaceShip.radius);
+                ctx.restore();
 
                 if (spaceShip.shield) {
                     long delta = System.currentTimeMillis() - lastShieldActivated;
@@ -944,14 +948,12 @@ public class SpaceFX extends Application {
             explosions.clear();
             torpedos.clear();
             enemyTorpedos.clear();
+            enemyBossRockets.clear();
             enemyBosses.clear();
             shieldUps.clear();
             waves.clear();
             initAsteroids();
-            spaceShip.x  = WIDTH * 0.5;
-            spaceShip.y  = HEIGHT - 2 * spaceShip.image.getHeight();
-            spaceShip.vX = 0;
-            spaceShip.vY = 0;
+            spaceShip.init();
             hasBeenHit   = false;
             noOfLifes    = LIFES;
             noOfShields  = SHIELDS;
@@ -1145,8 +1147,10 @@ public class SpaceFX extends Application {
     }
 
     private class SpaceShip {
+        private static final long INVULNERABLE_TIME = 3_000_000_000l;
         private final Image   image;
         private final Image   imageThrust;
+        private       long    born;
         private       double  x;
         private       double  y;
         private       double  size;
@@ -1156,24 +1160,42 @@ public class SpaceFX extends Application {
         private       double  vX;
         private       double  vY;
         private       boolean shield;
+        public        boolean isVulnerable;
 
 
         public SpaceShip(final Image image, final Image imageThrust) {
-            this.image = image;
+            this.image       = image;
             this.imageThrust = imageThrust;
-            this.x = WIDTH * 0.5;
-            this.y = HEIGHT - 2 * image.getHeight();
-            this.width = image.getWidth();
-            this.height = image.getHeight();
-            this.size = width > height ? width : height;
-            this.radius = size * 0.5;
-            this.vX = 0;
-            this.vY = 0;
-            this.shield = false;
+            init();
         }
 
 
+        public void init() {
+            this.born         = System.nanoTime();
+            this.x            = WIDTH * 0.5;
+            this.y            = HEIGHT - 2 * image.getHeight();
+            this.width        = image.getWidth();
+            this.height       = image.getHeight();
+            this.size         = width > height ? width : height;
+            this.radius       = size * 0.5;
+            this.vX           = 0;
+            this.vY           = 0;
+            this.shield       = false;
+            this.isVulnerable = false;
+        }
+
+        public void respawn() {
+            this.vX           = 0;
+            this.vY           = 0;
+            this.shield       = false;
+            this.born         = System.nanoTime();
+            this.isVulnerable = false;
+        }
+
         private void update() {
+            if (!isVulnerable && System.nanoTime() - born > INVULNERABLE_TIME) {
+                isVulnerable = true;
+            }
             x += vX;
             y += vY;
             if (x + width * 0.5 > WIDTH) {
@@ -2057,7 +2079,7 @@ public class SpaceFX extends Application {
             x += vX;
             y += vY;
 
-            if (!hasBeenHit) {
+            if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
                     hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
@@ -2112,7 +2134,7 @@ public class SpaceFX extends Application {
             x += vX;
             y += vY;
 
-            if (!hasBeenHit) {
+            if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
                     hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
@@ -2186,7 +2208,7 @@ public class SpaceFX extends Application {
 
             r = Math.toDegrees(Math.atan2(vY, vX)) - 90;
 
-            if (!hasBeenHit) {
+            if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
                     hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
