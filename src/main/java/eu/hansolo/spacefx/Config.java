@@ -34,6 +34,8 @@ public class Config {
     public static final double  TORPEDO_SPEED              = 6;
     public static final double  ROCKET_SPEED               = 4;
     public static final double  ENEMY_TORPEDO_SPEED        = 5;
+    public static final double  ENEMY_BOMB_SPEED           = 3;
+    public static final int     NO_OF_ENEMY_BOMBS          = 3;
     public static final double  ENEMY_BOSS_TORPEDO_SPEED   = 6;
     public static final double  ENEMY_BOSS_ROCKET_SPEED    = 4;
     public static final double  ENEMY_BOSS_SPEED           = 2;
