@@ -196,6 +196,7 @@ public class SpaceFX extends Application {
     private              long                       lastShieldUp;
     private              long                       lastLifeUp;
     private              long                       lastWave;
+    private              long                       lastBombDropped;
     private              long                       lastTimerCall;
     private              AnimationTimer             timer;
 
@@ -1576,7 +1577,7 @@ public class SpaceFX extends Application {
 
     private class Enemy {
         public  static final long      TIME_BETWEEN_SHOTS  = 500_000_000l;
-        public  static final long      TIME_BETWEEN_BOMBS  = 2_500_000_000l;
+        public  static final long      TIME_BETWEEN_BOMBS  = 1_000_000_000l;
         public  static final double    HALF_ANGLE_OF_SIGHT = 5;
         private static final double    BOMB_RANGE          = 10;
         private static final int       MAX_VALUE           = 49;
@@ -1650,8 +1651,10 @@ public class SpaceFX extends Application {
             vX   = x - oldX;
             vY   = y - oldY;
 
+            long now = System.nanoTime();
+
             if (canFire) {
-                if (System.nanoTime() - lastShot > TIME_BETWEEN_SHOTS) {
+                if (now - lastShot > TIME_BETWEEN_SHOTS) {
                     double[] p0 = { x, y };
                     double[] p1 = Helper.rotatePointAroundRotationCenter(x + HEIGHT * vX, y + HEIGHT * vY, x, y, -HALF_ANGLE_OF_SIGHT);
                     double[] p2 = Helper.rotatePointAroundRotationCenter(x + HEIGHT * vX, y + HEIGHT * vY, x, y, HALF_ANGLE_OF_SIGHT);
@@ -1666,11 +1669,12 @@ public class SpaceFX extends Application {
                 }
             }
 
-            if (canBomb && noOfBombs > 0) {
-                if (System.nanoTime() - lastBomb > TIME_BETWEEN_BOMBS) {
+            if (canBomb && now - lastBombDropped > BOMB_DROP_INTERVAL && noOfBombs > 0) {
+                if (now - lastBomb > TIME_BETWEEN_BOMBS) {
                     if (spaceShip.x > x - BOMB_RANGE && spaceShip.x < x + BOMB_RANGE) {
                         spawnEnemyBomb(x, y);
-                        lastBomb = System.nanoTime();
+                        lastBomb        = now;
+                        lastBombDropped = now;
                         noOfBombs--;
                     }
                 }
