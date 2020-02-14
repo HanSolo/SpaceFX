@@ -43,7 +43,7 @@ public class Config {
     public static final long    SHIELD_UP_SPAWN_INTERVAL   = 30_000_000_000l;
     public static final long    LIFE_UP_SPAWN_INTERVAL     = 60_000_000_000l;
     public static final long    WAVE_SPAWN_INTERVAL        = 10_000_000_000l;
-    public static final long    BOMB_DROP_INTERVAL         = 2_000_000_000l;
+    public static final long    BOMB_DROP_INTERVAL         = 1_750_000_000l;
     public static final double  VELOCITY_FACTOR_X          = 1.0;
     public static final double  VELOCITY_FACTOR_Y          = 1.0;
     public static final double  VELOCITY_FACTOR_R          = 1.0;

@@ -98,9 +98,10 @@ public class SpaceFX extends Application {
     private final        Image                      enemyBossImg2              = new Image(getClass().getResourceAsStream("enemyBoss2.png"), 100, 100, true, false);
     private final        Image                      enemyBossImg3              = new Image(getClass().getResourceAsStream("enemyBoss3.png"), 100, 100, true, false);
     private final        Image                      enemyBossImg4              = new Image(getClass().getResourceAsStream("enemyBoss4.png"), 100, 100, true, false);
-    private final        Image                      spaceshipImg               = new Image(getClass().getResourceAsStream("fighter.png"), 48, 48, true, false);
-    private final        Image                      spaceshipThrustImg         = new Image(getClass().getResourceAsStream("fighterThrust.png"), 48, 48, true, false);
-    private final        Image                      miniSpaceshipImg           = new Image(getClass().getResourceAsStream("fighter.png"), 16, 16, true, false);
+    private final        Image                      spaceshipImg               = new Image(getClass().getResourceAsStream("spaceship.png"), 48, 48, true, false);
+    private final        Image                      spaceshipUpImg             = new Image(getClass().getResourceAsStream("spaceshipUp.png"), 48, 48, true, false);
+    private final        Image                      spaceshipDownImg           = new Image(getClass().getResourceAsStream("spaceshipDown.png"), 48, 48, true, false);
+    private final        Image                      miniSpaceshipImg           = new Image(getClass().getResourceAsStream("spaceship.png"), 16, 16, true, false);
     private final        Image                      deflectorShieldImg         = new Image(getClass().getResourceAsStream("deflectorshield.png"), 100, 100, true, false);
     private final        Image                      miniDeflectorShieldImg     = new Image(getClass().getResourceAsStream("deflectorshield.png"), 16, 16, true, false);
     private final        Image                      torpedoImg                 = new Image(getClass().getResourceAsStream("torpedo.png"), 17, 20, true, false);
@@ -249,7 +250,7 @@ public class SpaceFX extends Application {
         ctx                         = canvas.getGraphicsContext2D();
         stars                       = new Star[NO_OF_STARS];
         asteroids                   = new Asteroid[NO_OF_ASTEROIDS];
-        spaceShip                   = new SpaceShip(spaceshipImg, spaceshipThrustImg);
+        spaceShip                   = new SpaceShip(spaceshipImg, spaceshipUpImg, spaceshipDownImg);
         spaceShipExplosion          = new SpaceShipExplosion(0, 0);
         waves                       = new ArrayList<>();
         wavesToRemove               = new ArrayList<>();
@@ -816,7 +817,14 @@ public class SpaceFX extends Application {
 
                 ctx.save();
                 ctx.setGlobalAlpha(spaceShip.isVulnerable ? 1.0 : 0.5);
-                ctx.drawImage((0 == spaceShip.vX && 0 == spaceShip.vY) ? spaceShip.image : spaceShip.imageThrust, spaceShip.x - spaceShip.radius, spaceShip.y - spaceShip.radius);
+                if (spaceShip.vY < 0) {
+                    ctx.drawImage(spaceshipUpImg,spaceShip.x - spaceShip.radius, spaceShip.y - spaceShip.radius);
+                } else if (spaceShip.vY > 0) {
+                    ctx.drawImage(spaceshipDownImg,spaceShip.x - spaceShip.radius, spaceShip.y - spaceShip.radius);
+                } else {
+                    ctx.drawImage(spaceshipImg,spaceShip.x - spaceShip.radius, spaceShip.y - spaceShip.radius);
+                }
+
                 ctx.restore();
 
                 if (spaceShip.shield) {
@@ -1143,24 +1151,26 @@ public class SpaceFX extends Application {
 
     private class SpaceShip {
         private static final long INVULNERABLE_TIME = 3_000_000_000l;
-        private final Image   image;
-        private final Image   imageThrust;
-        private       long    born;
-        private       double  x;
-        private       double  y;
-        private       double  size;
-        private       double  radius;
-        private       double  width;
-        private       double  height;
-        private       double  vX;
-        private       double  vY;
-        private       boolean shield;
-        public        boolean isVulnerable;
+        private final Image     image;
+        private final Image     imageUp;
+        private final Image     imageDown;
+        private       long      born;
+        private       double    x;
+        private       double    y;
+        private       double    size;
+        private       double    radius;
+        private       double    width;
+        private       double    height;
+        private       double    vX;
+        private       double    vY;
+        private       boolean   shield;
+        public        boolean   isVulnerable;
 
 
-        public SpaceShip(final Image image, final Image imageThrust) {
-            this.image       = image;
-            this.imageThrust = imageThrust;
+        public SpaceShip(final Image image, final Image imageUp, final Image imageDown) {
+            this.image     = image;
+            this.imageUp   = imageUp;
+            this.imageDown = imageDown;
             init();
         }
 
