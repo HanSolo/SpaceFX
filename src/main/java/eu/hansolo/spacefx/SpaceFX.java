@@ -69,7 +69,9 @@ public class SpaceFX extends Application {
     private static final String                     SPACE_BOY;
     private static       String                     spaceBoyName;
     private static final boolean                    IS_BROWSER                 = WebAPI.isBrowser();
-    private static final WaveType[]                 waveTypes                  = { WaveType.TYPE_1, WaveType.TYPE_2, WaveType.TYPE_3, WaveType.TYPE_4, WaveType.TYPE_5 };
+    private static final WaveType[]                 waveTypesSlow              = { WaveType.TYPE_1_SLOW, WaveType.TYPE_2_SLOW, WaveType.TYPE_3_SLOW, WaveType.TYPE_4_SLOW, WaveType.TYPE_5_SLOW };
+    private static final WaveType[]                 waveTypesMedium            = { WaveType.TYPE_1_MEDIUM, WaveType.TYPE_2_MEDIUM, WaveType.TYPE_3_MEDIUM, WaveType.TYPE_4_MEDIUM, WaveType.TYPE_5_MEDIUM };
+    private static final WaveType[]                 waveTypesFast              = { WaveType.TYPE_1_FAST, WaveType.TYPE_2_FAST, WaveType.TYPE_3_FAST, WaveType.TYPE_4_FAST, WaveType.TYPE_5_FAST };
     private              boolean                    running;
     private              boolean                    gameOverScreen;
     private              boolean                    hallOfFameScreen;
@@ -187,6 +189,7 @@ public class SpaceFX extends Application {
     private              List<EnemyBossHit>         enemyBossHits;
     private              List<EnemyBossHit>         enemyBossHitsToRemove;
     private              long                       score;
+    private              long                       kills;
     private              double                     scorePosX;
     private              double                     scorePosY;
     private              boolean                    hasBeenHit;
@@ -289,6 +292,7 @@ public class SpaceFX extends Application {
         enemyBossHits               = new ArrayList<>();
         enemyBossHitsToRemove       = new ArrayList<>();
         score                       = 0;
+        kills                       = 0;
         hasBeenHit                  = false;
         noOfLifes                   = LIFES;
         noOfShields                 = SHIELDS;
@@ -582,6 +586,7 @@ public class SpaceFX extends Application {
                             new EnemyBossExplosion(enemyBoss.x - EnemyBossExplosion.FRAME_WIDTH * 0.25, enemyBoss.y - EnemyBossExplosion.FRAME_HEIGHT * 0.25, enemyBoss.vX,
                                                    enemyBoss.vY, 0.5));
                         score += enemyBoss.value;
+                        kills++;
                         enemyBossesToRemove.add(enemyBoss);
                         torpedosToRemove.add(torpedo);
                         playSound(enemyBossExplosionSound);
@@ -599,6 +604,7 @@ public class SpaceFX extends Application {
                     enemyBossExplosions.add(
                         new EnemyBossExplosion(enemyBoss.x - EnemyBossExplosion.FRAME_WIDTH * 0.25, enemyBoss.y - EnemyBossExplosion.FRAME_HEIGHT * 0.25, enemyBoss.vX, enemyBoss.vY, 0.5));
                     score += enemyBoss.value;
+                    kills++;
                     enemyBossesToRemove.add(enemyBoss);
                     rocketsToRemove.add(rocket);
                     playSound(enemyBossExplosionSound);
@@ -898,7 +904,13 @@ public class SpaceFX extends Application {
     }
 
     private void spawnWave() {
-        waves.add(new Wave(waveTypes[RND.nextInt(5)], spaceShip, 10, enemyImages[RND.nextInt(3)], RND.nextBoolean(), RND.nextBoolean()));
+        if (kills < 50) {
+            waves.add(new Wave(waveTypesSlow[RND.nextInt(5)], spaceShip, 5, enemyImages[RND.nextInt(3)], false, false));
+        } else if (kills >= 50 && kills < 100) {
+            waves.add(new Wave(waveTypesMedium[RND.nextInt(5)], spaceShip, 7, enemyImages[RND.nextInt(3)], true, false));
+        } else {
+            waves.add(new Wave(waveTypesFast[RND.nextInt(5)], spaceShip, 10, enemyImages[RND.nextInt(3)], true, true));
+        }
     }
 
     private void spawnEnemyBossTorpedo(final double x, final double y, final double vX, final double vY) {
@@ -961,6 +973,7 @@ public class SpaceFX extends Application {
             noOfLifes    = LIFES;
             noOfShields  = SHIELDS;
             score        = 0;
+            kills        = 0;
             if (PLAY_MUSIC) {
                 mediaPlayer.play();
             }
@@ -2393,6 +2406,7 @@ public class SpaceFX extends Application {
                         if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, enemy.x, enemy.y, enemy.radius)) {
                             explosions.add(new Explosion(enemy.x - Explosion.FRAME_WIDTH * 0.25, enemy.y - Explosion.FRAME_HEIGHT * 0.25, enemy.vX, enemy.vY, 0.5));
                             score += enemy.value;
+                            kills++;
                             enemiesToRemove.add(enemy);
                             torpedosToRemove.add(torpedo);
                             playSound(spaceShipExplosionSound);
@@ -2404,6 +2418,7 @@ public class SpaceFX extends Application {
                         if (isHitCircleCircle(rocket.x, rocket.y, rocket.radius, enemy.x, enemy.y, enemy.radius)) {
                             rocketExplosions.add(new RocketExplosion(enemy.x - RocketExplosion.FRAME_WIDTH * 0.25, enemy.y - RocketExplosion.FRAME_HEIGHT * 0.25, enemy.vX, enemy.vY, 0.5));
                             score += enemy.value;
+                            kills++;
                             enemiesToRemove.add(enemy);
                             rocketsToRemove.add(rocket);
                             playSound(rocketExplosionSound);
