@@ -1,6 +1,11 @@
 ## SpaceFX
 A simple tiny space game written in JavaFX.
 
+The "dev" branch contains new developments that might come to the game later on. The "simpleversion" branch is like the name says more simple and should also run on
+embedded devices etc. 
+The "master" branch now contains some more fun things like enemies attacking in waves, a level boss that needs more hits to kill, enemies that drop bombs and an
+enemy boss that also fires rockets.
+
 Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 
 ### Overview
