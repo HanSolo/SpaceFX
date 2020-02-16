@@ -188,6 +188,7 @@ public class SpaceFX extends Application {
     private              List<EnemyHit>             enemyHits;
     private              List<EnemyHit>             enemyHitsToRemove;
     private              long                       score;
+    private              long                       levelKills;
     private              long                       kills;
     private              double                     scorePosX;
     private              double                     scorePosY;
@@ -249,70 +250,71 @@ public class SpaceFX extends Application {
         torpedoHitSound.setVolume(0.5);
 
         // Variable initialization
-        backgroundViewportY         = 2079; //backgroundImg.getHeight() - HEIGHT;
-        canvas                      = new Canvas(WIDTH, HEIGHT);
-        ctx                         = canvas.getGraphicsContext2D();
-        stars                       = new Star[NO_OF_STARS];
-        asteroids                   = new Asteroid[NO_OF_ASTEROIDS];
-        spaceShip                   = new SpaceShip(spaceshipImg, spaceshipUpImg, spaceshipDownImg);
-        spaceShipExplosion          = new SpaceShipExplosion(0, 0);
-        waves                       = new ArrayList<>();
-        wavesToRemove               = new ArrayList<>();
-        enemyBosses                 = new ArrayList<>();
-        enemyBossesToRemove         = new ArrayList<>();
-        levelBosses                 = new ArrayList<>();
-        levelBossesToRemove         = new ArrayList<>();
-        shieldUps                   = new ArrayList<>();
-        shieldUpsToRemove           = new ArrayList<>();
-        lifeUps                     = new ArrayList<>();
-        lifeUpsToRemove             = new ArrayList<>();
-        rockets                     = new ArrayList<>();
-        rocketsToRemove             = new ArrayList<>();
-        torpedos                    = new ArrayList<>();
-        torpedosToRemove            = new ArrayList<>();
-        enemyRocketExplosions = new ArrayList<>();
+        backgroundViewportY           = 2079; //backgroundImg.getHeight() - HEIGHT;
+        canvas                        = new Canvas(WIDTH, HEIGHT);
+        ctx                           = canvas.getGraphicsContext2D();
+        stars                         = new Star[NO_OF_STARS];
+        asteroids                     = new Asteroid[NO_OF_ASTEROIDS];
+        spaceShip                     = new SpaceShip(spaceshipImg, spaceshipUpImg, spaceshipDownImg);
+        spaceShipExplosion            = new SpaceShipExplosion(0, 0);
+        waves                         = new ArrayList<>();
+        wavesToRemove                 = new ArrayList<>();
+        enemyBosses                   = new ArrayList<>();
+        enemyBossesToRemove           = new ArrayList<>();
+        levelBosses                   = new ArrayList<>();
+        levelBossesToRemove           = new ArrayList<>();
+        shieldUps                     = new ArrayList<>();
+        shieldUpsToRemove             = new ArrayList<>();
+        lifeUps                       = new ArrayList<>();
+        lifeUpsToRemove               = new ArrayList<>();
+        rockets                       = new ArrayList<>();
+        rocketsToRemove               = new ArrayList<>();
+        torpedos                      = new ArrayList<>();
+        torpedosToRemove              = new ArrayList<>();
+        enemyRocketExplosions         = new ArrayList<>();
         enemyRocketExplosionsToRemove = new ArrayList<>();
-        explosions                  = new ArrayList<>();
-        explosionsToRemove          = new ArrayList<>();
-        asteroidExplosions          = new ArrayList<>();
-        asteroidExplosionsToRemove  = new ArrayList<>();
-        upExplosions                = new ArrayList<>();
-        upExplosionsToRemove        = new ArrayList<>();
-        enemyTorpedos               = new ArrayList<>();
-        enemyTorpedosToRemove       = new ArrayList<>();
-        enemyBombs                  = new ArrayList<>();
-        enemyBombsToRemove          = new ArrayList<>();
-        enemyBossTorpedos           = new ArrayList<>();
-        enemyBossTorpedosToRemove   = new ArrayList<>();
-        enemyBossRockets            = new ArrayList<>();
-        enemyBossRocketsToRemove    = new ArrayList<>();
-        levelBossTorpedos           = new ArrayList<>();
-        levelBossTorpedosToRemove   = new ArrayList<>();
-        levelBossRockets            = new ArrayList<>();
-        levelBossRocketsToRemove    = new ArrayList<>();
-        levelBossBombs              = new ArrayList<>();
-        levelBossBombsToRemove      = new ArrayList<>();
-        levelBossExplosions         = new ArrayList<>();
-        levelBossExplosionsToRemove = new ArrayList<>();
-        enemyBossExplosions         = new ArrayList<>();
-        enemyBossExplosionsToRemove = new ArrayList<>();
-        rocketExplosions = new ArrayList<>();
-        rocketExplosionsToRemove = new ArrayList<>();
-        hits                        = new ArrayList<>();
-        hitsToRemove                = new ArrayList<>();
-        enemyHits = new ArrayList<>();
-        enemyHitsToRemove = new ArrayList<>();
-        score                       = 0;
-        kills                       = 0;
-        hasBeenHit                  = false;
-        noOfLifes                   = LIFES;
-        noOfShields                 = SHIELDS;
-        lastShieldActivated         = 0;
-        lastEnemyBossAttack         = System.nanoTime();
-        lastShieldUp                = System.nanoTime();
-        lastLifeUp                  = System.nanoTime();
-        lastWave                    = System.nanoTime();
-        long deltaTime              = IS_BROWSER ? FPS_30 : FPS_60;
+        explosions                    = new ArrayList<>();
+        explosionsToRemove            = new ArrayList<>();
+        asteroidExplosions            = new ArrayList<>();
+        asteroidExplosionsToRemove    = new ArrayList<>();
+        upExplosions                  = new ArrayList<>();
+        upExplosionsToRemove          = new ArrayList<>();
+        enemyTorpedos                 = new ArrayList<>();
+        enemyTorpedosToRemove         = new ArrayList<>();
+        enemyBombs                    = new ArrayList<>();
+        enemyBombsToRemove            = new ArrayList<>();
+        enemyBossTorpedos             = new ArrayList<>();
+        enemyBossTorpedosToRemove     = new ArrayList<>();
+        enemyBossRockets              = new ArrayList<>();
+        enemyBossRocketsToRemove      = new ArrayList<>();
+        levelBossTorpedos             = new ArrayList<>();
+        levelBossTorpedosToRemove     = new ArrayList<>();
+        levelBossRockets              = new ArrayList<>();
+        levelBossRocketsToRemove      = new ArrayList<>();
+        levelBossBombs                = new ArrayList<>();
+        levelBossBombsToRemove        = new ArrayList<>();
+        levelBossExplosions           = new ArrayList<>();
+        levelBossExplosionsToRemove   = new ArrayList<>();
+        enemyBossExplosions           = new ArrayList<>();
+        enemyBossExplosionsToRemove   = new ArrayList<>();
+        rocketExplosions              = new ArrayList<>();
+        rocketExplosionsToRemove      = new ArrayList<>();
+        hits                          = new ArrayList<>();
+        hitsToRemove                  = new ArrayList<>();
+        enemyHits                     = new ArrayList<>();
+        enemyHitsToRemove             = new ArrayList<>();
+        score                         = 0;
+        levelKills                    = 0;
+        kills                         = 0;
+        hasBeenHit                    = false;
+        noOfLifes                     = LIFES;
+        noOfShields                   = SHIELDS;
+        lastShieldActivated           = 0;
+        lastEnemyBossAttack           = System.nanoTime();
+        lastShieldUp                  = System.nanoTime();
+        lastLifeUp                    = System.nanoTime();
+        lastWave                      = System.nanoTime();
+        long deltaTime                = IS_BROWSER ? FPS_30 : FPS_60;
         timer = new AnimationTimer() {
             @Override public void handle(final long now) {
                 if (now > lastTimerCall) {
@@ -604,6 +606,7 @@ public class SpaceFX extends Application {
                                                    enemyBoss.vY, 0.5));
                         score += enemyBoss.value;
                         kills++;
+                        levelKills++;
                         enemyBossesToRemove.add(enemyBoss);
                         torpedosToRemove.add(torpedo);
                         playSound(enemyBossExplosionSound);
@@ -622,6 +625,7 @@ public class SpaceFX extends Application {
                         new EnemyBossExplosion(enemyBoss.x - EnemyBossExplosion.FRAME_WIDTH * 0.25, enemyBoss.y - EnemyBossExplosion.FRAME_HEIGHT * 0.25, enemyBoss.vX, enemyBoss.vY, 0.5));
                     score += enemyBoss.value;
                     kills++;
+                    levelKills++;
                     enemyBossesToRemove.add(enemyBoss);
                     rocketsToRemove.add(rocket);
                     playSound(enemyBossExplosionSound);
@@ -683,6 +687,8 @@ public class SpaceFX extends Application {
                         levelBossesToRemove.add(levelBoss);
                         levelBossActive = false;
                         levelNo++;
+                        levelKills = 0;
+                        level      = new Level2();
                         torpedosToRemove.add(torpedo);
                         playSound(levelBossExplosionSound);
                     } else {
@@ -701,9 +707,12 @@ public class SpaceFX extends Application {
                         levelBossExplosions.add(new LevelBossExplosion(levelBoss.x - LevelBossExplosion.FRAME_WIDTH * 0.25, levelBoss.y - LevelBossExplosion.FRAME_HEIGHT * 0.25, levelBoss.vX, levelBoss.vY, 1.0));
                         score += levelBoss.value;
                         kills++;
+                        levelKills++;
                         levelBossesToRemove.add(levelBoss);
                         levelBossActive = false;
                         levelNo++;
+                        levelKills = 0;
+                        level = new Level2();
                         rocketsToRemove.add(rocket);
                         playSound(levelBossExplosionSound);
                     } else {
@@ -741,6 +750,8 @@ public class SpaceFX extends Application {
                     levelBossesToRemove.add(levelBoss);
                     levelBossActive = false;
                     levelNo++;
+                    levelKills = 0;
+                    level = new Level2();
                 }
             }
         }
@@ -1061,14 +1072,14 @@ public class SpaceFX extends Application {
     }
 
     private void spawnWave() {
-        if (kills < NO_OF_KILLS_STAGE_1 && !levelBossActive) {
-            waves.add(new Wave(waveTypesSlow[RND.nextInt(waveTypesSlow.length)], spaceShip, NO_OF_ENEMIES_STAGE_1, level.getEnemyImages()[RND.nextInt(3)], false, false));
-        } else if (kills >= NO_OF_KILLS_STAGE_1 && kills < NO_OF_KILLS_STAGE_2 && !levelBossActive) {
-            waves.add(new Wave(waveTypesMedium[RND.nextInt(waveTypesMedium.length)], spaceShip, NO_OF_ENEMIES_STAGE_2, level.getEnemyImages()[RND.nextInt(3)], true, false));
-        } else if (kills >= NO_OF_KILLS_STAGE_2 && !levelBossActive && levelNo == 1) {
+        if (levelKills < NO_OF_KILLS_STAGE_1 && !levelBossActive) {
+            waves.add(new Wave(waveTypesSlow[RND.nextInt(waveTypesSlow.length)], spaceShip, NO_OF_ENEMIES_STAGE_1, level.getEnemyImages()[RND.nextInt(level.getEnemyImages().length)], false, false));
+        } else if (levelKills >= NO_OF_KILLS_STAGE_1 && levelKills < NO_OF_KILLS_STAGE_2 && !levelBossActive) {
+            waves.add(new Wave(waveTypesMedium[RND.nextInt(waveTypesMedium.length)], spaceShip, NO_OF_ENEMIES_STAGE_2, level.getEnemyImages()[RND.nextInt(level.getEnemyImages().length)], true, false));
+        } else if (levelKills >= NO_OF_KILLS_STAGE_2 && !levelBossActive && levelNo == 1) {
             spawnLevelBoss(spaceShip);
         } else if (!levelBossActive) {
-            waves.add(new Wave(waveTypesFast[RND.nextInt(waveTypesFast.length)], spaceShip, NO_OF_ENEMIES_STAGE_3, level.getEnemyImages()[RND.nextInt(3)], true, true));
+            waves.add(new Wave(waveTypesFast[RND.nextInt(waveTypesFast.length)], spaceShip, NO_OF_ENEMIES_STAGE_3, level.getEnemyImages()[RND.nextInt(level.getEnemyImages().length)], true, true));
         }
     }
 
@@ -1149,6 +1160,7 @@ public class SpaceFX extends Application {
             noOfShields  = SHIELDS;
             score        = 0;
             kills        = 0;
+            levelKills   = 0;
             if (PLAY_MUSIC) {
                 mediaPlayer.play();
             }
@@ -2947,6 +2959,7 @@ public class SpaceFX extends Application {
                             explosions.add(new Explosion(enemy.x - Explosion.FRAME_WIDTH * 0.25, enemy.y - Explosion.FRAME_HEIGHT * 0.25, enemy.vX, enemy.vY, 0.35));
                             score += enemy.value;
                             kills++;
+                            levelKills++;
                             enemiesToRemove.add(enemy);
                             torpedosToRemove.add(torpedo);
                             playSound(spaceShipExplosionSound);
@@ -2959,6 +2972,7 @@ public class SpaceFX extends Application {
                             rocketExplosions.add(new RocketExplosion(enemy.x - RocketExplosion.FRAME_WIDTH * 0.25, enemy.y - RocketExplosion.FRAME_HEIGHT * 0.25, enemy.vX, enemy.vY, 0.5));
                             score += enemy.value;
                             kills++;
+                            levelKills++;
                             enemiesToRemove.add(enemy);
                             rocketsToRemove.add(rocket);
                             playSound(rocketExplosionSound);
