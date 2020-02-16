@@ -28,8 +28,12 @@ public enum WaveType {
     TYPE_2_SLOW(240), TYPE_2_MEDIUM(180), TYPE_2_FAST(120),
     TYPE_3_SLOW(240), TYPE_3_MEDIUM(180), TYPE_3_FAST(120),
     TYPE_4_SLOW(240), TYPE_4_MEDIUM(180), TYPE_4_FAST(120),
-    TYPE_5_SLOW(460), TYPE_5_MEDIUM(420), TYPE_5_FAST(360);
-    
+    TYPE_5_SLOW(460), TYPE_5_MEDIUM(420), TYPE_5_FAST(360),
+    TYPE_6_SLOW(240), TYPE_6_MEDIUM(180), TYPE_6_FAST(120),
+    TYPE_7_SLOW(240), TYPE_7_MEDIUM(180), TYPE_7_FAST(120),
+    TYPE_8_SLOW(240), TYPE_8_MEDIUM(180), TYPE_8_FAST(120),
+    TYPE_9_SLOW(240), TYPE_9_MEDIUM(180), TYPE_9_FAST(120);
+
     private static final double        ENEMY_SIZE = 50;
     public  final double               totalFrames;
     //public record WaveCoordinate1(double x, double y, double r) {}
@@ -101,6 +105,42 @@ public enum WaveType {
                 cp2  = new double[] { WIDTH * -0.37539683, HEIGHT * 0.8 };
                 ap3  = new double[] { WIDTH * 0.76, HEIGHT + ENEMY_SIZE };
                 coordinates.addAll(addCoordinates(totalFrames / 3, ap0, cp1, cp2, ap3));
+                break;
+            case "TYPE_6_SLOW":
+            case "TYPE_6_MEDIUM":
+            case "TYPE_6_FAST":
+                ap0  = new double[] { 0, HEIGHT + ENEMY_SIZE };
+                cp1  = new double[] { 0, 0 };
+                cp2  = new double[] { WIDTH, 0 };
+                ap3  = new double[] { WIDTH, HEIGHT + ENEMY_SIZE };
+                coordinates.addAll(addCoordinates(totalFrames, ap0, cp1, cp2, ap3));
+                break;
+            case "TYPE_7_SLOW":
+            case "TYPE_7_MEDIUM":
+            case "TYPE_7_FAST":
+                ap0  = new double[] { -ENEMY_SIZE, -ENEMY_SIZE };
+                cp1  = new double[] { 0, HEIGHT * 0.5 };
+                cp2  = new double[] { WIDTH, 0 };
+                ap3  = new double[] { WIDTH * 0.5, HEIGHT + ENEMY_SIZE };
+                coordinates.addAll(addCoordinates(totalFrames, ap0, cp1, cp2, ap3));
+                break;
+            case "TYPE_8_SLOW":
+            case "TYPE_8_MEDIUM":
+            case "TYPE_8_FAST":
+                ap0  = new double[] { WIDTH + ENEMY_SIZE, -ENEMY_SIZE };
+                cp1  = new double[] { WIDTH, HEIGHT * 0.5 };
+                cp2  = new double[] { 0, 0 };
+                ap3  = new double[] { WIDTH * 0.5, HEIGHT + ENEMY_SIZE };
+                coordinates.addAll(addCoordinates(totalFrames, ap0, cp1, cp2, ap3));
+                break;
+            case "TYPE_9_SLOW":
+            case "TYPE_9_MEDIUM":
+            case "TYPE_9_FAST":
+                ap0  = new double[] { WIDTH * 0.5, -ENEMY_SIZE };
+                cp1  = new double[] { WIDTH * -0.92857143, HEIGHT * 0.66666667 };
+                cp2  = new double[] { WIDTH * 1.85714286, HEIGHT * 0.24444444 };
+                ap3  = new double[] { WIDTH * 0.5, HEIGHT + ENEMY_SIZE };
+                coordinates.addAll(addCoordinates(totalFrames, ap0, cp1, cp2, ap3));
                 break;
             case "NONE":
             default:

@@ -17,6 +17,7 @@
 package eu.hansolo.spacefx;
 
 public class Config {
+    public static final double  SCALING_FACTOR             = 1.0;
     public static final double  WIDTH                      = 700;
     public static final double  HEIGHT                     = 900;
     public static final boolean PLAY_SOUND                 = true;
@@ -39,12 +40,20 @@ public class Config {
     public static final double  ENEMY_BOSS_TORPEDO_SPEED   = 6;
     public static final double  ENEMY_BOSS_ROCKET_SPEED    = 4;
     public static final double  ENEMY_BOSS_SPEED           = 2;
+    public static final double  LEVEL_BOSS_SPEED           = 1;
+    public static final double  LEVEL_BOSS_TORPEDO_SPEED   = 6;
+    public static final double  LEVEL_BOSS_BOMB_SPEED      = 4;
     public static final long    ENEMY_BOSS_ATTACK_INTERVAL = 25_000_000_000l;
-    public static final long    SHIELD_UP_SPAWN_INTERVAL   = 30_000_000_000l;
-    public static final long    LIFE_UP_SPAWN_INTERVAL     = 60_000_000_000l;
+    public static final long    SHIELD_UP_SPAWN_INTERVAL   = 25_000_000_000l;
+    public static final long    LIFE_UP_SPAWN_INTERVAL     = 55_000_000_000l;
     public static final long    WAVE_SPAWN_INTERVAL        = 10_000_000_000l;
     public static final long    BOMB_DROP_INTERVAL         = 1_000_000_000l;
     public static final double  VELOCITY_FACTOR_X          = 1.0;
     public static final double  VELOCITY_FACTOR_Y          = 1.0;
     public static final double  VELOCITY_FACTOR_R          = 1.0;
+    public static final int     NO_OF_KILLS_STAGE_1        = 50;
+    public static final int     NO_OF_KILLS_STAGE_2        = 100;
+    public static final int     NO_OF_ENEMIES_STAGE_1      = 5;
+    public static final int     NO_OF_ENEMIES_STAGE_2      = 7;
+    public static final int     NO_OF_ENEMIES_STAGE_3      = 10;
 }
