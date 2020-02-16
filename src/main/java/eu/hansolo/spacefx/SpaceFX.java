@@ -2573,7 +2573,7 @@ public class SpaceFX extends Application {
             r = 0;
 
             // No of hits
-            hits = 100;
+            hits = 80;
 
             waitingStart = 0;
         }
