@@ -77,9 +77,9 @@ public class SpaceFX extends Application {
     private              List<Player>               hallOfFame;
     private              boolean                    inputAllowed;
     private              Text                       userName;
+    private              Level                      level                      = new Level1();
     private final        Image                      startImg                   = new Image(getClass().getResourceAsStream("startscreen.png"));
     private final        Image                      gameOverImg                = new Image(getClass().getResourceAsStream("gameover.png"));
-    private final        Image                      backgroundImg              = new Image(SpaceFX.class.getResourceAsStream("background.jpg"));
     private final        Image[]                    asteroidImages             = { new Image(getClass().getResourceAsStream("asteroid1.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
                                                                                    new Image(getClass().getResourceAsStream("asteroid2.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
                                                                                    new Image(getClass().getResourceAsStream("asteroid3.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
@@ -91,14 +91,6 @@ public class SpaceFX extends Application {
                                                                                    new Image(getClass().getResourceAsStream("asteroid9.png"), 130 * SCALING_FACTOR, 130 * SCALING_FACTOR, true, false),
                                                                                    new Image(getClass().getResourceAsStream("asteroid10.png"), 120 * SCALING_FACTOR, 120 * SCALING_FACTOR, true, false),
                                                                                    new Image(getClass().getResourceAsStream("asteroid11.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false) };
-    private final        Image[]                    enemyImages                = { new Image(getClass().getResourceAsStream("enemy1.png"), 56 * SCALING_FACTOR, 56 * SCALING_FACTOR, true, false),
-                                                                                   new Image(getClass().getResourceAsStream("enemy2.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false),
-                                                                                   new Image(getClass().getResourceAsStream("enemy3.png"), 68 * SCALING_FACTOR, 68 * SCALING_FACTOR, true, false) };
-    private final        Image                      enemyBossImg0              = new Image(getClass().getResourceAsStream("enemyBoss0.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
-    private final        Image                      enemyBossImg1              = new Image(getClass().getResourceAsStream("enemyBoss1.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
-    private final        Image                      enemyBossImg2              = new Image(getClass().getResourceAsStream("enemyBoss2.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
-    private final        Image                      enemyBossImg3              = new Image(getClass().getResourceAsStream("enemyBoss3.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
-    private final        Image                      enemyBossImg4              = new Image(getClass().getResourceAsStream("enemyBoss4.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
     private final        Image                      spaceshipImg               = new Image(getClass().getResourceAsStream("spaceship.png"), 48 * SCALING_FACTOR, 48 * SCALING_FACTOR, true, false);
     private final        Image                      spaceshipUpImg             = new Image(getClass().getResourceAsStream("spaceshipUp.png"), 48 * SCALING_FACTOR, 48 * SCALING_FACTOR, true, false);
     private final        Image                      spaceshipDownImg           = new Image(getClass().getResourceAsStream("spaceshipDown.png"), 48 * SCALING_FACTOR, 48 * SCALING_FACTOR, true, false);
@@ -106,27 +98,14 @@ public class SpaceFX extends Application {
     private final        Image                      deflectorShieldImg         = new Image(getClass().getResourceAsStream("deflectorshield.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
     private final        Image                      miniDeflectorShieldImg     = new Image(getClass().getResourceAsStream("deflectorshield.png"), 16 * SCALING_FACTOR, 16 * SCALING_FACTOR, true, false);
     private final        Image                      torpedoImg                 = new Image(getClass().getResourceAsStream("torpedo.png"), 17 * SCALING_FACTOR, 20 * SCALING_FACTOR, true, false);
-    private final        Image                      enemyBombImg               = new Image(getClass().getResourceAsStream("enemyBomb.png"), 20 * SCALING_FACTOR, 20 * SCALING_FACTOR, true, false);
-    private final        Image                      enemyTorpedoImg            = new Image(getClass().getResourceAsStream("enemyTorpedo.png"), 21 * SCALING_FACTOR, 21 * SCALING_FACTOR, true, false);
-    private final        Image                      enemyBossTorpedoImg        = new Image(getClass().getResourceAsStream("enemyBossTorpedo.png"), 26 * SCALING_FACTOR, 26 * SCALING_FACTOR, true, false);
-    private final        Image                      enemyBossRocketImg         = new Image(getClass().getResourceAsStream("enemyBossRocket.png"), 17 * SCALING_FACTOR, 42 * SCALING_FACTOR, true, false);
-    private final        Image                      explosionImg               = new Image(getClass().getResourceAsStream("explosion.png"), 2048 * SCALING_FACTOR, 1792 * SCALING_FACTOR, true, false);
     private final        Image                      asteroidExplosionImg       = new Image(getClass().getResourceAsStream("asteroidExplosion.png"), 2048 * SCALING_FACTOR, 1792 * SCALING_FACTOR, true, false);
     private final        Image                      spaceShipExplosionImg      = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800 * SCALING_FACTOR, 600 * SCALING_FACTOR, true, false);
     private final        Image                      hitImg                     = new Image(getClass().getResourceAsStream("torpedoHit2.png"), 400 * SCALING_FACTOR, 160 * SCALING_FACTOR, true, false);
-    private final        Image                      enemyBossHitImg            = new Image(getClass().getResourceAsStream("torpedoHit.png"), 400 * SCALING_FACTOR, 160 * SCALING_FACTOR, true, false);
-    private final        Image                      enemyBossExplosionImg      = new Image(getClass().getResourceAsStream("enemyBossExplosion.png"), 800 * SCALING_FACTOR, 1400 * SCALING_FACTOR, true, false);
     private final        Image                      shieldUpImg                = new Image(getClass().getResourceAsStream("shieldUp.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
     private final        Image                      lifeUpImg                  = new Image(getClass().getResourceAsStream("lifeUp.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
     private final        Image                      upExplosionImg             = new Image(getClass().getResourceAsStream("upExplosion.png"), 400 * SCALING_FACTOR, 700 * SCALING_FACTOR, true, false);
     private final        Image                      rocketExplosionImg         = new Image(getClass().getResourceAsStream("rocketExplosion.png"), 960 * SCALING_FACTOR, 768 * SCALING_FACTOR, true, false);
     private final        Image                      rocketImg                  = new Image(getClass().getResourceAsStream("rocket.png"), 17 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
-    private final        Image                      enemyRocketExplosionImg    = new Image(getClass().getResourceAsStream("enemyRocketExplosion.png"), 512 * SCALING_FACTOR, 896 * SCALING_FACTOR, true, false);
-    private final        Image                      levelBossImg               = new Image(getClass().getResourceAsStream("levelBoss.png"), 300 * SCALING_FACTOR, 300 * SCALING_FACTOR, true, false);
-    private final        Image                      levelBossTorpedoImg        = new Image(getClass().getResourceAsStream("levelBossTorpedo.png"), 35 * SCALING_FACTOR, 60 * SCALING_FACTOR, true, false);
-    private final        Image                      levelBossRocketImg         = new Image(getClass().getResourceAsStream("levelBossRocket.png"), 15 * SCALING_FACTOR, 37 * SCALING_FACTOR, true, false);
-    private final        Image                      levelBossBombImg           = new Image(getClass().getResourceAsStream("levelBossBomb.png"), 30 * SCALING_FACTOR, 30 * SCALING_FACTOR, true, false);
-    private final        Image                      levelBossExplosionImg      = new Image(getClass().getResourceAsStream("levelBossExplosion.png"), 2048 * SCALING_FACTOR, 768 * SCALING_FACTOR, true, false);
     private final        AudioClip                  laserSound                 = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
     private final        AudioClip                  rocketLaunchSound          = new AudioClip(getClass().getResource("rocketLaunch.wav").toExternalForm());
     private final        AudioClip                  rocketExplosionSound       = new AudioClip(getClass().getResource("rocketExplosion.wav").toExternalForm());
@@ -153,7 +132,7 @@ public class SpaceFX extends Application {
     private final        MediaPlayer                mediaPlayer                = new MediaPlayer(soundTheme);
     private final        double                     deflectorShieldRadius      = deflectorShieldImg.getRequestedWidth() * 0.5;
     private              boolean                    levelBossActive;
-    private              int                        level;
+    private              int                        levelNo;
     private              Font                       scoreFont;
     private              double                     backgroundViewportY;
     private              Canvas                     canvas;
@@ -205,10 +184,10 @@ public class SpaceFX extends Application {
     private              List<UpExplosion>          upExplosions;
     private              List<UpExplosion>          upExplosionsToRemove;
     private              List<Hit>                  hits;
-    private              List<Hit>      hitsToRemove;
-    private              List<EnemyHit> enemyHits;
-    private              List<EnemyHit> enemyHitsToRemove;
-    private              long           score;
+    private              List<Hit>                  hitsToRemove;
+    private              List<EnemyHit>             enemyHits;
+    private              List<EnemyHit>             enemyHitsToRemove;
+    private              long                       score;
     private              long                       kills;
     private              double                     scorePosX;
     private              double                     scorePosY;
@@ -239,7 +218,7 @@ public class SpaceFX extends Application {
         gameOverScreen   = false;
         hallOfFameScreen = false;
         levelBossActive  = false;
-        level            = 1;
+        levelNo          = level.getNo();
 
         // PreFill hall of fame
         Player p1 = new Player("--", 0l);
@@ -428,7 +407,7 @@ public class SpaceFX extends Application {
             } else if (e.getCode() == KeyCode.P && !gameOverScreen) {
                 ctx.clearRect(0, 0, WIDTH, HEIGHT);
                 if (SHOW_BACKGROUND) {
-                    ctx.drawImage(backgroundImg, 0, 0);
+                    ctx.drawImage(level.getBackgroundImg(), 0, 0);
                 }
                 if (PLAY_MUSIC) {
                     mediaPlayer.pause();
@@ -509,7 +488,7 @@ public class SpaceFX extends Application {
             if (backgroundViewportY <= 0) {
                 backgroundViewportY = 2079; //backgroundImg.getHeight() - HEIGHT;
             }
-            ctx.drawImage(backgroundImg, 0, backgroundViewportY, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT);
+            ctx.drawImage(level.getBackgroundImg(), 0, backgroundViewportY, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT);
         }
 
         // Draw Stars
@@ -703,7 +682,7 @@ public class SpaceFX extends Application {
                         kills++;
                         levelBossesToRemove.add(levelBoss);
                         levelBossActive = false;
-                        level++;
+                        levelNo++;
                         torpedosToRemove.add(torpedo);
                         playSound(levelBossExplosionSound);
                     } else {
@@ -724,7 +703,7 @@ public class SpaceFX extends Application {
                         kills++;
                         levelBossesToRemove.add(levelBoss);
                         levelBossActive = false;
-                        level++;
+                        levelNo++;
                         rocketsToRemove.add(rocket);
                         playSound(levelBossExplosionSound);
                     } else {
@@ -761,7 +740,7 @@ public class SpaceFX extends Application {
                     }
                     levelBossesToRemove.add(levelBoss);
                     levelBossActive = false;
-                    level++;
+                    levelNo++;
                 }
             }
         }
@@ -909,7 +888,7 @@ public class SpaceFX extends Application {
         // Draw Explosions
         for (Explosion explosion : explosions) {
             explosion.update();
-            ctx.drawImage(explosionImg, explosion.countX * Explosion.FRAME_WIDTH, explosion.countY * Explosion.FRAME_HEIGHT, Explosion.FRAME_WIDTH, Explosion.FRAME_HEIGHT,
+            ctx.drawImage(level.getExplosionImg(), explosion.countX * Explosion.FRAME_WIDTH, explosion.countY * Explosion.FRAME_HEIGHT, Explosion.FRAME_WIDTH, Explosion.FRAME_HEIGHT,
                           explosion.x, explosion.y, Explosion.FRAME_WIDTH * explosion.scale, Explosion.FRAME_HEIGHT * explosion.scale);
         }
         explosions.removeAll(explosionsToRemove);
@@ -934,7 +913,7 @@ public class SpaceFX extends Application {
         // Draw EnemyRocketExplosions
         for (EnemyRocketExplosion enemyRocketExplosion : enemyRocketExplosions) {
             enemyRocketExplosion.update();
-            ctx.drawImage(enemyRocketExplosionImg, enemyRocketExplosion.countX * EnemyRocketExplosion.FRAME_WIDTH, enemyRocketExplosion.countY * EnemyRocketExplosion.FRAME_HEIGHT, EnemyRocketExplosion.FRAME_WIDTH, EnemyRocketExplosion.FRAME_HEIGHT, enemyRocketExplosion.x, enemyRocketExplosion.y, EnemyRocketExplosion.FRAME_WIDTH * enemyRocketExplosion.scale,
+            ctx.drawImage(level.getEnemyRocketExplosionImg(), enemyRocketExplosion.countX * EnemyRocketExplosion.FRAME_WIDTH, enemyRocketExplosion.countY * EnemyRocketExplosion.FRAME_HEIGHT, EnemyRocketExplosion.FRAME_WIDTH, EnemyRocketExplosion.FRAME_HEIGHT, enemyRocketExplosion.x, enemyRocketExplosion.y, EnemyRocketExplosion.FRAME_WIDTH * enemyRocketExplosion.scale,
                           EnemyRocketExplosion.FRAME_HEIGHT * enemyRocketExplosion.scale);
         }
         enemyRocketExplosions.removeAll(enemyRocketExplosionsToRemove);
@@ -942,7 +921,7 @@ public class SpaceFX extends Application {
         // Draw EnemyBossExplosions
         for (EnemyBossExplosion enemyBossExplosion : enemyBossExplosions) {
             enemyBossExplosion.update();
-            ctx.drawImage(enemyBossExplosionImg, enemyBossExplosion.countX * EnemyBossExplosion.FRAME_WIDTH, enemyBossExplosion.countY * EnemyBossExplosion.FRAME_HEIGHT,
+            ctx.drawImage(level.getEnemyBossExplosionImg(), enemyBossExplosion.countX * EnemyBossExplosion.FRAME_WIDTH, enemyBossExplosion.countY * EnemyBossExplosion.FRAME_HEIGHT,
                           EnemyBossExplosion.FRAME_WIDTH, EnemyBossExplosion.FRAME_HEIGHT, enemyBossExplosion.x, enemyBossExplosion.y,
                           EnemyBossExplosion.FRAME_WIDTH * enemyBossExplosion.scale, EnemyBossExplosion.FRAME_HEIGHT * enemyBossExplosion.scale);
         }
@@ -951,7 +930,7 @@ public class SpaceFX extends Application {
         // Draw LevelBossExplosions
         for (LevelBossExplosion levelBossExplosion : levelBossExplosions) {
             levelBossExplosion.update();
-            ctx.drawImage(levelBossExplosionImg, levelBossExplosion.countX * LevelBossExplosion.FRAME_WIDTH, levelBossExplosion.countY * LevelBossExplosion.FRAME_HEIGHT,
+            ctx.drawImage(level.getLevelBossExplosionImg(), levelBossExplosion.countX * LevelBossExplosion.FRAME_WIDTH, levelBossExplosion.countY * LevelBossExplosion.FRAME_HEIGHT,
                           LevelBossExplosion.FRAME_WIDTH, LevelBossExplosion.FRAME_HEIGHT, levelBossExplosion.x, levelBossExplosion.y,
                           LevelBossExplosion.FRAME_WIDTH * levelBossExplosion.scale, LevelBossExplosion.FRAME_HEIGHT * levelBossExplosion.scale);
         }
@@ -975,7 +954,7 @@ public class SpaceFX extends Application {
         // Draw EnemyBoss Hits
         for (EnemyHit hit : enemyHits) {
             hit.update();
-            ctx.drawImage(enemyBossHitImg, hit.countX * EnemyHit.FRAME_WIDTH, hit.countY * EnemyHit.FRAME_HEIGHT, EnemyHit.FRAME_WIDTH, EnemyHit.FRAME_HEIGHT, hit.x, hit.y, EnemyHit.FRAME_WIDTH, EnemyHit.FRAME_HEIGHT);
+            ctx.drawImage(level.getEnemyBossHitImg(), hit.countX * EnemyHit.FRAME_WIDTH, hit.countY * EnemyHit.FRAME_HEIGHT, EnemyHit.FRAME_WIDTH, EnemyHit.FRAME_HEIGHT, hit.x, hit.y, EnemyHit.FRAME_WIDTH, EnemyHit.FRAME_HEIGHT);
         }
         enemyHits.removeAll(enemyHitsToRemove);
 
@@ -1053,24 +1032,24 @@ public class SpaceFX extends Application {
 
     private void spawnEnemyTorpedo(final double x, final double y, final double vX, final double vY) {
         double vFactor = ENEMY_TORPEDO_SPEED / Math.abs(vY); // make sure the speed is always the defined one
-        enemyTorpedos.add(new EnemyTorpedo(enemyTorpedoImg, x, y, vFactor * vX, vFactor * vY));
+        enemyTorpedos.add(new EnemyTorpedo(level.getEnemyTorpedoImg(), x, y, vFactor * vX, vFactor * vY));
         playSound(enemyLaserSound);
     }
 
     private void spawnEnemyBomb(final double x, final double y) {
-        enemyBombs.add(new EnemyBomb(enemyBombImg, x, y, 0, ENEMY_BOMB_SPEED));
+        enemyBombs.add(new EnemyBomb(level.getEnemyBombImg(), x, y, 0, ENEMY_BOMB_SPEED));
         playSound(enemyBombSound);
     }
 
     private void spawnEnemyBoss(final SpaceShip spaceShip) {
         if (levelBossActive) { return; }
-        enemyBosses.add(new EnemyBoss(spaceShip, enemyBossImg4, RND.nextBoolean()));
+        enemyBosses.add(new EnemyBoss(spaceShip, level.getEnemyBossImg4(), RND.nextBoolean()));
     }
 
     private void spawnLevelBoss(final SpaceShip spaceShip) {
         if (levelBossActive) { return; }
         levelBossActive = true;
-        levelBosses.add(new LevelBoss(spaceShip, levelBossImg, true, true));
+        levelBosses.add(new LevelBoss(spaceShip, level.getLevelBossImg(), true, true));
     }
 
     private void spawnShieldUp() {
@@ -1083,40 +1062,40 @@ public class SpaceFX extends Application {
 
     private void spawnWave() {
         if (kills < NO_OF_KILLS_STAGE_1 && !levelBossActive) {
-            waves.add(new Wave(waveTypesSlow[RND.nextInt(waveTypesSlow.length)], spaceShip, NO_OF_ENEMIES_STAGE_1, enemyImages[RND.nextInt(3)], false, false));
+            waves.add(new Wave(waveTypesSlow[RND.nextInt(waveTypesSlow.length)], spaceShip, NO_OF_ENEMIES_STAGE_1, level.getEnemyImages()[RND.nextInt(3)], false, false));
         } else if (kills >= NO_OF_KILLS_STAGE_1 && kills < NO_OF_KILLS_STAGE_2 && !levelBossActive) {
-            waves.add(new Wave(waveTypesMedium[RND.nextInt(waveTypesMedium.length)], spaceShip, NO_OF_ENEMIES_STAGE_2, enemyImages[RND.nextInt(3)], true, false));
-        } else if (kills >= NO_OF_KILLS_STAGE_2 && !levelBossActive && level == 1) {
+            waves.add(new Wave(waveTypesMedium[RND.nextInt(waveTypesMedium.length)], spaceShip, NO_OF_ENEMIES_STAGE_2, level.getEnemyImages()[RND.nextInt(3)], true, false));
+        } else if (kills >= NO_OF_KILLS_STAGE_2 && !levelBossActive && levelNo == 1) {
             spawnLevelBoss(spaceShip);
         } else if (!levelBossActive) {
-            waves.add(new Wave(waveTypesFast[RND.nextInt(waveTypesFast.length)], spaceShip, NO_OF_ENEMIES_STAGE_3, enemyImages[RND.nextInt(3)], true, true));
+            waves.add(new Wave(waveTypesFast[RND.nextInt(waveTypesFast.length)], spaceShip, NO_OF_ENEMIES_STAGE_3, level.getEnemyImages()[RND.nextInt(3)], true, true));
         }
     }
 
     private void spawnEnemyBossTorpedo(final double x, final double y, final double vX, final double vY) {
         double vFactor = ENEMY_BOSS_TORPEDO_SPEED / Math.abs(vY); // make sure the speed is always the defined one
-        enemyBossTorpedos.add(new EnemyBossTorpedo(enemyBossTorpedoImg, x, y, vFactor * vX, vFactor * vY));
+        enemyBossTorpedos.add(new EnemyBossTorpedo(level.getEnemyBossTorpedoImg(), x, y, vFactor * vX, vFactor * vY));
         playSound(enemyLaserSound);
     }
 
     private void spawnEnemyBossRocket(final double x, final double y) {
-        enemyBossRockets.add(new EnemyBossRocket(spaceShip, enemyBossRocketImg, x, y));
+        enemyBossRockets.add(new EnemyBossRocket(spaceShip, level.getEnemyBossRocketImg(), x, y));
         playSound(rocketLaunchSound);
     }
 
     private void spawnLevelBossTorpedo(final double x, final double y, final double vX, final double vY, final double r) {
         double vFactor = LEVEL_BOSS_TORPEDO_SPEED / Math.abs(vY); // make sure the speed is always the defined one
-        levelBossTorpedos.add(new LevelBossTorpedo(levelBossTorpedoImg, x, y, vFactor * vX, vFactor * vY, r));
+        levelBossTorpedos.add(new LevelBossTorpedo(level.getLevelBossTorpedoImg(), x, y, vFactor * vX, vFactor * vY, r));
         playSound(levelBossTorpedoSound);
     }
 
     private void spawnLevelBossRocket(final double x, final double y) {
-        levelBossRockets.add(new LevelBossRocket(spaceShip, levelBossRocketImg, x, y));
+        levelBossRockets.add(new LevelBossRocket(spaceShip, level.getLevelBossRocketImg(), x, y));
         playSound(levelBossRocketSound);
     }
 
     private void spawnLevelBossBomb(final double x, final double y) {
-        levelBossBombs.add(new LevelBossBomb(levelBossBombImg, x, y, 0, LEVEL_BOSS_BOMB_SPEED));
+        levelBossBombs.add(new LevelBossBomb(level.getLevelBossBombImg(), x, y, 0, LEVEL_BOSS_BOMB_SPEED));
         playSound(levelBossBombSound);
     }
 
@@ -2328,21 +2307,11 @@ public class SpaceFX extends Application {
             }
 
             switch (hits) {
-                case 5:
-                    image = enemyBossImg4;
-                    break;
-                case 4:
-                    image = enemyBossImg3;
-                    break;
-                case 3:
-                    image = enemyBossImg2;
-                    break;
-                case 2:
-                    image = enemyBossImg1;
-                    break;
-                case 1:
-                    image = enemyBossImg0;
-                    break;
+                case 5: image = level.getEnemyBossImg4();break;
+                case 4: image = level.getEnemyBossImg3();break;
+                case 3: image = level.getEnemyBossImg2();break;
+                case 2: image = level.getEnemyBossImg1();break;
+                case 1: image = level.getEnemyBossImg0();break;
             }
         }
     }
