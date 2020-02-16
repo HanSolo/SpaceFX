@@ -68,16 +68,18 @@ public class SpaceFX extends Application {
     private static final String                     SPACE_BOY;
     private static       String                     spaceBoyName;
     private static final boolean                    IS_BROWSER                 = WebAPI.isBrowser();
-    private static final WaveType[]                 waveTypesSlow              = { WaveType.TYPE_1_SLOW, WaveType.TYPE_2_SLOW, WaveType.TYPE_3_SLOW, WaveType.TYPE_4_SLOW, WaveType.TYPE_5_SLOW, WaveType.TYPE_6_SLOW, WaveType.TYPE_7_SLOW, WaveType.TYPE_8_SLOW, WaveType.TYPE_9_SLOW };
-    private static final WaveType[]                 waveTypesMedium            = { WaveType.TYPE_1_MEDIUM, WaveType.TYPE_2_MEDIUM, WaveType.TYPE_3_MEDIUM, WaveType.TYPE_4_MEDIUM, WaveType.TYPE_5_MEDIUM, WaveType.TYPE_6_MEDIUM, WaveType.TYPE_7_MEDIUM, WaveType.TYPE_8_MEDIUM, WaveType.TYPE_9_MEDIUM };
-    private static final WaveType[]                 waveTypesFast              = { WaveType.TYPE_1_FAST, WaveType.TYPE_2_FAST, WaveType.TYPE_3_FAST, WaveType.TYPE_4_FAST, WaveType.TYPE_5_FAST, WaveType.TYPE_6_FAST, WaveType.TYPE_7_FAST, WaveType.TYPE_8_FAST, WaveType.TYPE_9_FAST };
+    private static final WaveType[]                 WAVE_TYPES_SLOW            = { WaveType.TYPE_1_SLOW, WaveType.TYPE_2_SLOW, WaveType.TYPE_3_SLOW, WaveType.TYPE_4_SLOW, WaveType.TYPE_5_SLOW, WaveType.TYPE_6_SLOW, WaveType.TYPE_7_SLOW, WaveType.TYPE_8_SLOW, WaveType.TYPE_9_SLOW };
+    private static final WaveType[]                 WAVE_TYPES_MEDIUM          = { WaveType.TYPE_1_MEDIUM, WaveType.TYPE_2_MEDIUM, WaveType.TYPE_3_MEDIUM, WaveType.TYPE_4_MEDIUM, WaveType.TYPE_5_MEDIUM, WaveType.TYPE_6_MEDIUM, WaveType.TYPE_7_MEDIUM, WaveType.TYPE_8_MEDIUM, WaveType.TYPE_9_MEDIUM };
+    private static final WaveType[]                 WAVE_TYPES_FAST            = { WaveType.TYPE_1_FAST, WaveType.TYPE_2_FAST, WaveType.TYPE_3_FAST, WaveType.TYPE_4_FAST, WaveType.TYPE_5_FAST, WaveType.TYPE_6_FAST, WaveType.TYPE_7_FAST, WaveType.TYPE_8_FAST, WaveType.TYPE_9_FAST };
+    private static final Level1                     LEVEL_1                    = new Level1();
+    private static final Level2                     LEVEL_2                    = new Level2();
     private              boolean                    running;
     private              boolean                    gameOverScreen;
     private              boolean                    hallOfFameScreen;
     private              List<Player>               hallOfFame;
     private              boolean                    inputAllowed;
     private              Text                       userName;
-    private              Level                      level                      = new Level1();
+    private              Level                      level                      = LEVEL_1;
     private final        Image                      startImg                   = new Image(getClass().getResourceAsStream("startscreen.png"));
     private final        Image                      gameOverImg                = new Image(getClass().getResourceAsStream("gameover.png"));
     private final        Image[]                    asteroidImages             = { new Image(getClass().getResourceAsStream("asteroid1.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
@@ -688,7 +690,7 @@ public class SpaceFX extends Application {
                         levelBossActive = false;
                         levelNo++;
                         levelKills = 0;
-                        level      = new Level2();
+                        level      = LEVEL_2;
                         torpedosToRemove.add(torpedo);
                         playSound(levelBossExplosionSound);
                     } else {
@@ -712,7 +714,7 @@ public class SpaceFX extends Application {
                         levelBossActive = false;
                         levelNo++;
                         levelKills = 0;
-                        level = new Level2();
+                        level = LEVEL_2;
                         rocketsToRemove.add(rocket);
                         playSound(levelBossExplosionSound);
                     } else {
@@ -751,7 +753,7 @@ public class SpaceFX extends Application {
                     levelBossActive = false;
                     levelNo++;
                     levelKills = 0;
-                    level = new Level2();
+                    level = LEVEL_2;
                 }
             }
         }
@@ -1073,13 +1075,13 @@ public class SpaceFX extends Application {
 
     private void spawnWave() {
         if (levelKills < NO_OF_KILLS_STAGE_1 && !levelBossActive) {
-            waves.add(new Wave(waveTypesSlow[RND.nextInt(waveTypesSlow.length)], spaceShip, NO_OF_ENEMIES_STAGE_1, level.getEnemyImages()[RND.nextInt(level.getEnemyImages().length)], false, false));
+            waves.add(new Wave(WAVE_TYPES_SLOW[RND.nextInt(WAVE_TYPES_SLOW.length)], spaceShip, NO_OF_ENEMIES_STAGE_1, level.getEnemyImages()[RND.nextInt(level.getEnemyImages().length)], false, false));
         } else if (levelKills >= NO_OF_KILLS_STAGE_1 && levelKills < NO_OF_KILLS_STAGE_2 && !levelBossActive) {
-            waves.add(new Wave(waveTypesMedium[RND.nextInt(waveTypesMedium.length)], spaceShip, NO_OF_ENEMIES_STAGE_2, level.getEnemyImages()[RND.nextInt(level.getEnemyImages().length)], true, false));
+            waves.add(new Wave(WAVE_TYPES_MEDIUM[RND.nextInt(WAVE_TYPES_MEDIUM.length)], spaceShip, NO_OF_ENEMIES_STAGE_2, level.getEnemyImages()[RND.nextInt(level.getEnemyImages().length)], true, false));
         } else if (levelKills >= NO_OF_KILLS_STAGE_2 && !levelBossActive && levelNo == 1) {
             spawnLevelBoss(spaceShip);
         } else if (!levelBossActive) {
-            waves.add(new Wave(waveTypesFast[RND.nextInt(waveTypesFast.length)], spaceShip, NO_OF_ENEMIES_STAGE_3, level.getEnemyImages()[RND.nextInt(level.getEnemyImages().length)], true, true));
+            waves.add(new Wave(WAVE_TYPES_FAST[RND.nextInt(WAVE_TYPES_FAST.length)], spaceShip, NO_OF_ENEMIES_STAGE_3, level.getEnemyImages()[RND.nextInt(level.getEnemyImages().length)], true, true));
         }
     }
 
