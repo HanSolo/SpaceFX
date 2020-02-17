@@ -2,6 +2,7 @@ module spacefx {
 
     // Java
     requires java.base;
+    requires java.logging;
 
     // Java-FX
     requires javafx.base;

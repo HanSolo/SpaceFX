@@ -17,6 +17,8 @@
 package eu.hansolo.spacefx;
 
 public class Config {
+    public static final String  LOG_FILE_NAME              = "spacefx.log";
+    public static final String  PROPERTIES_FILE_NAME       = "spacefx.properties";
     public static final double  SCALING_FACTOR             = 1.0;
     public static final double  WIDTH                      = 700;
     public static final double  HEIGHT                     = 900;

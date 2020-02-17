@@ -17,7 +17,16 @@
 package eu.hansolo.spacefx;
 
 
+import javafx.scene.Node;
+
+
 public class Helper {
+
+    public static final void enableNode(final Node node, final boolean enable) {
+        node.setVisible(enable);
+        node.setManaged(enable);
+    }
+
     public static final double[] rotatePointAroundRotationCenter(final double x, final double y, final double rX, final double rY, final double angleDeg) {
         final double rad = Math.toRadians(angleDeg);
         final double sin = Math.sin(rad);

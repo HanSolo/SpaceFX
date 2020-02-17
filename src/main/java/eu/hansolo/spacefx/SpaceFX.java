@@ -21,17 +21,34 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -39,12 +56,18 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.Window;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -53,6 +76,8 @@ import static eu.hansolo.spacefx.Config.*;
 
 
 public class SpaceFX extends Application {
+    private static final LogManager                 LOG_MANAGER                = LogManager.INSTANCE;
+    private static final long                       SCREEN_TOGGLE_INTERVAL     = 10_000_000_000l;
     private static final Random                     RND                        = new Random();
     private static final double                     FIRST_QUARTER_WIDTH        = WIDTH * 0.25;
     private static final double                     LAST_QUARTER_WIDTH         = WIDTH * 0.75;
@@ -73,15 +98,19 @@ public class SpaceFX extends Application {
     private static final WaveType[]                 WAVE_TYPES_FAST            = { WaveType.TYPE_1_FAST, WaveType.TYPE_2_FAST, WaveType.TYPE_3_FAST, WaveType.TYPE_4_FAST, WaveType.TYPE_5_FAST, WaveType.TYPE_6_FAST, WaveType.TYPE_7_FAST, WaveType.TYPE_8_FAST, WaveType.TYPE_9_FAST };
     private static final Level1                     LEVEL_1                    = new Level1();
     private static final Level2                     LEVEL_2                    = new Level2();
+    private              Scene                      scene;
+    private              long                       lastScreenToggle;
+    private              boolean                    showHallOfFame;
     private              boolean                    running;
     private              boolean                    gameOverScreen;
+    private              Properties                 properties;
     private              boolean                    hallOfFameScreen;
     private              List<Player>               hallOfFame;
-    private              boolean                    inputAllowed;
-    private              Text                       userName;
+    private              VBox                       hallOfFameBox;
     private              Level                      level                      = LEVEL_1;
     private final        Image                      startImg                   = new Image(getClass().getResourceAsStream("startscreen.png"));
     private final        Image                      gameOverImg                = new Image(getClass().getResourceAsStream("gameover.png"));
+    private final        Image                      hallOfFameImg              = new Image(getClass().getResourceAsStream("halloffamescreen.jpg"));
     private final        Image[]                    asteroidImages             = { new Image(getClass().getResourceAsStream("asteroid1.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
                                                                                    new Image(getClass().getResourceAsStream("asteroid2.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
                                                                                    new Image(getClass().getResourceAsStream("asteroid3.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
@@ -205,6 +234,7 @@ public class SpaceFX extends Application {
     private              long                       lastBombDropped;
     private              long                       lastTimerCall;
     private              AnimationTimer             timer;
+    private              AnimationTimer             screenTimer;
 
     static {
         try {
@@ -222,22 +252,34 @@ public class SpaceFX extends Application {
         hallOfFameScreen = false;
         levelBossActive  = false;
         levelNo          = level.getNo();
+        lastScreenToggle = System.nanoTime();
+        showHallOfFame   = false;
 
         // PreFill hall of fame
-        Player p1 = new Player("--", 0l);
-        Player p2 = new Player("--", 0l);
-        Player p3 = new Player("--", 0l);
+        properties = PropertyManager.INSTANCE.getProperties();
+
+        Player p1 = new Player(properties.getProperty("hallOfFame1"));
+        Player p2 = new Player(properties.getProperty("hallOfFame2"));
+        Player p3 = new Player(properties.getProperty("hallOfFame3"));
+
+        LOG_MANAGER.logInfo(SpaceFX.class, "Player 1: " + p1);
+        LOG_MANAGER.logInfo(SpaceFX.class, "Player 2: " + p2);
+        LOG_MANAGER.logInfo(SpaceFX.class, "Player 3: " + p3);
+
         hallOfFame = new ArrayList<>(3);
         hallOfFame.add(p1);
         hallOfFame.add(p2);
         hallOfFame.add(p3);
-        inputAllowed = false;
-        userName = new Text("--");
-        userName.setFont(spaceBoy(30));
-        userName.setTextOrigin(VPos.CENTER);
-        userName.setTextAlignment(TextAlignment.CENTER);
-        userName.setManaged(false);
-        userName.setVisible(false);
+
+        HBox p1Entry  = createHallOfFameEntry(p1);
+        HBox p2Entry  = createHallOfFameEntry(p2);
+        HBox p3Entry  = createHallOfFameEntry(p3);
+        hallOfFameBox = new VBox(20, p1Entry, p2Entry, p3Entry);
+        hallOfFameBox.setMaxWidth(WIDTH * 0.4);
+        hallOfFameBox.setAlignment(Pos.CENTER);
+        hallOfFameBox.setTranslateY(-HEIGHT * 0.1);
+        hallOfFameBox.setMouseTransparent(true);
+        Helper.enableNode(hallOfFameBox, false);
 
         // Mediaplayer for background music
         mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
@@ -341,6 +383,21 @@ public class SpaceFX extends Application {
                 }
             }
         };
+        screenTimer = new AnimationTimer() {
+            @Override public void handle(final long now) {
+                if (!running && now > lastScreenToggle + SCREEN_TOGGLE_INTERVAL) {
+                    if (showHallOfFame) {
+                        ctx.drawImage(hallOfFameImg, 0, 0);
+                        Helper.enableNode(hallOfFameBox, true);
+                    } else {
+                        ctx.drawImage(startImg, 0, 0);
+                        Helper.enableNode(hallOfFameBox, false);
+                    }
+                    showHallOfFame = !showHallOfFame;
+                    lastScreenToggle = now;
+                }
+            }
+        };
 
         initStars();
         initAsteroids();
@@ -353,6 +410,8 @@ public class SpaceFX extends Application {
         ctx.setTextAlign(TextAlignment.CENTER);
         ctx.setTextBaseline(VPos.CENTER);
         ctx.drawImage(startImg, 0, 0);
+
+        screenTimer.start();
     }
 
     private void initStars() {
@@ -370,10 +429,11 @@ public class SpaceFX extends Application {
     }
 
     @Override public void start(final Stage stage) {
-        StackPane pane = new StackPane(canvas);
+        StackPane pane = new StackPane(canvas, hallOfFameBox);
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        Scene scene = new Scene(pane);
+        scene = new Scene(pane);
+        scene.getStylesheets().add(SpaceFX.class.getResource("spacefx.css").toExternalForm());
 
         // Setup key listener
         scene.setOnKeyPressed(e -> {
@@ -417,6 +477,8 @@ public class SpaceFX extends Application {
                     mediaPlayer.pause();
                     gameMediaPlayer.play();
                 }
+                Helper.enableNode(hallOfFameBox, false);
+                screenTimer.stop();
                 running = true;
                 timer.start();
             }
@@ -428,16 +490,6 @@ public class SpaceFX extends Application {
                     case RIGHT: spaceShip.vX = 0; break;
                     case DOWN : spaceShip.vY = 0; break;
                     case LEFT : spaceShip.vX = 0; break;
-                }
-            }
-        });
-        scene.setOnKeyTyped(e -> {
-            if (inputAllowed) {
-                if (userName.getText().startsWith("_")) {
-                    userName.setText(e.getCharacter().toUpperCase() + "_");
-                } else if (userName.getText().endsWith("_")) {
-                    userName.setText(userName.getText().substring(0, 1) + e.getCharacter().toUpperCase());
-                    inputAllowed = false;
                 }
             }
         });
@@ -1130,9 +1182,10 @@ public class SpaceFX extends Application {
             gameMediaPlayer.pause();
         }
 
+        boolean isInHallOfFame = score > hallOfFame.get(2).score;
+
         PauseTransition pauseBeforeGameOverScreen = new PauseTransition(Duration.millis(1000));
         pauseBeforeGameOverScreen.setOnFinished(e -> {
-            checkForHighScore(new Player("", score));
             ctx.clearRect(0, 0, WIDTH, HEIGHT);
             ctx.drawImage(gameOverImg, 0, 0, WIDTH, HEIGHT);
             ctx.setFill(SCORE_COLOR);
@@ -1142,54 +1195,152 @@ public class SpaceFX extends Application {
         });
         pauseBeforeGameOverScreen.play();
 
-        PauseTransition pauseInGameOverScreen = new PauseTransition(Duration.millis(5000));
-        pauseInGameOverScreen.setOnFinished(e -> {
-            ctx.clearRect(0, 0, WIDTH, HEIGHT);
-            ctx.drawImage(startImg, 0, 0);
+        if (isInHallOfFame) {
+            PauseTransition pauseInGameOverScreen = new PauseTransition(Duration.millis(5000));
+            pauseInGameOverScreen.setOnFinished(e -> {
+                // Add player to hall of fame
+                ctx.clearRect(0, 0, WIDTH, HEIGHT);
+                ctx.drawImage(hallOfFameImg, 0, 0);
 
-            gameOverScreen = false;
-            explosions.clear();
-            torpedos.clear();
-            enemyTorpedos.clear();
-            enemyBossRockets.clear();
-            enemyBosses.clear();
-            shieldUps.clear();
-            waves.clear();
-            initAsteroids();
-            spaceShip.init();
-            hasBeenHit   = false;
-            noOfLifes    = LIFES;
-            noOfShields  = SHIELDS;
-            score        = 0;
-            kills        = 0;
-            levelKills   = 0;
-            if (PLAY_MUSIC) {
-                mediaPlayer.play();
-            }
-        });
-        pauseInGameOverScreen.play();
+                Helper.enableNode(hallOfFameBox, true);
+
+                // Ask for player initials
+                Platform.runLater(() -> {
+                    Optional<String> result = showPlayerInitialsDialog();
+                    result.ifPresent(name -> {
+                        hallOfFame.add(new Player(name, score));
+                        Collections.sort(hallOfFame);
+                        hallOfFame = hallOfFame.stream().limit(3).collect(Collectors.toList());
+
+                        // Store hall of fame in properties
+                        properties.setProperty("hallOfFame1", hallOfFame.get(0).toPropertyString());
+                        properties.setProperty("hallOfFame2", hallOfFame.get(1).toPropertyString());
+                        properties.setProperty("hallOfFame3", hallOfFame.get(2).toPropertyString());
+                        PropertyManager.INSTANCE.storeProperties();
+
+                        HBox p1Entry  = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame1")));
+                        HBox p2Entry  = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame2")));
+                        HBox p3Entry  = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame3")));
+                        hallOfFameBox.getChildren().setAll(p1Entry, p2Entry, p3Entry);
+                    });
+                    PauseTransition waitForHallOfFame = new PauseTransition(Duration.millis(3000));
+                    waitForHallOfFame.setOnFinished(a -> reInitGame());
+                    waitForHallOfFame.play();
+                });
+            });
+            pauseInGameOverScreen.play();
+        } else {
+            // Back to StartScreen
+            PauseTransition pauseInGameOverScreen = new PauseTransition(Duration.millis(5000));
+            pauseInGameOverScreen.setOnFinished(a -> reInitGame());
+            pauseInGameOverScreen.play();
+        }
     }
 
 
-    // Check for highscore
-    private void checkForHighScore(final Player player) {
-        if (player.score < hallOfFame.get(2).score) {
-            return;
+    // Reinitialize game
+    private void reInitGame() {
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        ctx.drawImage(startImg, 0, 0);
+
+        Helper.enableNode(hallOfFameBox, false);
+        gameOverScreen = false;
+        explosions.clear();
+        torpedos.clear();
+        enemyTorpedos.clear();
+        enemyBossRockets.clear();
+        enemyBosses.clear();
+        shieldUps.clear();
+        waves.clear();
+        initAsteroids();
+        spaceShip.init();
+        hasBeenHit = false;
+        noOfLifes = LIFES;
+        noOfShields = SHIELDS;
+        score = 0;
+        kills = 0;
+        levelKills = 0;
+        if (PLAY_MUSIC) {
+            mediaPlayer.play();
         }
 
-        // Ask for player name
-        inputAllowed = true;
-        userName.setVisible(true);
-        userName.setManaged(true);
-        userName.setX(WIDTH * 0.5);
-        userName.setY(HEIGHT * 0.75);
+        screenTimer.start();
+    }
 
-        hallOfFame.add(player);
-        Collections.sort(hallOfFame);
-        hallOfFame = hallOfFame.stream().limit(3).collect(Collectors.toList());
 
-        // Show hall of fame
+    // Show player name dialog
+    private Optional<String> showPlayerInitialsDialog() {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setResizable(false);
+        dialog.getDialogPane().getStylesheets().add(SpaceFX.class.getResource("spacefx.css").toExternalForm());
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.getDialogPane().getScene().setFill(Color.TRANSPARENT);
+        dialog.getDialogPane().setPadding(new Insets(0));
+        dialog.setWidth(120);
+        dialog.setHeight(40);
 
+        TextField userInitials = new TextField("--");
+        userInitials.setPrefWidth(100);
+        userInitials.setAlignment(Pos.CENTER);
+        userInitials.setTextFormatter(new TextFormatter<String>(change -> {
+            if (change.getControlNewText().length() > 2) { return null; }
+            if (change.getText().toUpperCase().matches("[A-Z\\-]{0,2}")) {
+                change.setText(change.getText().toUpperCase());
+                return change;
+            } else {
+                return null;
+            }
+        }));
+
+        ButtonType okType = new ButtonType("OK", ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okType);
+
+        Node okButton = dialog.getDialogPane().lookupButton(okType);
+        okButton.setVisible(false);
+        okButton.setManaged(false);
+
+        userInitials.setOnKeyPressed(e -> {
+            if (e.getCode().equals(KeyCode.ENTER) && userInitials.getText().length() == 2) {
+                okButton.fireEvent(new ActionEvent());
+            }
+        });
+
+        dialog.getDialogPane().setContent(userInitials);
+        dialog.getDialogPane().setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+        dialog.getDialogPane().setPrefSize(120, 40);
+
+        Platform.runLater(() -> {
+            userInitials.requestFocus();
+            userInitials.selectAll();
+        });
+
+        dialog.setResultConverter(button -> button == okType ? userInitials.getText() : null);
+
+        dialog.setX(scene.getWindow().getX() + (scene.getWindow().getWidth() - dialog.getDialogPane().getWidth()) * 0.5);
+        dialog.setY(scene.getWindow().getY() + scene.getWindow().getHeight()* 0.85);
+
+        return dialog.showAndWait();
+    }
+
+
+    // Create Hall of Fame entry
+    private HBox createHallOfFameEntry(final Player player) {
+        Font hofFont  = spaceBoy(30 * SCALING_FACTOR);
+
+        Label playerName  = new Label(player.name);
+        playerName.setFont(hofFont);
+        playerName.setTextFill(SCORE_COLOR);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label playerScore = new Label(Long.toString(player.score));
+        playerScore.setFont(hofFont);
+        playerScore.setTextFill(SCORE_COLOR);
+        playerScore.setAlignment(Pos.CENTER_RIGHT);
+
+        return new HBox(20, playerName, spacer, playerScore);
     }
 
 
@@ -2891,15 +3042,34 @@ public class SpaceFX extends Application {
         private       Long   score;
 
 
+        public Player(final String propertyString) {
+            this(propertyString.split(",")[0], propertyString.split(",")[1], Long.valueOf(propertyString.split(",")[2]));
+        }
         public Player(final String name, final Long score) {
-            this.id = UUID.randomUUID().toString();
-            this.name = name;
+            this(UUID.randomUUID().toString(), name, score);
+        }
+        public Player(final String id, final String name, final Long score) {
+            this.id    = id;
+            this.name  = name;
             this.score = score;
         }
 
 
         @Override public int compareTo(final Player player) {
             return Long.compare(player.score, this.score);
+        }
+
+        public String toPropertyString() {
+            return new StringBuilder(this.id).append(",").append(this.name).append(",").append(this.score).toString();
+        }
+
+        @Override public String toString() {
+            return new StringBuilder().append("{ ")
+                                      .append("\"id\"").append(":").append(id).append(",")
+                                      .append("\"name\"").append(":").append(name).append(",")
+                                      .append("\"score\"").append(":").append(score)
+                                      .append(" }")
+                                      .toString();
         }
     }
 
@@ -2982,7 +3152,7 @@ public class SpaceFX extends Application {
                     }
 
                     // Check for space ship hit
-                    if (!hasBeenHit) {
+                    if (spaceShip.isVulnerable && !hasBeenHit) {
                         boolean hit;
                         if (spaceShip.shield) {
                             hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, enemy.x, enemy.y, enemy.radius);
