@@ -21,24 +21,15 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Background;
@@ -54,19 +45,13 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.Modality;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import javafx.stage.Window;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
@@ -104,7 +89,8 @@ public class SpaceFX extends Application {
     private              boolean                    running;
     private              boolean                    gameOverScreen;
     private              Properties                 properties;
-    private              boolean                    hallOfFameScreen;
+    private              Label                      playerInitialsLabel;
+    private              TextField                  playerInitials;
     private              List<Player>               hallOfFame;
     private              VBox                       hallOfFameBox;
     private              Level                      level                      = LEVEL_1;
@@ -249,11 +235,52 @@ public class SpaceFX extends Application {
         scoreFont        = spaceBoy(60 * SCALING_FACTOR);
         running          = false;
         gameOverScreen   = false;
-        hallOfFameScreen = false;
         levelBossActive  = false;
         levelNo          = level.getNo();
         lastScreenToggle = System.nanoTime();
         showHallOfFame   = false;
+
+        playerInitialsLabel = new Label("Type in your initials");
+        playerInitialsLabel.setTranslateY(HEIGHT * 0.1);
+        Helper.enableNode(playerInitialsLabel, false);
+
+        playerInitials   = new TextField("--");
+        playerInitials.setTranslateY(HEIGHT * 0.2);
+        playerInitials.setTextFormatter(new TextFormatter<String>(change -> {
+            if (change.getControlNewText().length() > 2) { return null; }
+            if (change.getText().toUpperCase().matches("[A-Z\\-]{0,2}")) {
+                change.setText(change.getText().toUpperCase());
+                return change;
+            } else {
+                return null;
+            }
+        }));
+        playerInitials.setOnKeyPressed(e -> {
+            if (e.getCode().equals(KeyCode.ENTER) && playerInitials.getText().length() == 2) {
+                hallOfFame.add(new Player(playerInitials.getText(), score));
+                Collections.sort(hallOfFame);
+                hallOfFame = hallOfFame.stream().limit(3).collect(Collectors.toList());
+
+                // Store hall of fame in properties
+                properties.setProperty("hallOfFame1", hallOfFame.get(0).toPropertyString());
+                properties.setProperty("hallOfFame2", hallOfFame.get(1).toPropertyString());
+                properties.setProperty("hallOfFame3", hallOfFame.get(2).toPropertyString());
+                PropertyManager.INSTANCE.storeProperties();
+
+                HBox p1Entry  = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame1")));
+                HBox p2Entry  = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame2")));
+                HBox p3Entry  = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame3")));
+                hallOfFameBox.getChildren().setAll(p1Entry, p2Entry, p3Entry);
+
+                Helper.enableNode(playerInitialsLabel, false);
+                Helper.enableNode(playerInitials, false);
+
+                PauseTransition waitForHallOfFame = new PauseTransition(Duration.millis(3000));
+                waitForHallOfFame.setOnFinished(a -> reInitGame());
+                waitForHallOfFame.play();
+            }
+        });
+        Helper.enableNode(playerInitials, false);
 
         // PreFill hall of fame
         properties = PropertyManager.INSTANCE.getProperties();
@@ -429,7 +456,7 @@ public class SpaceFX extends Application {
     }
 
     @Override public void start(final Stage stage) {
-        StackPane pane = new StackPane(canvas, hallOfFameBox);
+        StackPane pane = new StackPane(canvas, hallOfFameBox, playerInitialsLabel, playerInitials);
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
         scene = new Scene(pane);
@@ -1203,29 +1230,11 @@ public class SpaceFX extends Application {
                 ctx.drawImage(hallOfFameImg, 0, 0);
 
                 Helper.enableNode(hallOfFameBox, true);
-
-                // Ask for player initials
+                Helper.enableNode(playerInitialsLabel, true);
+                Helper.enableNode(playerInitials, true);
                 Platform.runLater(() -> {
-                    Optional<String> result = showPlayerInitialsDialog();
-                    result.ifPresent(name -> {
-                        hallOfFame.add(new Player(name, score));
-                        Collections.sort(hallOfFame);
-                        hallOfFame = hallOfFame.stream().limit(3).collect(Collectors.toList());
-
-                        // Store hall of fame in properties
-                        properties.setProperty("hallOfFame1", hallOfFame.get(0).toPropertyString());
-                        properties.setProperty("hallOfFame2", hallOfFame.get(1).toPropertyString());
-                        properties.setProperty("hallOfFame3", hallOfFame.get(2).toPropertyString());
-                        PropertyManager.INSTANCE.storeProperties();
-
-                        HBox p1Entry  = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame1")));
-                        HBox p2Entry  = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame2")));
-                        HBox p3Entry  = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame3")));
-                        hallOfFameBox.getChildren().setAll(p1Entry, p2Entry, p3Entry);
-                    });
-                    PauseTransition waitForHallOfFame = new PauseTransition(Duration.millis(3000));
-                    waitForHallOfFame.setOnFinished(a -> reInitGame());
-                    waitForHallOfFame.play();
+                    playerInitials.requestFocus();
+                    playerInitials.selectAll();
                 });
             });
             pauseInGameOverScreen.play();
@@ -1248,9 +1257,16 @@ public class SpaceFX extends Application {
         explosions.clear();
         torpedos.clear();
         enemyTorpedos.clear();
+        enemyBombs.clear();
+        enemyBossTorpedos.clear();
         enemyBossRockets.clear();
         enemyBosses.clear();
+        levelBosses.clear();
+        levelBossTorpedos.clear();
+        levelBossRockets.clear();
+        levelBossBombs.clear();
         shieldUps.clear();
+        lifeUps.clear();
         waves.clear();
         initAsteroids();
         spaceShip.init();
@@ -1265,62 +1281,6 @@ public class SpaceFX extends Application {
         }
 
         screenTimer.start();
-    }
-
-
-    // Show player name dialog
-    private Optional<String> showPlayerInitialsDialog() {
-        Dialog<String> dialog = new Dialog<>();
-        dialog.setResizable(false);
-        dialog.getDialogPane().getStylesheets().add(SpaceFX.class.getResource("spacefx.css").toExternalForm());
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.initStyle(StageStyle.TRANSPARENT);
-        dialog.getDialogPane().getScene().setFill(Color.TRANSPARENT);
-        dialog.getDialogPane().setPadding(new Insets(0));
-        dialog.setWidth(120);
-        dialog.setHeight(40);
-
-        TextField userInitials = new TextField("--");
-        userInitials.setPrefWidth(100);
-        userInitials.setAlignment(Pos.CENTER);
-        userInitials.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() > 2) { return null; }
-            if (change.getText().toUpperCase().matches("[A-Z\\-]{0,2}")) {
-                change.setText(change.getText().toUpperCase());
-                return change;
-            } else {
-                return null;
-            }
-        }));
-
-        ButtonType okType = new ButtonType("OK", ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(okType);
-
-        Node okButton = dialog.getDialogPane().lookupButton(okType);
-        okButton.setVisible(false);
-        okButton.setManaged(false);
-
-        userInitials.setOnKeyPressed(e -> {
-            if (e.getCode().equals(KeyCode.ENTER) && userInitials.getText().length() == 2) {
-                okButton.fireEvent(new ActionEvent());
-            }
-        });
-
-        dialog.getDialogPane().setContent(userInitials);
-        dialog.getDialogPane().setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-        dialog.getDialogPane().setPrefSize(120, 40);
-
-        Platform.runLater(() -> {
-            userInitials.requestFocus();
-            userInitials.selectAll();
-        });
-
-        dialog.setResultConverter(button -> button == okType ? userInitials.getText() : null);
-
-        dialog.setX(scene.getWindow().getX() + (scene.getWindow().getWidth() - dialog.getDialogPane().getWidth()) * 0.5);
-        dialog.setY(scene.getWindow().getY() + scene.getWindow().getHeight()* 0.85);
-
-        return dialog.showAndWait();
     }
 
 

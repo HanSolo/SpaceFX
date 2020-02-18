@@ -1,43 +1,18 @@
-/*
- * Copyright (c) 2020 by Gerrit Grunwald
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 @font-face {
     src : url("spaceboy.ttf");
 }
 
-
-.dialog-pane {
-    -fx-background-color: transparent;
-}
-.dialog-pane > *.button-bar > *.container {
-    -fx-background-color: transparent;
-}
-.dialog-pane > *.label.content {
-
-}
-.dialog-pane:header *.header-panel {
-    -fx-background-color: transparent;
-}
-.dialog-pane:header *.header-panel *.label {
-
+.label {
+    -fx-text-fill  : rgb(51, 210, 206);
+    -fx-font-family: "Spaceboy";
+    -fx-font-size  : 2.5em;
+    -fx-alignment  : center;
 }
 
 .text-input {
+    -fx-pref-width         : 120px;
     -fx-text-fill          : rgb(51, 210, 206);
-    -fx-font-family         : "Spaceboy";
+    -fx-font-family        : "Spaceboy";
     -fx-font-size          : 2.5em;
     -fx-highlight-fill     : transparent;
     -fx-highlight-text-fill: transparent;
@@ -47,6 +22,7 @@
     -fx-background-radius  : 0;
     -fx-cursor             : text;
     -fx-padding            : 0;
+    -fx-alignment          : center;
 }
 .text-input:focused {
     -fx-font-family        : "Spaceboy";
