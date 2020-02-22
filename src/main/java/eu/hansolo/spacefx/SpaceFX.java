@@ -80,7 +80,7 @@ public class SpaceFX extends Application {
     private              TextField                  playerInitials;
     private              List<Player>               hallOfFame;
     private              VBox                       hallOfFameBox;
-    private              Level                      level                   = LEVEL_3;
+    private              Level                      level                   = LEVEL_1;
     private final        Image                      startImg                = new Image(getClass().getResourceAsStream("startscreen.png"));
     private final        Image                      gameOverImg             = new Image(getClass().getResourceAsStream("gameover.png"));
     private final        Image                      hallOfFameImg           = new Image(getClass().getResourceAsStream("halloffamescreen.jpg"));
