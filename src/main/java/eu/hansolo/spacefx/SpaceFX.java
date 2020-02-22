@@ -24,7 +24,6 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
@@ -84,7 +83,7 @@ public class SpaceFX extends Application {
     private              TextField                  playerInitials;
     private              List<Player>               hallOfFame;
     private              VBox                       hallOfFameBox;
-    private              Level                      level                   = LEVEL_3;
+    private              Level                      level                   = LEVEL_1;
     private final        Image                      startImg                = new Image(getClass().getResourceAsStream("startscreen.png"));
     private final        Image                      gameOverImg             = new Image(getClass().getResourceAsStream("gameover.png"));
     private final        Image                      hallOfFameImg           = new Image(getClass().getResourceAsStream("halloffamescreen.jpg"));
@@ -99,6 +98,9 @@ public class SpaceFX extends Application {
                                                                                 new Image(getClass().getResourceAsStream("asteroid9.png"), 130 * SCALING_FACTOR, 130 * SCALING_FACTOR, true, false),
                                                                                 new Image(getClass().getResourceAsStream("asteroid10.png"), 120 * SCALING_FACTOR, 120 * SCALING_FACTOR, true, false),
                                                                                 new Image(getClass().getResourceAsStream("asteroid11.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false) };
+    private final        Image                      torpedoButtonImg        = new Image(getClass().getResourceAsStream("torpedoButton.png"), 64 * SCALING_FACTOR, 64 * SCALING_FACTOR, true, false);
+    private final        Image                      rocketButtonImg         = new Image(getClass().getResourceAsStream("rocketButton.png"), 64 * SCALING_FACTOR, 64 * SCALING_FACTOR, true, false);
+    private final        Image                      shieldButtonImg         = new Image(getClass().getResourceAsStream("shieldButton.png"), 64 * SCALING_FACTOR, 64 * SCALING_FACTOR, true, false);
     private final        Image                      spaceshipImg            = new Image(getClass().getResourceAsStream("spaceship.png"), 48 * SCALING_FACTOR, 48 * SCALING_FACTOR, true, false);
     private final        Image                      spaceshipUpImg          = new Image(getClass().getResourceAsStream("spaceshipUp.png"), 48 * SCALING_FACTOR, 48 * SCALING_FACTOR, true, false);
     private final        Image                      spaceshipDownImg        = new Image(getClass().getResourceAsStream("spaceshipDown.png"), 48 * SCALING_FACTOR, 48 * SCALING_FACTOR, true, false);
@@ -1120,6 +1122,13 @@ public class SpaceFX extends Application {
             for (int i = 0 ; i < noOfShields ; i++) {
                 ctx.drawImage(miniDeflectorShieldImg, WIDTH - i * (miniDeflectorShieldImg.getWidth() + 5), 20);
             }
+        }
+
+        // Draw Buttons
+        if (SHOW_BUTTONS) {
+            ctx.drawImage(torpedoButtonImg, 15, HEIGHT * 0.7);
+            ctx.drawImage(rocketButtonImg, 15, HEIGHT * 0.8);
+            ctx.drawImage(shieldButtonImg, 15, HEIGHT * 0.9);
         }
     }
 

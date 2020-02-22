@@ -32,6 +32,7 @@ public class Config {
     public static final boolean    SHOW_ENEMY_BOSS            = true;
     public static final boolean    SHOW_ENEMIES               = true;
     public static final boolean    SHOW_ASTEROIDS             = true;
+    public static final boolean    SHOW_BUTTONS               = true;
     public static final int        NO_OF_STARS                = SHOW_STARS ? 200 : 0;
     public static final int        NO_OF_ASTEROIDS            = SHOW_ASTEROIDS ? 10 : 0;
     public static final int        LIFES                      = 5;
