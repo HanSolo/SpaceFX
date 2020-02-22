@@ -93,7 +93,7 @@ public class Config {
                                                                   WaveType.TYPE_9_MEDIUM,
                                                                   WaveType.TYPE_10_MEDIUM,
                                                                   WaveType.TYPE_11_MEDIUM};
-    public static final WaveType[] WAVE_TYPES_FAST            = { WaveType.TYPE_1_FAST,
+    public static final WaveType[] WAVE_TYPES_FAST  = { WaveType.TYPE_1_FAST,
                                                                   WaveType.TYPE_2_FAST,
                                                                   WaveType.TYPE_3_FAST,
                                                                   WaveType.TYPE_4_FAST,
@@ -104,4 +104,19 @@ public class Config {
                                                                   WaveType.TYPE_9_FAST,
                                                                   WaveType.TYPE_10_FAST,
                                                                   WaveType.TYPE_11_FAST};
+    public static final double     TORPEDO_BUTTON_X  = 15;
+    public static final double     TORPEDO_BUTTON_Y  = HEIGHT * 0.7;
+    public static final double     TORPEDO_BUTTON_R  = 64 * SCALING_FACTOR * 0.5;
+    public static final double     TORPEDO_BUTTON_CX = TORPEDO_BUTTON_X + TORPEDO_BUTTON_R;
+    public static final double     TORPEDO_BUTTON_CY = TORPEDO_BUTTON_Y + TORPEDO_BUTTON_R;
+    public static final double     ROCKET_BUTTON_X   = 15;
+    public static final double     ROCKET_BUTTON_Y   = HEIGHT * 0.8;
+    public static final double     ROCKET_BUTTON_R   = 64 * SCALING_FACTOR * 0.5;
+    public static final double     ROCKET_BUTTON_CX  = ROCKET_BUTTON_X + ROCKET_BUTTON_R;
+    public static final double     ROCKET_BUTTON_CY  = ROCKET_BUTTON_Y + ROCKET_BUTTON_R;
+    public static final double     SHIELD_BUTTON_X   = 15;
+    public static final double     SHIELD_BUTTON_Y   = HEIGHT * 0.9;
+    public static final double     SHIELD_BUTTON_R   = 64 * SCALING_FACTOR * 0.5;
+    public static final double     SHIELD_BUTTON_CX  = SHIELD_BUTTON_X + SHIELD_BUTTON_R;
+    public static final double     SHIELD_BUTTON_CY  = SHIELD_BUTTON_Y + SHIELD_BUTTON_R;
 }

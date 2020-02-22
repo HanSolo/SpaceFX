@@ -421,13 +421,29 @@ public class SpaceFX extends Application {
             }
         };
 
-
         mouseHandler = e -> {
             EventType<? extends MouseEvent> type = e.getEventType();
             double mouseX = e.getSceneX();
             double mouseY = e.getSceneY();
             if (type.equals(MouseEvent.MOUSE_PRESSED)) {
                 shipPressed = Helper.isInsideCircle(spaceShip.x, spaceShip.y, spaceShip.radius, mouseX, mouseY);
+                if (SHOW_BUTTONS) {
+                    if (Helper.isInsideCircle(TORPEDO_BUTTON_CX, TORPEDO_BUTTON_CY, TORPEDO_BUTTON_R, mouseX, mouseY)) {
+                        spawnTorpedo(spaceShip.x, spaceShip.y);
+                    }
+                    if (Helper.isInsideCircle(ROCKET_BUTTON_CX, ROCKET_BUTTON_CY, ROCKET_BUTTON_R, mouseX, mouseY)) {
+                        if (rockets.size() < MAX_NO_OF_ROCKETS) {
+                            spawnRocket(spaceShip.x, spaceShip.y);
+                        }
+                    }
+                    if (Helper.isInsideCircle(SHIELD_BUTTON_CX, SHIELD_BUTTON_CY, SHIELD_BUTTON_R, mouseX, mouseY)) {
+                        if (noOfShields > 0 && !spaceShip.shield) {
+                            lastShieldActivated = System.currentTimeMillis();
+                            spaceShip.shield = true;
+                            playSound(deflectorShieldSound);
+                        }
+                    }
+                }
             } else if (type.equals(MouseEvent.MOUSE_DRAGGED)) {
                 if (shipPressed) {
                     spaceShip.x = mouseX;
@@ -1126,9 +1142,9 @@ public class SpaceFX extends Application {
 
         // Draw Buttons
         if (SHOW_BUTTONS) {
-            ctx.drawImage(torpedoButtonImg, 15, HEIGHT * 0.7);
-            ctx.drawImage(rocketButtonImg, 15, HEIGHT * 0.8);
-            ctx.drawImage(shieldButtonImg, 15, HEIGHT * 0.9);
+            ctx.drawImage(torpedoButtonImg, TORPEDO_BUTTON_X, TORPEDO_BUTTON_Y);
+            ctx.drawImage(rocketButtonImg, ROCKET_BUTTON_X, ROCKET_BUTTON_Y);
+            ctx.drawImage(shieldButtonImg, SHIELD_BUTTON_X, SHIELD_BUTTON_Y);
         }
     }
 
