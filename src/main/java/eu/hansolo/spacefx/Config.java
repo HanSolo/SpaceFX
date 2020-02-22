@@ -16,46 +16,91 @@
 
 package eu.hansolo.spacefx;
 
+import javafx.scene.paint.Color;
+
+
 public class Config {
-    public static final String  LOG_FILE_NAME              = "spacefx.log";
-    public static final String  PROPERTIES_FILE_NAME       = "spacefx.properties";
-    public static final double  SCALING_FACTOR             = 1.0;
-    public static final double  WIDTH                      = 700;
-    public static final double  HEIGHT                     = 900;
-    public static final boolean PLAY_SOUND                 = true;
-    public static final boolean PLAY_MUSIC                 = true;
-    public static final boolean SHOW_BACKGROUND            = true;
-    public static final boolean SHOW_STARS                 = true;
-    public static final boolean SHOW_ENEMIES               = true;
-    public static final boolean SHOW_ASTEROIDS             = true;
-    public static final int     NO_OF_STARS                = SHOW_STARS ? 200 : 0;
-    public static final int     NO_OF_ASTEROIDS            = SHOW_ASTEROIDS ? 10 : 0;
-    public static final int     LIFES                      = 5;
-    public static final int     SHIELDS                    = 10;
-    public static final int     DEFLECTOR_SHIELD_TIME      = 5000;
-    public static final int     MAX_NO_OF_ROCKETS          = 3;
-    public static final double  TORPEDO_SPEED              = 6;
-    public static final double  ROCKET_SPEED               = 4;
-    public static final double  ENEMY_TORPEDO_SPEED        = 5;
-    public static final double  ENEMY_BOMB_SPEED           = 3;
-    public static final int     NO_OF_ENEMY_BOMBS          = 3;
-    public static final double  ENEMY_BOSS_TORPEDO_SPEED   = 6;
-    public static final double  ENEMY_BOSS_ROCKET_SPEED    = 4;
-    public static final double  ENEMY_BOSS_SPEED           = 2;
-    public static final double  LEVEL_BOSS_SPEED           = 1;
-    public static final double  LEVEL_BOSS_TORPEDO_SPEED   = 6;
-    public static final double  LEVEL_BOSS_BOMB_SPEED      = 4;
-    public static final long    ENEMY_BOSS_ATTACK_INTERVAL = 25_000_000_000l;
-    public static final long    SHIELD_UP_SPAWN_INTERVAL   = 25_000_000_000l;
-    public static final long    LIFE_UP_SPAWN_INTERVAL     = 55_000_000_000l;
-    public static final long    WAVE_SPAWN_INTERVAL        = 10_000_000_000l;
-    public static final long    BOMB_DROP_INTERVAL         = 1_000_000_000l;
-    public static final double  VELOCITY_FACTOR_X          = 1.0;
-    public static final double  VELOCITY_FACTOR_Y          = 1.0;
-    public static final double  VELOCITY_FACTOR_R          = 1.0;
-    public static final int     NO_OF_KILLS_STAGE_1        = 50;
-    public static final int     NO_OF_KILLS_STAGE_2        = 100;
-    public static final int     NO_OF_ENEMIES_STAGE_1      = 5;
-    public static final int     NO_OF_ENEMIES_STAGE_2      = 7;
-    public static final int     NO_OF_ENEMIES_STAGE_3      = 10;
+    public static final String     LOG_FILE_NAME              = "spacefx.log";
+    public static final String     PROPERTIES_FILE_NAME       = "spacefx.properties";
+    public static final double     SCALING_FACTOR             = 1.0;
+    public static final double     WIDTH                      = 700;
+    public static final double     HEIGHT                     = 900;
+    public static final boolean    PLAY_SOUND                 = true;
+    public static final boolean    PLAY_MUSIC                 = true;
+    public static final boolean    SHOW_BACKGROUND            = true;
+    public static final boolean    SHOW_STARS                 = true;
+    public static final boolean    SHOW_ENEMY_BOSS            = true;
+    public static final boolean    SHOW_ENEMIES               = true;
+    public static final boolean    SHOW_ASTEROIDS             = true;
+    public static final int        NO_OF_STARS                = SHOW_STARS ? 200 : 0;
+    public static final int        NO_OF_ASTEROIDS            = SHOW_ASTEROIDS ? 10 : 0;
+    public static final int        LIFES                      = 5;
+    public static final int        SHIELDS                    = 10;
+    public static final int        DEFLECTOR_SHIELD_TIME      = 5000;
+    public static final int        MAX_NO_OF_ROCKETS          = 3;
+    public static final double     TORPEDO_SPEED              = 6;
+    public static final double     ROCKET_SPEED               = 4;
+    public static final double     ENEMY_TORPEDO_SPEED        = 5;
+    public static final double     ENEMY_BOMB_SPEED           = 3;
+    public static final int        NO_OF_ENEMY_BOMBS          = 3;
+    public static final double     ENEMY_BOSS_TORPEDO_SPEED   = 6;
+    public static final double     ENEMY_BOSS_ROCKET_SPEED    = 4;
+    public static final double     ENEMY_BOSS_SPEED           = 2;
+    public static final double     LEVEL_BOSS_SPEED           = 1;
+    public static final double     LEVEL_BOSS_TORPEDO_SPEED   = 6;
+    public static final double     LEVEL_BOSS_BOMB_SPEED      = 4;
+    public static final long       ENEMY_BOSS_ATTACK_INTERVAL = 25_000_000_000l;
+    public static final long       SHIELD_UP_SPAWN_INTERVAL   = 25_000_000_000l;
+    public static final long       LIFE_UP_SPAWN_INTERVAL     = 55_000_000_000l;
+    public static final long       WAVE_SPAWN_INTERVAL        = 10_000_000_000l;
+    public static final long       BOMB_DROP_INTERVAL         = 1_000_000_000l;
+    public static final double     VELOCITY_FACTOR_X          = 1.0;
+    public static final double     VELOCITY_FACTOR_Y          = 1.0;
+    public static final double     VELOCITY_FACTOR_R          = 1.0;
+    public static final int        NO_OF_KILLS_STAGE_1        = 50;
+    public static final int        NO_OF_KILLS_STAGE_2        = 100;
+    public static final double     FIRST_QUARTER_WIDTH        = WIDTH * 0.25;
+    public static final double     LAST_QUARTER_WIDTH         = WIDTH * 0.75;
+    public static final double     SHIELD_INDICATOR_X         = WIDTH * 0.73;
+    public static final double     SHIELD_INDICATOR_Y         = HEIGHT * 0.06;
+    public static final double     SHIELD_INDICATOR_WIDTH     = WIDTH * 0.26;
+    public static final double     SHIELD_INDICATOR_HEIGHT    = HEIGHT * 0.01428571;
+    public static final long       FPS_60                     = 0_016_666_666l;
+    public static final long       FPS_30                     = 0_033_333_333l;
+    public static final long       FPS_10                     = 0_100_000_000l;
+    public static final long       FPS_2                      = 0_500_000_000l;
+    public static final Color      SPACEFX_COLOR              = Color.rgb(51, 210, 206);
+    public static final WaveType[] WAVE_TYPES_SLOW            = { WaveType.TYPE_1_SLOW,
+                                                                  WaveType.TYPE_2_SLOW,
+                                                                  WaveType.TYPE_3_SLOW,
+                                                                  WaveType.TYPE_4_SLOW,
+                                                                  WaveType.TYPE_5_SLOW,
+                                                                  WaveType.TYPE_6_SLOW,
+                                                                  WaveType.TYPE_7_SLOW,
+                                                                  WaveType.TYPE_8_SLOW,
+                                                                  WaveType.TYPE_9_SLOW,
+                                                                  WaveType.TYPE_10_SLOW,
+                                                                  WaveType.TYPE_11_SLOW};
+    public static final WaveType[] WAVE_TYPES_MEDIUM          = { WaveType.TYPE_1_MEDIUM,
+                                                                  WaveType.TYPE_2_MEDIUM,
+                                                                  WaveType.TYPE_3_MEDIUM,
+                                                                  WaveType.TYPE_4_MEDIUM,
+                                                                  WaveType.TYPE_5_MEDIUM,
+                                                                  WaveType.TYPE_6_MEDIUM,
+                                                                  WaveType.TYPE_7_MEDIUM,
+                                                                  WaveType.TYPE_8_MEDIUM,
+                                                                  WaveType.TYPE_9_MEDIUM,
+                                                                  WaveType.TYPE_10_MEDIUM,
+                                                                  WaveType.TYPE_11_MEDIUM};
+    public static final WaveType[] WAVE_TYPES_FAST            = { WaveType.TYPE_1_FAST,
+                                                                  WaveType.TYPE_2_FAST,
+                                                                  WaveType.TYPE_3_FAST,
+                                                                  WaveType.TYPE_4_FAST,
+                                                                  WaveType.TYPE_5_FAST,
+                                                                  WaveType.TYPE_6_FAST,
+                                                                  WaveType.TYPE_7_FAST,
+                                                                  WaveType.TYPE_8_FAST,
+                                                                  WaveType.TYPE_9_FAST,
+                                                                  WaveType.TYPE_10_FAST,
+                                                                  WaveType.TYPE_11_FAST};
 }

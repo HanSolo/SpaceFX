@@ -22,34 +22,35 @@ import static eu.hansolo.spacefx.Config.SCALING_FACTOR;
 
 
 public class Level2 implements Level {
-    public final Image   backgroundImg = new Image(SpaceFX.class.getResourceAsStream("backgroundL2.jpg"));
-    public final Image[] enemyImages   = { new Image(getClass().getResourceAsStream("enemy1L2.png"), 56 * SCALING_FACTOR, 56 * SCALING_FACTOR, true, false),
-                                           new Image(getClass().getResourceAsStream("enemy2L2.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false),
-                                           new Image(getClass().getResourceAsStream("enemy3L2.png"), 68 * SCALING_FACTOR, 68 * SCALING_FACTOR, true, false),
-                                           new Image(getClass().getResourceAsStream("enemy4L2.png"), 68 * SCALING_FACTOR, 68 * SCALING_FACTOR, true, false),
-                                           new Image(getClass().getResourceAsStream("enemy5L2.png"), 68 * SCALING_FACTOR, 68 * SCALING_FACTOR, true, false),
-                                           new Image(getClass().getResourceAsStream("enemy6L2.png"), 68 * SCALING_FACTOR, 68 * SCALING_FACTOR, true, false)};
-    public final Image   enemyBossImg0 = new Image(getClass().getResourceAsStream("enemyBoss0L2.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
-    public final Image   enemyBossImg1 = new Image(getClass().getResourceAsStream("enemyBoss1L2.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
-    public final Image   enemyBossImg2 = new Image(getClass().getResourceAsStream("enemyBoss2L2.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
-    public final Image   enemyBossImg3 = new Image(getClass().getResourceAsStream("enemyBoss3L2.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
-    public final Image   enemyBossImg4 = new Image(getClass().getResourceAsStream("enemyBoss4L2.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
-    public final Image   enemyBombImg  = new Image(getClass().getResourceAsStream("enemyBombL2.png"), 20 * SCALING_FACTOR, 20 * SCALING_FACTOR, true, false);
-    public final Image   enemyTorpedoImg         = new Image(getClass().getResourceAsStream("enemyTorpedoL2.png"), 21 * SCALING_FACTOR, 21 * SCALING_FACTOR, true, false);
-    public final Image   enemyBossTorpedoImg     = new Image(getClass().getResourceAsStream("enemyBossTorpedoL2.png"), 26 * SCALING_FACTOR, 26 * SCALING_FACTOR, true, false);
-    public final Image   enemyBossRocketImg      = new Image(getClass().getResourceAsStream("enemyBossRocketL2.png"), 17 * SCALING_FACTOR, 42 * SCALING_FACTOR, true, false);
-    public final Image   explosionImg            = new Image(getClass().getResourceAsStream("explosionL2.png"), 2048 * SCALING_FACTOR, 1792 * SCALING_FACTOR, true, false);
-    public final Image   enemyBossHitImg         = new Image(getClass().getResourceAsStream("torpedoHitL2.png"), 400 * SCALING_FACTOR, 160 * SCALING_FACTOR, true, false);
-    public final Image   enemyBossExplosionImg   = new Image(getClass().getResourceAsStream("enemyBossExplosionL2.png"), 800 * SCALING_FACTOR, 1400 * SCALING_FACTOR, true, false);
-    public final Image   enemyRocketExplosionImg = new Image(getClass().getResourceAsStream("enemyRocketExplosionL2.png"), 512 * SCALING_FACTOR, 896 * SCALING_FACTOR, true, false);
-    public final Image   levelBossImg            = new Image(getClass().getResourceAsStream("levelBossL2.png"), 300 * SCALING_FACTOR, 300 * SCALING_FACTOR, true, false);
-    public final Image   levelBossTorpedoImg     = new Image(getClass().getResourceAsStream("levelBossTorpedoL2.png"), 35 * SCALING_FACTOR, 60 * SCALING_FACTOR, true, false);
-    public final Image   levelBossRocketImg      = new Image(getClass().getResourceAsStream("levelBossRocketL2.png"), 15 * SCALING_FACTOR, 37 * SCALING_FACTOR, true, false);
-    public final Image   levelBossBombImg        = new Image(getClass().getResourceAsStream("levelBossBombL2.png"), 30 * SCALING_FACTOR, 30 * SCALING_FACTOR, true, false);
-    public final Image   levelBossExplosionImg   = new Image(getClass().getResourceAsStream("levelBossExplosionL2.png"), 2048 * SCALING_FACTOR, 768 * SCALING_FACTOR, true, false);
+    public final Difficulty difficulty              = Difficulty.NORMAL;
+    public final Image      backgroundImg           = new Image(SpaceFX.class.getResourceAsStream("backgroundL2.jpg"));
+    public final Image[]    enemyImages             = { new Image(getClass().getResourceAsStream("enemy1L2.png"), 56 * SCALING_FACTOR, 56 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("enemy2L2.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("enemy3L2.png"), 68 * SCALING_FACTOR, 68 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("enemy4L2.png"), 68 * SCALING_FACTOR, 68 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("enemy5L2.png"), 68 * SCALING_FACTOR, 68 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("enemy6L2.png"), 68 * SCALING_FACTOR, 68 * SCALING_FACTOR, true, false)};
+    public final Image      enemyBossImg0           = new Image(getClass().getResourceAsStream("enemyBoss0L2.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
+    public final Image      enemyBossImg1           = new Image(getClass().getResourceAsStream("enemyBoss1L2.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
+    public final Image      enemyBossImg2           = new Image(getClass().getResourceAsStream("enemyBoss2L2.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
+    public final Image      enemyBossImg3           = new Image(getClass().getResourceAsStream("enemyBoss3L2.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
+    public final Image      enemyBossImg4           = new Image(getClass().getResourceAsStream("enemyBoss4L2.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
+    public final Image      enemyBombImg            = new Image(getClass().getResourceAsStream("enemyBombL2.png"), 20 * SCALING_FACTOR, 20 * SCALING_FACTOR, true, false);
+    public final Image      enemyTorpedoImg         = new Image(getClass().getResourceAsStream("enemyTorpedoL2.png"), 21 * SCALING_FACTOR, 21 * SCALING_FACTOR, true, false);
+    public final Image      enemyBossTorpedoImg     = new Image(getClass().getResourceAsStream("enemyBossTorpedoL2.png"), 26 * SCALING_FACTOR, 26 * SCALING_FACTOR, true, false);
+    public final Image      enemyBossRocketImg      = new Image(getClass().getResourceAsStream("enemyBossRocketL2.png"), 17 * SCALING_FACTOR, 42 * SCALING_FACTOR, true, false);
+    public final Image      explosionImg            = new Image(getClass().getResourceAsStream("explosionL2.png"), 2048 * SCALING_FACTOR, 1792 * SCALING_FACTOR, true, false);
+    public final Image      enemyBossHitImg         = new Image(getClass().getResourceAsStream("torpedoHitL2.png"), 400 * SCALING_FACTOR, 160 * SCALING_FACTOR, true, false);
+    public final Image      enemyBossExplosionImg   = new Image(getClass().getResourceAsStream("enemyBossExplosionL2.png"), 800 * SCALING_FACTOR, 1400 * SCALING_FACTOR, true, false);
+    public final Image      enemyRocketExplosionImg = new Image(getClass().getResourceAsStream("enemyRocketExplosionL2.png"), 512 * SCALING_FACTOR, 896 * SCALING_FACTOR, true, false);
+    public final Image      levelBossImg            = new Image(getClass().getResourceAsStream("levelBossL2.png"), 300 * SCALING_FACTOR, 300 * SCALING_FACTOR, true, false);
+    public final Image      levelBossTorpedoImg     = new Image(getClass().getResourceAsStream("levelBossTorpedoL2.png"), 35 * SCALING_FACTOR, 60 * SCALING_FACTOR, true, false);
+    public final Image      levelBossRocketImg      = new Image(getClass().getResourceAsStream("levelBossRocketL2.png"), 15 * SCALING_FACTOR, 37 * SCALING_FACTOR, true, false);
+    public final Image      levelBossBombImg        = new Image(getClass().getResourceAsStream("levelBossBombL2.png"), 30 * SCALING_FACTOR, 30 * SCALING_FACTOR, true, false);
+    public final Image      levelBossExplosionImg   = new Image(getClass().getResourceAsStream("levelBossExplosionL2.png"), 2048 * SCALING_FACTOR, 768 * SCALING_FACTOR, true, false);
 
 
-    @Override public int getNo() { return 1; }
+    @Override public Difficulty getDifficulty() { return difficulty; }
 
     @Override public Image getBackgroundImg() {
         return backgroundImg;
