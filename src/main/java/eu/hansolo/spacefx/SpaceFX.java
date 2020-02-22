@@ -21,7 +21,10 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
@@ -32,6 +35,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -207,6 +211,10 @@ public class SpaceFX extends Application {
     private              long                       lastTimerCall;
     private              AnimationTimer             timer;
     private              AnimationTimer             screenTimer;
+    private              double                     oldMouseX;
+    private              double                     oldMouseY;
+    private              boolean                    shipPressed;
+    private              EventHandler<MouseEvent>   mouseHandler;
 
     static {
         try {
@@ -411,6 +419,25 @@ public class SpaceFX extends Application {
             }
         };
 
+
+        mouseHandler = e -> {
+            EventType<? extends MouseEvent> type = e.getEventType();
+            double mouseX = e.getSceneX();
+            double mouseY = e.getSceneY();
+            if (type.equals(MouseEvent.MOUSE_PRESSED)) {
+                shipPressed = Helper.isInsideCircle(spaceShip.x, spaceShip.y, spaceShip.radius, mouseX, mouseY);
+            } else if (type.equals(MouseEvent.MOUSE_DRAGGED)) {
+                if (shipPressed) {
+                    spaceShip.x = mouseX;
+                    spaceShip.y = mouseY;
+                }
+            } else if (type.equals(MouseEvent.MOUSE_RELEASED)) {
+                shipPressed = false;
+            }
+            oldMouseX = e.getSceneX();
+            oldMouseY = e.getSceneY();
+        };
+
         initStars();
         initAsteroids();
 
@@ -505,6 +532,10 @@ public class SpaceFX extends Application {
                 }
             }
         });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseHandler);
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseHandler);
+        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseHandler);
 
         stage.setTitle("SpaceFX");
         stage.setScene(scene);
