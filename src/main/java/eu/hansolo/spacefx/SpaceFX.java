@@ -213,8 +213,6 @@ public class SpaceFX extends Application {
     private              long                       lastTimerCall;
     private              AnimationTimer             timer;
     private              AnimationTimer             screenTimer;
-    private              double                     oldMouseX;
-    private              double                     oldMouseY;
     private              boolean                    shipPressed;
     private              EventHandler<MouseEvent>   mouseHandler;
 
@@ -422,6 +420,7 @@ public class SpaceFX extends Application {
         };
 
         mouseHandler = e -> {
+            // boolean snythesized = e.isSynthesized(); // detect if mouse event is coming from touch event
             EventType<? extends MouseEvent> type = e.getEventType();
             double mouseX = e.getSceneX();
             double mouseY = e.getSceneY();
@@ -452,8 +451,6 @@ public class SpaceFX extends Application {
             } else if (type.equals(MouseEvent.MOUSE_RELEASED)) {
                 shipPressed = false;
             }
-            oldMouseX = e.getSceneX();
-            oldMouseY = e.getSceneY();
         };
 
         initStars();
