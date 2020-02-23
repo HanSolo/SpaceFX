@@ -36,6 +36,8 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TouchEvent;
+import javafx.scene.input.TouchPoint;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -227,6 +229,7 @@ public class SpaceFXView extends BorderPane {
     private              AnimationTimer             screenTimer;
     private              boolean                    shipPressed;
     private              EventHandler<MouseEvent>   mouseHandler;
+    private              EventHandler<TouchEvent>   touchHandler;
 
     static {
         try {
@@ -243,9 +246,13 @@ public class SpaceFXView extends BorderPane {
         StackPane pane = new StackPane(canvas, hallOfFameBox, playerInitialsLabel, playerInitials);
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseHandler);
-        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseHandler);
-        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseHandler);
+        //canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseHandler);
+        //canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseHandler);
+        //canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseHandler);
+
+        canvas.addEventHandler(TouchEvent.TOUCH_PRESSED, touchHandler);
+        canvas.addEventHandler(TouchEvent.TOUCH_MOVED, touchHandler);
+        canvas.addEventHandler(TouchEvent.TOUCH_RELEASED, touchHandler);
 
         setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         setCenter(pane);
@@ -480,6 +487,56 @@ public class SpaceFXView extends BorderPane {
                 }
             } else if (type.equals(MouseEvent.MOUSE_RELEASED)) {
                 shipPressed = false;
+            }
+        };
+
+        touchHandler = e -> {
+            EventType<TouchEvent>  type  = e.getEventType();
+            List<TouchPoint> touchPoints = e.getTouchPoints();
+            if (TouchEvent.TOUCH_PRESSED.equals(type)) {
+                touchPoints.forEach(tp -> {
+                    double x = tp.getX();
+                    double y = tp.getY();
+                    shipPressed = Helper.isInsideCircle(spaceShip.x, spaceShip.y, spaceShip.radius, x, y);
+                    if (SHOW_BUTTONS) {
+                        if (Helper.isInsideCircle(TORPEDO_BUTTON_CX, TORPEDO_BUTTON_CY, TORPEDO_BUTTON_R, x, y)) {
+                            spawnTorpedo(spaceShip.x, spaceShip.y);
+                        }
+                        if (Helper.isInsideCircle(ROCKET_BUTTON_CX, ROCKET_BUTTON_CY, ROCKET_BUTTON_R, x, y)) {
+                            if (rockets.size() < MAX_NO_OF_ROCKETS) {
+                                spawnRocket(spaceShip.x, spaceShip.y);
+                            }
+                        }
+                        if (Helper.isInsideCircle(SHIELD_BUTTON_CX, SHIELD_BUTTON_CY, SHIELD_BUTTON_R, x, y)) {
+                            if (noOfShields > 0 && !spaceShip.shield) {
+                                lastShieldActivated = System.currentTimeMillis();
+                                spaceShip.shield = true;
+                                playSound(deflectorShieldSound);
+                            }
+                        }
+                    }
+                });
+            } else if (TouchEvent.TOUCH_MOVED.equals(type)) {
+                if (shipPressed) {
+                    touchPoints.forEach(tp -> {
+                        double x = tp.getX();
+                        double y = tp.getY();
+                        if (Helper.isInsideCircle(spaceShip.x, spaceShip.y, spaceShip.radius, x, y)) {
+                            spaceShip.x = x;
+                            spaceShip.y = y;
+                            return;
+                        }
+                    });
+                }
+            } else if (TouchEvent.TOUCH_RELEASED.equals(type)) {
+                touchPoints.forEach(tp -> {
+                    double x = tp.getX();
+                    double y = tp.getY();
+                    if (Helper.isInsideCircle(spaceShip.x, spaceShip.y, spaceShip.radius, x, y)) {
+                        shipPressed = false;
+                        return;
+                    }
+                });
             }
         };
 
