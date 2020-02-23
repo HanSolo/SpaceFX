@@ -20,16 +20,15 @@ import com.jpro.webapi.WebAPI;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.scene.Scene;
+
+import static eu.hansolo.spacefx.Config.HEIGHT;
+import static eu.hansolo.spacefx.Config.WIDTH;
 
 
-/**
- * User: hansolo
- * Date: 23.02.20
- * Time: 06:47
- */
 public class SpaceFX extends Application {
     private static final boolean     IS_BROWSER = WebAPI.isBrowser();
     private static final Rectangle2D BOUNDS     = Screen.getPrimary().getVisualBounds();
@@ -40,8 +39,36 @@ public class SpaceFX extends Application {
     }
 
     @Override public void start(Stage stage) {
-        Scene scene = new Scene(view, BOUNDS.getWidth(), BOUNDS.getHeight());
+        //Scene scene = new Scene(view, BOUNDS.getWidth(), BOUNDS.getHeight());
+        Scene scene = new Scene(view, WIDTH, HEIGHT);
         scene.getStylesheets().add(SpaceFX.class.getResource("spacefx.css").toExternalForm());
+
+        // Setup key listener
+        scene.setOnKeyPressed(e -> {
+            if (view.isRunning()) {
+                switch(e.getCode()) {
+                    case UP   : view.decreaseSpaceShipVy(); break;
+                    case RIGHT: view.increaseSpaceShipVx(); break;
+                    case DOWN : view.increaseSpaceShipVy(); break;
+                    case LEFT : view.decreaseSpaceShipVx(); break;
+                    case S    : view.spaceShipShield(); break;
+                    case R    : view.spaceShipRocket(); break;
+                    case SPACE: view.spaceShipTorpedo(); break;
+                }
+            } else if (e.getCode() == KeyCode.P) {
+                view.startGame();
+            }
+        });
+        scene.setOnKeyReleased(e -> {
+            if (view.isRunning()) {
+                switch (e.getCode()) {
+                    case UP   : view.stopSpaceShipVy(); break;
+                    case RIGHT: view.stopSpaceShipVx(); break;
+                    case DOWN : view.stopSpaceShipVy(); break;
+                    case LEFT : view.stopSpaceShipVx(); break;
+                }
+            }
+        });
 
         stage.setScene(scene);
         stage.show();
