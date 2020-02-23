@@ -51,7 +51,6 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -87,11 +86,10 @@ public class SpaceFXView extends BorderPane {
     private static final Level1                     LEVEL_1                 = new Level1();
     private static final Level2                     LEVEL_2                 = new Level2();
     private static final Level3                     LEVEL_3                 = new Level3();
-    private              BooleanBinding             showing;
     private              long                       lastScreenToggle;
-    private              boolean                    showHallOfFame;
     private              boolean                    running;
     private              boolean                    gameOverScreen;
+    private              boolean                    hallOfFameScreen;
     private              Properties                 properties;
     private              Label                      playerInitialsLabel;
     private              TextField                  playerInitials;
@@ -267,7 +265,7 @@ public class SpaceFXView extends BorderPane {
         gameOverScreen   = false;
         levelBossActive  = false;
         lastScreenToggle = System.nanoTime();
-        showHallOfFame   = false;
+        hallOfFameScreen = false;
 
         playerInitialsLabel = new Label("Type in your initials");
         playerInitialsLabel.setTranslateY(HEIGHT * 0.1);
@@ -438,14 +436,14 @@ public class SpaceFXView extends BorderPane {
         screenTimer = new AnimationTimer() {
             @Override public void handle(final long now) {
                 if (!running && now > lastScreenToggle + SCREEN_TOGGLE_INTERVAL) {
-                    if (showHallOfFame) {
+                    if (hallOfFameScreen) {
                         ctx.drawImage(hallOfFameImg, 0, 0);
                         Helper.enableNode(hallOfFameBox, true);
                     } else {
                         ctx.drawImage(startImg, 0, 0);
                         Helper.enableNode(hallOfFameBox, false);
                     }
-                    showHallOfFame = !showHallOfFame;
+                    hallOfFameScreen = !hallOfFameScreen;
                     lastScreenToggle = now;
                 }
             }
@@ -496,81 +494,6 @@ public class SpaceFXView extends BorderPane {
         ctx.setTextAlign(TextAlignment.CENTER);
         ctx.setTextBaseline(VPos.CENTER);
         ctx.drawImage(startImg, 0, 0);
-    }
-
-    private void initBindings() {
-        showing = Bindings.createBooleanBinding(() -> {
-            if (getScene() != null && getScene().getWindow() != null) {
-                return getScene().getWindow().isShowing();
-            } else {
-                return false;
-            }
-        }, sceneProperty(), getScene().windowProperty(), getScene().getWindow().showingProperty());
-
-        showing.addListener(o -> {
-            if (showing.get()) {
-                Scene scene = getScene();
-
-                // Setup key listener
-                scene.setOnKeyPressed(e -> {
-                    if (running) {
-                        switch(e.getCode()) {
-                            case UP:
-                                spaceShip.vY = -5;
-                                break;
-                            case RIGHT:
-                                spaceShip.vX = 5;
-                                break;
-                            case DOWN:
-                                spaceShip.vY = 5;
-                                break;
-                            case LEFT:
-                                spaceShip.vX = -5;
-                                break;
-                            case S:
-                                if (noOfShields > 0 && !spaceShip.shield) {
-                                    lastShieldActivated = System.currentTimeMillis();
-                                    spaceShip.shield = true;
-                                    playSound(deflectorShieldSound);
-                                }
-                                break;
-                            case R:
-                                // Max 5 rockets at the same time
-                                if (rockets.size() < MAX_NO_OF_ROCKETS) {
-                                    spawnRocket(spaceShip.x, spaceShip.y);
-                                }
-                                break;
-                            case SPACE:
-                                spawnTorpedo(spaceShip.x, spaceShip.y);
-                                break;
-                        }
-                    } else if (e.getCode() == KeyCode.P && !gameOverScreen) {
-                        ctx.clearRect(0, 0, WIDTH, HEIGHT);
-                        if (SHOW_BACKGROUND) {
-                            ctx.drawImage(level.getBackgroundImg(), 0, 0);
-                        }
-                        if (PLAY_MUSIC) {
-                            mediaPlayer.pause();
-                            gameMediaPlayer.play();
-                        }
-                        Helper.enableNode(hallOfFameBox, false);
-                        screenTimer.stop();
-                        running = true;
-                        timer.start();
-                    }
-                });
-                scene.setOnKeyReleased(e -> {
-                    if (running) {
-                        switch (e.getCode()) {
-                            case UP   : spaceShip.vY = 0; break;
-                            case RIGHT: spaceShip.vX = 0; break;
-                            case DOWN : spaceShip.vY = 0; break;
-                            case LEFT : spaceShip.vX = 0; break;
-                        }
-                    }
-                });
-            }
-        });
     }
 
     private void initStars() {
@@ -1439,6 +1362,52 @@ public class SpaceFXView extends BorderPane {
         }
     }
 
+
+    // ******************** Public Methods ************************************
+    public void startGame() {
+        if (gameOverScreen || hallOfFameScreen) { return; }
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        if (SHOW_BACKGROUND) {
+            ctx.drawImage(level.getBackgroundImg(), 0, 0);
+        }
+        if (PLAY_MUSIC) {
+            mediaPlayer.pause();
+            gameMediaPlayer.play();
+        }
+        Helper.enableNode(hallOfFameBox, false);
+        screenTimer.stop();
+        running = true;
+        timer.start();
+    }
+
+    public boolean isRunning() { return running; }
+
+    public void increaseSpaceShipVx() { spaceShip.vX = 5; }
+    public void decreaseSpaceShipVx() { spaceShip.vX = -5; }
+    public void stopSpaceShipVx() { spaceShip.vX = 0; }
+
+    public void increaseSpaceShipVy() { spaceShip.vY = 5; }
+    public void decreaseSpaceShipVy() { spaceShip.vY = -5; }
+    public void stopSpaceShipVy() { spaceShip.vY = 0; }
+
+    public void spaceShipShield() {
+        if (noOfShields > 0 && !spaceShip.shield) {
+            lastShieldActivated = System.currentTimeMillis();
+            spaceShip.shield = true;
+            playSound(deflectorShieldSound);
+        }
+    }
+
+    public void spaceShipRocket() {
+        // Max 5 rockets at the same time
+        if (rockets.size() < MAX_NO_OF_ROCKETS) {
+            spawnRocket(spaceShip.x, spaceShip.y);
+        }
+    }
+
+    public void spaceShipTorpedo() {
+        spawnTorpedo(spaceShip.x, spaceShip.y);
+    }
 
 
     // ******************** Space Object Classes ******************************
