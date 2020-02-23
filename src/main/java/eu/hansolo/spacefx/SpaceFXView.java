@@ -1365,7 +1365,7 @@ public class SpaceFXView extends BorderPane {
 
     // ******************** Public Methods ************************************
     public void startGame() {
-        if (gameOverScreen || hallOfFameScreen) { return; }
+        if (gameOverScreen) { return; }
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
         if (SHOW_BACKGROUND) {
             ctx.drawImage(level.getBackgroundImg(), 0, 0);
