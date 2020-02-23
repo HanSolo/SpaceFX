@@ -23,7 +23,7 @@ import static eu.hansolo.spacefx.Config.SCALING_FACTOR;
 
 public class Level2 implements Level {
     public final Difficulty difficulty              = Difficulty.NORMAL;
-    public final Image      backgroundImg           = new Image(SpaceFX.class.getResourceAsStream("backgroundL2.jpg"));
+    public final Image      backgroundImg           = new Image(getClass().getResourceAsStream("backgroundL2.jpg"));
     public final Image[]    enemyImages             = { new Image(getClass().getResourceAsStream("enemy1L2.png"), 56 * SCALING_FACTOR, 56 * SCALING_FACTOR, true, false),
                                                         new Image(getClass().getResourceAsStream("enemy2L2.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false),
                                                         new Image(getClass().getResourceAsStream("enemy3L2.png"), 68 * SCALING_FACTOR, 68 * SCALING_FACTOR, true, false),

@@ -51,7 +51,7 @@ public enum PropertyManager {
         try {
             properties.store(new FileOutputStream(String.join(File.separator, System.getProperty("user.dir"), PROPERTIES_FILE_NAME)), null);
         } catch (IOException exception) {
-            LogManager.INSTANCE.logSevere(PropertyManager.class, "Error writing properties file: " + exception);
+            System.out.println("Error writing properties file: " + exception);
         }
     }
 
@@ -70,7 +70,7 @@ public enum PropertyManager {
             final File propertiesFile = getPropertiesFile();
             properties.store(new FileOutputStream(propertiesFile), null);
         } catch (IOException ex) {
-            LogManager.INSTANCE.logSevere(PropertyManager.class, "Error writing properties file: " + ex);
+            System.out.println("Error writing properties file: " + ex);
         }
     }
 
