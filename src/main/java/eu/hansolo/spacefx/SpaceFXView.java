@@ -250,9 +250,11 @@ public class SpaceFXView extends BorderPane {
         //canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseHandler);
         //canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseHandler);
 
-        canvas.addEventHandler(TouchEvent.TOUCH_PRESSED, touchHandler);
-        canvas.addEventHandler(TouchEvent.TOUCH_MOVED, touchHandler);
-        canvas.addEventHandler(TouchEvent.TOUCH_RELEASED, touchHandler);
+        if (SHOW_BUTTONS) {
+            canvas.addEventHandler(TouchEvent.TOUCH_PRESSED, touchHandler);
+            canvas.addEventHandler(TouchEvent.TOUCH_MOVED, touchHandler);
+            canvas.addEventHandler(TouchEvent.TOUCH_RELEASED, touchHandler);
+        }
 
         setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         setCenter(pane);
