@@ -27,6 +27,10 @@ public class Helper {
         node.setManaged(enable);
     }
 
+    public static final boolean isInsideCircle(final double cX, final double cY, final double r, final double x, final double y) {
+        return ((x - cX) * (x - cX) + (y - cY) * (y - cY) <= r * r);
+    }
+
     public static final double[] rotatePointAroundRotationCenter(final double x, final double y, final double rX, final double rY, final double angleDeg) {
         final double rad = Math.toRadians(angleDeg);
         final double sin = Math.sin(rad);
