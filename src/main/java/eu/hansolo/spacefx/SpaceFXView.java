@@ -98,8 +98,8 @@ public class SpaceFXView extends BorderPane {
     private              List<Player>               hallOfFame;
     private              VBox                       hallOfFameBox;
     private              Level                      level                   = LEVEL_1;
-    private final        Image                      startImg                = new Image(getClass().getResourceAsStream("startscreen.png"));
-    private final        Image                      gameOverImg             = new Image(getClass().getResourceAsStream("gameover.png"));
+    private final        Image                      startImg                = new Image(getClass().getResourceAsStream("startscreen.jpg"));
+    private final        Image                      gameOverImg             = new Image(getClass().getResourceAsStream("gameover.jpg"));
     private final        Image                      hallOfFameImg           = new Image(getClass().getResourceAsStream("halloffamescreen.jpg"));
     private final        Image[]                    asteroidImages          = { new Image(getClass().getResourceAsStream("asteroid1.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
                                                                                 new Image(getClass().getResourceAsStream("asteroid2.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
@@ -246,14 +246,14 @@ public class SpaceFXView extends BorderPane {
         StackPane pane = new StackPane(canvas, hallOfFameBox, playerInitialsLabel, playerInitials);
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        //canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseHandler);
-        //canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseHandler);
-        //canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseHandler);
-
         if (SHOW_BUTTONS) {
             canvas.addEventHandler(TouchEvent.TOUCH_PRESSED, touchHandler);
             canvas.addEventHandler(TouchEvent.TOUCH_MOVED, touchHandler);
             canvas.addEventHandler(TouchEvent.TOUCH_RELEASED, touchHandler);
+        } else {
+            canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseHandler);
+            canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseHandler);
+            canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseHandler);
         }
 
         setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -269,7 +269,7 @@ public class SpaceFXView extends BorderPane {
 
     // ******************** Methods *******************************************
     public void init() {
-        scoreFont        = spaceBoy(60 * SCALING_FACTOR);
+        scoreFont        = spaceBoy(60 * (IS_PORTRAIT_MODE ? SCALING_FACTOR / 2 : SCALING_FACTOR));
         running          = false;
         gameOverScreen   = false;
         levelBossActive  = false;
@@ -353,7 +353,7 @@ public class SpaceFXView extends BorderPane {
         torpedoHitSound.setVolume(0.5);
 
         // Variable initialization
-        backgroundViewportY           = 2079; //backgroundImg.getHeight() - HEIGHT;
+        backgroundViewportY           = SWITCH_POINT;
         canvas                        = new Canvas(WIDTH, HEIGHT);
         ctx                           = canvas.getGraphicsContext2D();
         stars                         = new Star[NO_OF_STARS];
@@ -465,23 +465,6 @@ public class SpaceFXView extends BorderPane {
             double mouseY = e.getSceneY();
             if (type.equals(MouseEvent.MOUSE_PRESSED)) {
                 shipPressed = Helper.isInsideCircle(spaceShip.x, spaceShip.y, spaceShip.radius, mouseX, mouseY);
-                if (SHOW_BUTTONS) {
-                    if (Helper.isInsideCircle(TORPEDO_BUTTON_CX, TORPEDO_BUTTON_CY, TORPEDO_BUTTON_R, mouseX, mouseY)) {
-                        spawnTorpedo(spaceShip.x, spaceShip.y);
-                    }
-                    if (Helper.isInsideCircle(ROCKET_BUTTON_CX, ROCKET_BUTTON_CY, ROCKET_BUTTON_R, mouseX, mouseY)) {
-                        if (rockets.size() < MAX_NO_OF_ROCKETS) {
-                            spawnRocket(spaceShip.x, spaceShip.y);
-                        }
-                    }
-                    if (Helper.isInsideCircle(SHIELD_BUTTON_CX, SHIELD_BUTTON_CY, SHIELD_BUTTON_R, mouseX, mouseY)) {
-                        if (noOfShields > 0 && !spaceShip.shield) {
-                            lastShieldActivated = System.currentTimeMillis();
-                            spaceShip.shield = true;
-                            playSound(deflectorShieldSound);
-                        }
-                    }
-                }
             } else if (type.equals(MouseEvent.MOUSE_DRAGGED)) {
                 if (shipPressed) {
                     spaceShip.x = mouseX;
@@ -546,7 +529,7 @@ public class SpaceFXView extends BorderPane {
         initAsteroids();
 
         scorePosX = WIDTH * 0.5;
-        scorePosY = 40;
+        scorePosY = 40 * SCALING_FACTOR;
 
         // Preparing GraphicsContext
         ctx.setFont(scoreFont);
@@ -602,7 +585,7 @@ public class SpaceFXView extends BorderPane {
         if (SHOW_BACKGROUND) {
             backgroundViewportY -= 0.5;
             if (backgroundViewportY <= 0) {
-                backgroundViewportY = 2079; //backgroundImg.getHeight() - HEIGHT;
+                backgroundViewportY = SWITCH_POINT; //backgroundImg.getHeight() - HEIGHT;
             }
             ctx.drawImage(level.getBackgroundImg(), 0, backgroundViewportY, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT);
         }

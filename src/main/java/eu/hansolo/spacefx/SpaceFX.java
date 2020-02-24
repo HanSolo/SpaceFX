@@ -19,10 +19,8 @@ package eu.hansolo.spacefx;
 import com.jpro.webapi.WebAPI;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import static eu.hansolo.spacefx.Config.HEIGHT;
@@ -31,7 +29,6 @@ import static eu.hansolo.spacefx.Config.WIDTH;
 
 public class SpaceFX extends Application {
     private static final boolean     IS_BROWSER = WebAPI.isBrowser();
-    private static final Rectangle2D BOUNDS     = Screen.getPrimary().getVisualBounds();
     private              SpaceFXView view;
 
     @Override public void init() {
@@ -39,7 +36,6 @@ public class SpaceFX extends Application {
     }
 
     @Override public void start(Stage stage) {
-        //Scene scene = new Scene(view, BOUNDS.getWidth(), BOUNDS.getHeight());
         Scene scene = new Scene(view, WIDTH, HEIGHT);
         scene.getStylesheets().add(SpaceFX.class.getResource("spacefx.css").toExternalForm());
 
