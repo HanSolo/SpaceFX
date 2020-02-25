@@ -23,6 +23,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
+//import static com.gluonhq.attach.util.Platform.isDesktop;
 import static eu.hansolo.spacefx.Config.HEIGHT;
 import static eu.hansolo.spacefx.Config.WIDTH;
 
@@ -40,31 +41,61 @@ public class SpaceFX extends Application {
         scene.getStylesheets().add(SpaceFX.class.getResource("spacefx.css").toExternalForm());
 
         // Setup key listener
-        scene.setOnKeyPressed(e -> {
-            if (view.isRunning()) {
-                switch(e.getCode()) {
-                    case UP   : view.decreaseSpaceShipVy(); break;
-                    case RIGHT: view.increaseSpaceShipVx(); break;
-                    case DOWN : view.increaseSpaceShipVy(); break;
-                    case LEFT : view.decreaseSpaceShipVx(); break;
-                    case S    : view.spaceShipShield(); break;
-                    case R    : view.spaceShipRocket(); break;
-                    case SPACE: view.spaceShipTorpedo(); break;
+        //if (isDesktop()) {
+            scene.setOnKeyPressed(e -> {
+                if (view.isRunning()) {
+                    switch (e.getCode()) {
+                        case UP:
+                            view.decreaseSpaceShipVy();
+                            break;
+                        case RIGHT:
+                            view.increaseSpaceShipVx();
+                            break;
+                        case DOWN:
+                            view.increaseSpaceShipVy();
+                            break;
+                        case LEFT:
+                            view.decreaseSpaceShipVx();
+                            break;
+                        case S:
+                            view.spaceShipShield();
+                            break;
+                        case R:
+                            view.spaceShipRocket();
+                            break;
+                        case SPACE:
+                            view.spaceShipTorpedo();
+                            break;
+                    }
+                } else if (e.getCode() == KeyCode.P) {
+                    view.startGame();
                 }
-            } else if (e.getCode() == KeyCode.P) {
-                view.startGame();
-            }
-        });
-        scene.setOnKeyReleased(e -> {
-            if (view.isRunning()) {
-                switch (e.getCode()) {
-                    case UP   : view.stopSpaceShipVy(); break;
-                    case RIGHT: view.stopSpaceShipVx(); break;
-                    case DOWN : view.stopSpaceShipVy(); break;
-                    case LEFT : view.stopSpaceShipVx(); break;
+            });
+            scene.setOnKeyReleased(e -> {
+                if (view.isRunning()) {
+                    switch (e.getCode()) {
+                        case UP:
+                            view.stopSpaceShipVy();
+                            break;
+                        case RIGHT:
+                            view.stopSpaceShipVx();
+                            break;
+                        case DOWN:
+                            view.stopSpaceShipVy();
+                            break;
+                        case LEFT:
+                            view.stopSpaceShipVx();
+                            break;
+                    }
                 }
-            }
-        });
+            });
+        //}  else {
+        //    scene.setOnMousePressed(e -> {
+        //        if (!view.isRunning()) {
+        //            view.startGame();
+        //        }
+        //    });
+        //}       
 
         stage.setScene(scene);
         stage.show();
