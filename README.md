@@ -5,6 +5,9 @@ The "dev" branch contains new developments that might come to the game later on.
 embedded devices etc. 
 The "master" branch now contains some more fun things like enemies attacking in waves, a level boss that needs more hits to kill, enemies that drop bombs and an
 enemy boss that also fires rockets.
+This "mobile" branch is like the name says for mobile devices, it contains exactly the same code that is used in the "master" branch but needs some adjustments.
+At the moment you cannot use sound on the mobile platform so this has to be disabled and other things.
+Be aware that the "mobile" branch is using maven where the other branches use gradle, this will change in the future and is only temporary.
 
 Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 
@@ -15,17 +18,5 @@ Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 I've recorded a little [video](https://youtu.be/IS71geUu9RE) that shows the game in action.
 
 
-### Run SpaceFX in the browser using jpro
-To run SpaceFX in the browser you will need to set the used JDK to 11 in
-the build.gradle file. In the future you will also be able to use JDK 13 etc.
-More info on how to run a JavaFX application in the browser can be found
-here [jpro](https://www.jpro.one/?page=docs/current/1.1/).
-
-
-### Building a native package
-If you would like to build a native package you should have at least JDK 13 installed
-on your machine. Make sure you run on Java13 and do a `gradle clean build jar` on the 
-command line and execute the build app script e.g. `bash build_app.sh`. If everything 
-worked ok you will find the native app in the folder `/build/installer`.
-To build a native package you will need the early access release of the 
-jpackage tool. Please find more info [here](https://github.com/dlemmermann/JPackageScriptFX).
+### Run SpaceFX on iOS (you OS X to compile it)
+To run SpaceFX on iOS you will need JDK to 11 and follow the instructions from [gluon](https://github.com/gluonhq/client-samples)

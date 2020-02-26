@@ -5,9 +5,11 @@
 /src/main/java/eu/hansolo/spacefx/Test.java
 /out
 /classes
+/target
 /spacefx.iml
 /RUNNING_PID
 /logs
 /src/main/resources/eu/hansolo/spacefx/*.afphoto
 /src/main/resources/eu/hansolo/spacefx/*.afdesign
 /src/main/resources/eu/hansolo/spacefx/beams.png
+*.class

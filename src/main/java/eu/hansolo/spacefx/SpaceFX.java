@@ -16,21 +16,21 @@
 
 package eu.hansolo.spacefx;
 
-import com.jpro.webapi.WebAPI;
+//import com.jpro.webapi.WebAPI;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
-//import static com.gluonhq.attach.util.Platform.isDesktop;
+import static com.gluonhq.attach.util.Platform.isDesktop;
 import static eu.hansolo.spacefx.Config.HEIGHT;
 import static eu.hansolo.spacefx.Config.WIDTH;
 
 
 public class SpaceFX extends Application {
-    private static final boolean     IS_BROWSER = WebAPI.isBrowser();
-    private              SpaceFXView view;
+    //private static final boolean     IS_BROWSER = WebAPI.isBrowser();
+    private SpaceFXView view;
 
     @Override public void init() {
         view = new SpaceFXView();
@@ -38,11 +38,11 @@ public class SpaceFX extends Application {
 
     @Override public void start(Stage stage) {
         Scene scene = new Scene(view, WIDTH, HEIGHT);
-        //scene.getStylesheets().add(SpaceFX.class.getResource(isDesktop() ? "spacefx.css" : "spacefx-mobile.css").toExternalForm());
-        scene.getStylesheets().add(SpaceFX.class.getResource("spacefx.css").toExternalForm());
+        scene.getStylesheets().add(SpaceFX.class.getResource(isDesktop() ? "spacefx.css" : "spacefx-mobile.css").toExternalForm());
+        //scene.getStylesheets().add(SpaceFX.class.getResource("spacefx.css").toExternalForm());
 
         // Setup key listener
-        //if (isDesktop()) {
+        if (isDesktop()) {
             scene.setOnKeyPressed(e -> {
                 if (view.isRunning()) {
                     switch (e.getCode()) {
@@ -90,24 +90,24 @@ public class SpaceFX extends Application {
                     }
                 }
             });
-        //}  else {
-        //    scene.setOnMousePressed(e -> {
-        //        if (!view.isRunning() && view.isReadToStart()) {
-        //            view.startGame();
-        //        }
-        //    });
-        //}       
+        } else {
+            scene.setOnMousePressed(e -> {
+                if (!view.isRunning() && view.isReadyToStart()) {
+                    view.startGame();
+                }
+            });
+        }
 
-        //stage.setMaximized(true);
+        stage.setMaximized(true);
         stage.setScene(scene);
         stage.show();
     }
 
     @Override public void stop() {
-        if (!IS_BROWSER) {
-            Platform.exit();
-            System.exit(0);
-        }
+        //if (!IS_BROWSER) {
+        Platform.exit();
+        System.exit(0);
+        //}
     }
 
     public static void main(String[] args) {

@@ -16,6 +16,8 @@
 
 package eu.hansolo.spacefx;
 
+import com.gluonhq.attach.storage.StorageService;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,19 +33,25 @@ public enum PropertyManager {
     INSTANCE;
 
     private Properties properties;
+    private final File propFile;
 
 
     // ******************** Constructors **************************************
     PropertyManager() {
         properties = new Properties();
         // Load properties
-        final String propFilePath = new StringBuilder(System.getProperty("user.home")).append(File.separator).append(PROPERTIES_FILE_NAME).toString();
-        try (FileInputStream propFile = new FileInputStream(propFilePath)) {
-            properties.load(propFile);
-        } catch (IOException ex) {
-            System.out.println("Error reading properties file. " + ex);
-        }
+        File root = StorageService.create()
+                                  .flatMap(StorageService::getPrivateStorage)
+                                  .orElseThrow(() -> new RuntimeException("Error: Storage Service is required"));
 
+        propFile = new File(root, PROPERTIES_FILE_NAME);
+        if (propFile.exists()) {
+            try (FileInputStream isPropFile = new FileInputStream(propFile)) {
+                properties.load(isPropFile);
+            } catch (IOException ex) {
+                System.out.println("Error reading properties file. " + ex);
+            }
+        }
         // If properties empty, fill with default values
         if (properties.isEmpty()) { createProperties(properties); }
     }
@@ -56,7 +64,7 @@ public enum PropertyManager {
     public void set(final String KEY, final String VALUE) {
         properties.setProperty(KEY, VALUE);
         try {
-            properties.store(new FileOutputStream(String.join(File.separator, System.getProperty("user.dir"), PROPERTIES_FILE_NAME)), null);
+            properties.store(new FileOutputStream(propFile), null);
         } catch (IOException exception) {
             System.out.println("Error writing properties file: " + exception);
         }
@@ -75,8 +83,7 @@ public enum PropertyManager {
 
     // ******************** Properties ****************************************
     private void createProperties(final Properties properties) {
-        final String propFilePath = new StringBuilder(System.getProperty("user.home")).append(File.separator).append(PROPERTIES_FILE_NAME).toString();
-        try (OutputStream output = new FileOutputStream(propFilePath)) {
+        try (OutputStream output = new FileOutputStream(propFile)) {
             properties.setProperty("hallOfFame1", UUID.randomUUID().toString() + ",AA,0");
             properties.setProperty("hallOfFame2", UUID.randomUUID().toString() + ",BB,0");
             properties.setProperty("hallOfFame3", UUID.randomUUID().toString() + ",CC,0");
@@ -88,8 +95,7 @@ public enum PropertyManager {
 
     public void storeProperties() {
         try {
-            final String propFilePath = new StringBuilder(System.getProperty("user.home")).append(File.separator).append(PROPERTIES_FILE_NAME).toString();
-            properties.store(new FileOutputStream(propFilePath), "");
+            properties.store(new FileOutputStream(propFile), "");
         } catch (Exception ex) {
             System.out.println("Error writing properties file. " + ex);
         }
