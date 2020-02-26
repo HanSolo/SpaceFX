@@ -38,6 +38,7 @@ public class SpaceFX extends Application {
 
     @Override public void start(Stage stage) {
         Scene scene = new Scene(view, WIDTH, HEIGHT);
+        //scene.getStylesheets().add(SpaceFX.class.getResource(isDesktop() ? "spacefx.css" : "spacefx-mobile.css").toExternalForm());
         scene.getStylesheets().add(SpaceFX.class.getResource("spacefx.css").toExternalForm());
 
         // Setup key listener
@@ -58,16 +59,16 @@ public class SpaceFX extends Application {
                             view.decreaseSpaceShipVx();
                             break;
                         case S:
-                            view.spaceShipShield();
+                            view.activateSpaceShipShield();
                             break;
                         case R:
-                            view.spaceShipRocket();
+                            view.fireSpaceShipRocket();
                             break;
                         case SPACE:
-                            view.spaceShipTorpedo();
+                            view.fireSpaceShipTorpedo();
                             break;
                     }
-                } else if (e.getCode() == KeyCode.P) {
+                } else if (e.getCode() == KeyCode.P && view.isReadyToStart()) {
                     view.startGame();
                 }
             });
@@ -91,12 +92,13 @@ public class SpaceFX extends Application {
             });
         //}  else {
         //    scene.setOnMousePressed(e -> {
-        //        if (!view.isRunning()) {
+        //        if (!view.isRunning() && view.isReadToStart()) {
         //            view.startGame();
         //        }
         //    });
         //}       
 
+        //stage.setMaximized(true);
         stage.setScene(scene);
         stage.show();
     }

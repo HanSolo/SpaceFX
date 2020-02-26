@@ -20,6 +20,7 @@ import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Screen;
 
 //import static com.gluonhq.attach.util.Platform.isDesktop;
@@ -47,8 +48,8 @@ public class Config {
     public static final boolean     SHOW_ENEMIES                        = true;
     public static final boolean     SHOW_ASTEROIDS                      = true;
     public static final boolean     SHOW_BUTTONS                        = Platform.isSupported(ConditionalFeature.INPUT_MULTITOUCH);
-    public static final int         NO_OF_STARS                         = SHOW_STARS ? 200 : 0;
-    public static final int         NO_OF_ASTEROIDS                     = SHOW_ASTEROIDS ? 10 : 0;
+    public static final int         NO_OF_STARS                         = SHOW_STARS ? (int) (SCALING_FACTOR * 200) : 0;
+    public static final int         NO_OF_ASTEROIDS                     = SHOW_ASTEROIDS ? (int) (SCALING_FACTOR * 10) : 0;
     public static final int         LIFES                               = 5;
     public static final int         SHIELDS                             = 10;
     public static final int         DEFLECTOR_SHIELD_TIME               = 5000;
@@ -157,4 +158,5 @@ public class Config {
     public static final double      LEVEL_BOSS_EXPLOSION_FRAME_WIDTH    = 256 * SCALING_FACTOR;
     public static final double      LEVEL_BOSS_EXPLOSION_FRAME_HEIGHT   = 256 * SCALING_FACTOR;
     public static final double      LEVEL_BOSS_EXPLOSION_FRAME_CENTER   = 256 * SCALING_FACTOR * 0.5;
+    public static final double      SCORE_FONT_SIZE                     = 60 * (IS_PORTRAIT_MODE ? SCALING_FACTOR / 2 : SCALING_FACTOR);
 }

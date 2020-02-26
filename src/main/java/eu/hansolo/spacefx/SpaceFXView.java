@@ -20,6 +20,7 @@ import com.jpro.webapi.WebAPI;
 import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Insets;
@@ -32,14 +33,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TouchEvent;
-import javafx.scene.input.TouchPoint;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -48,6 +47,7 @@ import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
@@ -65,16 +65,18 @@ import java.util.stream.Collectors;
 import static eu.hansolo.spacefx.Config.*;
 
 
-public class SpaceFXView extends BorderPane {
+public class SpaceFXView extends StackPane {
     private static final long                       SCREEN_TOGGLE_INTERVAL  = 10_000_000_000l;
     private static final Random                     RND                     = new Random();
     private static final String                     SPACE_BOY;
     private static       String                     spaceBoyName;
     private static final boolean                    IS_BROWSER              = WebAPI.isBrowser();
-    private static final Level1                     LEVEL_1                 = new Level1();
-    private static final Level2                     LEVEL_2                 = new Level2();
-    private static final Level3                     LEVEL_3                 = new Level3();
+    private              Task<Boolean>              initTask;
+    private              Level1                     level1;
+    private              Level2                     level2;
+    private              Level3                     level3;
     private              long                       lastScreenToggle;
+    private              boolean                    readyToStart;
     private              boolean                    running;
     private              boolean                    gameOverScreen;
     private              boolean                    hallOfFameScreen;
@@ -83,67 +85,58 @@ public class SpaceFXView extends BorderPane {
     private              TextField                  playerInitials;
     private              List<Player>               hallOfFame;
     private              VBox                       hallOfFameBox;
-    private              Level                      level                   = LEVEL_1;
+    private              Level                      level;
     private final        Image                      startImg                = new Image(getClass().getResourceAsStream("startscreen.jpg"));
     private final        Image                      gameOverImg             = new Image(getClass().getResourceAsStream("gameover.jpg"));
     private final        Image                      hallOfFameImg           = new Image(getClass().getResourceAsStream("halloffamescreen.jpg"));
     //private final        Image                      startImg                = isDesktop() ? new Image(getClass().getResourceAsStream("startscreen.jpg")) : isIOS() ? new Image(getClass().getResourceAsStream("startscreenIOS.jpg")) : new Image(getClass().getResourceAsStream("startscreenAndroid.jpg"));
     //private final        Image                      gameOverImg             = isDesktop() ? new Image(getClass().getResourceAsStream("gameover.jpg")) : isIOS() ? new Image(getClass().getResourceAsStream("gameoverIOS.jpg")) : new Image(getClass().getResourceAsStream("gameoverAndroid.jpg"));
     //private final        Image                      hallOfFameImg           = isDesktop() ? new Image(getClass().getResourceAsStream("halloffamescreen.jpg")) : isIOS() ? new Image(getClass().getResourceAsStream("halloffamescreenIOS.jpg")) : new Image(getClass().getResourceAsStream("halloffamescreenAndroid.jpg"));
-    private final        Image[]                    asteroidImages          = { new Image(getClass().getResourceAsStream("asteroid1.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
-                                                                                new Image(getClass().getResourceAsStream("asteroid2.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
-                                                                                new Image(getClass().getResourceAsStream("asteroid3.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
-                                                                                new Image(getClass().getResourceAsStream("asteroid4.png"), 110 * SCALING_FACTOR, 110 * SCALING_FACTOR, true, false),
-                                                                                new Image(getClass().getResourceAsStream("asteroid5.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false),
-                                                                                new Image(getClass().getResourceAsStream("asteroid6.png"), 120 * SCALING_FACTOR, 120 * SCALING_FACTOR, true, false),
-                                                                                new Image(getClass().getResourceAsStream("asteroid7.png"), 110 * SCALING_FACTOR, 110 * SCALING_FACTOR, true, false),
-                                                                                new Image(getClass().getResourceAsStream("asteroid8.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false),
-                                                                                new Image(getClass().getResourceAsStream("asteroid9.png"), 130 * SCALING_FACTOR, 130 * SCALING_FACTOR, true, false),
-                                                                                new Image(getClass().getResourceAsStream("asteroid10.png"), 120 * SCALING_FACTOR, 120 * SCALING_FACTOR, true, false),
-                                                                                new Image(getClass().getResourceAsStream("asteroid11.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false) };
-    private final        Image                      torpedoButtonImg        = new Image(getClass().getResourceAsStream("torpedoButton.png"), 64 * SCALING_FACTOR, 64 * SCALING_FACTOR, true, false);
-    private final        Image                      rocketButtonImg         = new Image(getClass().getResourceAsStream("rocketButton.png"), 64 * SCALING_FACTOR, 64 * SCALING_FACTOR, true, false);
-    private final        Image                      shieldButtonImg         = new Image(getClass().getResourceAsStream("shieldButton.png"), 64 * SCALING_FACTOR, 64 * SCALING_FACTOR, true, false);
-    private final        Image                      spaceshipImg            = new Image(getClass().getResourceAsStream("spaceship.png"), 48 * SCALING_FACTOR, 48 * SCALING_FACTOR, true, false);
-    private final        Image                      spaceshipUpImg          = new Image(getClass().getResourceAsStream("spaceshipUp.png"), 48 * SCALING_FACTOR, 48 * SCALING_FACTOR, true, false);
-    private final        Image                      spaceshipDownImg        = new Image(getClass().getResourceAsStream("spaceshipDown.png"), 48 * SCALING_FACTOR, 48 * SCALING_FACTOR, true, false);
-    private final        Image                      miniSpaceshipImg        = new Image(getClass().getResourceAsStream("spaceship.png"), 16 * SCALING_FACTOR, 16 * SCALING_FACTOR, true, false);
-    private final        Image                      deflectorShieldImg      = new Image(getClass().getResourceAsStream("deflectorshield.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
-    private final        Image                      miniDeflectorShieldImg  = new Image(getClass().getResourceAsStream("deflectorshield.png"), 16 * SCALING_FACTOR, 16 * SCALING_FACTOR, true, false);
-    private final        Image                      torpedoImg              = new Image(getClass().getResourceAsStream("torpedo.png"), 17 * SCALING_FACTOR, 20 * SCALING_FACTOR, true, false);
-    private final        Image                      asteroidExplosionImg    = new Image(getClass().getResourceAsStream("asteroidExplosion.png"), 2048 * SCALING_FACTOR, 1792 * SCALING_FACTOR, true, false);
-    private final        Image                      spaceShipExplosionImg   = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800 * SCALING_FACTOR, 600 * SCALING_FACTOR, true, false);
-    private final        Image                      hitImg                  = new Image(getClass().getResourceAsStream("torpedoHit2.png"), 400 * SCALING_FACTOR, 160 * SCALING_FACTOR, true, false);
-    private final        Image                      shieldUpImg             = new Image(getClass().getResourceAsStream("shieldUp.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
-    private final        Image                      lifeUpImg               = new Image(getClass().getResourceAsStream("lifeUp.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
-    private final        Image                      upExplosionImg          = new Image(getClass().getResourceAsStream("upExplosion.png"), 400 * SCALING_FACTOR, 700 * SCALING_FACTOR, true, false);
-    private final        Image                      rocketExplosionImg      = new Image(getClass().getResourceAsStream("rocketExplosion.png"), 960 * SCALING_FACTOR, 768 * SCALING_FACTOR, true, false);
-    private final        Image                      rocketImg               = new Image(getClass().getResourceAsStream("rocket.png"), 17 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
-    private final        AudioClip                  laserSound              = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
-    private final        AudioClip                  rocketLaunchSound       = new AudioClip(getClass().getResource("rocketLaunch.wav").toExternalForm());
-    private final        AudioClip                  rocketExplosionSound    = new AudioClip(getClass().getResource("rocketExplosion.wav").toExternalForm());
-    private final        AudioClip                  enemyLaserSound         = new AudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm());
-    private final        AudioClip                  enemyBombSound          = new AudioClip(getClass().getResource("enemyBomb.wav").toExternalForm());
-    private final        AudioClip                  explosionSound          = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
-    private final        AudioClip                  asteroidExplosionSound  = new AudioClip(getClass().getResource("asteroidExplosion.wav").toExternalForm());
-    private final        AudioClip                  torpedoHitSound         = new AudioClip(getClass().getResource("hit.wav").toExternalForm());
-    private final        AudioClip                  spaceShipExplosionSound = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
-    private final        AudioClip                  enemyBossExplosionSound = new AudioClip(getClass().getResource("enemyBossExplosion.wav").toExternalForm());
-    private final        AudioClip                  gameoverSound           = new AudioClip(getClass().getResource("gameover.wav").toExternalForm());
-    private final        AudioClip                  shieldHitSound          = new AudioClip(getClass().getResource("shieldhit.wav").toExternalForm());
-    private final        AudioClip                  enemyHitSound           = new AudioClip(getClass().getResource("enemyBossShieldHit.wav").toExternalForm());
-    private final        AudioClip                  deflectorShieldSound    = new AudioClip(getClass().getResource("deflectorshieldSound.wav").toExternalForm());
-    private final        AudioClip                  levelBossTorpedoSound   = new AudioClip(getClass().getResource("levelBossTorpedo.wav").toExternalForm());
-    private final        AudioClip                  levelBossRocketSound    = new AudioClip(getClass().getResource("levelBossRocket.wav").toExternalForm());
-    private final        AudioClip                  levelBossBombSound      = new AudioClip(getClass().getResource("levelBossBomb.wav").toExternalForm());
-    private final        AudioClip                  levelBossExplosionSound = new AudioClip(getClass().getResource("explosionSound1.wav").toExternalForm());
-    private final        AudioClip                  shieldUpSound           = new AudioClip(getClass().getResource("shieldUp.wav").toExternalForm());
-    private final        AudioClip                  lifeUpSound             = new AudioClip(getClass().getResource("lifeUp.wav").toExternalForm());
+    private              Image[]                    asteroidImages;
+    private              Image                      torpedoButtonImg;
+    private              Image                      rocketButtonImg;
+    private              Image                      shieldButtonImg;
+    private              Image                      spaceshipImg;
+    private              Image                      spaceshipUpImg;
+    private              Image                      spaceshipDownImg;
+    private              Image                      miniSpaceshipImg;
+    private              Image                      deflectorShieldImg;
+    private              Image                      miniDeflectorShieldImg;
+    private              Image                      torpedoImg;
+    private              Image                      asteroidExplosionImg;
+    private              Image                      spaceShipExplosionImg;
+    private              Image                      hitImg;
+    private              Image                      shieldUpImg;
+    private              Image                      lifeUpImg;
+    private              Image                      upExplosionImg;
+    private              Image                      rocketExplosionImg;
+    private              Image                      rocketImg;
+    private              AudioClip                  laserSound;
+    private              AudioClip                  rocketLaunchSound;
+    private              AudioClip                  rocketExplosionSound;
+    private              AudioClip                  enemyLaserSound;
+    private              AudioClip                  enemyBombSound;
+    private              AudioClip                  explosionSound;
+    private              AudioClip                  asteroidExplosionSound;
+    private              AudioClip                  torpedoHitSound;
+    private              AudioClip                  spaceShipExplosionSound;
+    private              AudioClip                  enemyBossExplosionSound;
+    private              AudioClip                  gameoverSound;
+    private              AudioClip                  shieldHitSound;
+    private              AudioClip                  enemyHitSound;
+    private              AudioClip                  deflectorShieldSound;
+    private              AudioClip                  levelBossTorpedoSound;
+    private              AudioClip                  levelBossRocketSound;
+    private              AudioClip                  levelBossBombSound;
+    private              AudioClip                  levelBossExplosionSound;
+    private              AudioClip                  shieldUpSound;
+    private              AudioClip                  lifeUpSound;
+    private              AudioClip                  levelUpSound;
     private final        Media                      gameSoundTheme          = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
     private final        Media                      soundTheme              = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
     private final        MediaPlayer                gameMediaPlayer         = new MediaPlayer(gameSoundTheme);
     private final        MediaPlayer                mediaPlayer             = new MediaPlayer(soundTheme);
-    private final        double                     deflectorShieldRadius   = deflectorShieldImg.getRequestedWidth() * 0.5;
+    private              double                     deflectorShieldRadius;
     private              boolean                    levelBossActive;
     private              Font                       scoreFont;
     private              double                     backgroundViewportY;
@@ -204,6 +197,7 @@ public class SpaceFXView extends BorderPane {
     private              long                       kills;
     private              double                     scorePosX;
     private              double                     scorePosY;
+    private              double                     mobileOffsetY;
     private              boolean                    hasBeenHit;
     private              int                        noOfLifes;
     private              int                        noOfShields;
@@ -216,8 +210,7 @@ public class SpaceFXView extends BorderPane {
     private              long                       lastTimerCall;
     private              AnimationTimer             timer;
     private              AnimationTimer             screenTimer;
-    private              boolean                    shipPressed;
-    private              EventHandler<MouseEvent>   mouseHandler;
+    private              Circle                     shipTouchArea;
     private              EventHandler<TouchEvent>   touchHandler;
 
     static {
@@ -231,22 +224,29 @@ public class SpaceFXView extends BorderPane {
     // ******************** Constructor ***************************************
     public SpaceFXView() {
         init();
+        initOnBackground();
 
-        StackPane pane = new StackPane(canvas, hallOfFameBox, playerInitialsLabel, playerInitials);
+        shipTouchArea = new Circle();
+
+        Pane pane = new Pane(canvas, shipTouchArea, hallOfFameBox, playerInitialsLabel, playerInitials);
+        pane.setPrefSize(WIDTH, HEIGHT);
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
         if (SHOW_BUTTONS) {
             canvas.addEventHandler(TouchEvent.TOUCH_PRESSED, touchHandler);
-            canvas.addEventHandler(TouchEvent.TOUCH_MOVED, touchHandler);
-            canvas.addEventHandler(TouchEvent.TOUCH_RELEASED, touchHandler);
+            shipTouchArea.setOnTouchMoved(e -> {
+                spaceShip.x = e.getTouchPoint().getX();
+                spaceShip.y = e.getTouchPoint().getY();
+            });
         } else {
-            canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseHandler);
-            canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseHandler);
-            canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseHandler);
+            shipTouchArea.setOnMouseDragged(e -> {
+                spaceShip.x = e.getX();
+                spaceShip.y = e.getY();
+            });
         }
 
         setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-        setCenter(pane);
+        getChildren().add(pane);
 
         // Start playing background music
         if (PLAY_MUSIC) { mediaPlayer.play(); }
@@ -258,7 +258,7 @@ public class SpaceFXView extends BorderPane {
 
     // ******************** Methods *******************************************
     public void init() {
-        scoreFont        = spaceBoy(60 * (IS_PORTRAIT_MODE ? SCALING_FACTOR / 2 : SCALING_FACTOR));
+        scoreFont        = spaceBoy(SCORE_FONT_SIZE);
         running          = false;
         gameOverScreen   = false;
         levelBossActive  = false;
@@ -266,11 +266,13 @@ public class SpaceFXView extends BorderPane {
         hallOfFameScreen = false;
 
         playerInitialsLabel = new Label("Type in your initials");
-        playerInitialsLabel.setTranslateY(HEIGHT * 0.1);
+        playerInitialsLabel.setAlignment(Pos.CENTER);
+        playerInitialsLabel.relocate(WIDTH * 0.5, HEIGHT * 0.7);
         Helper.enableNode(playerInitialsLabel, false);
 
         playerInitials   = new TextField("--");
-        playerInitials.setTranslateY(HEIGHT * 0.2);
+        playerInitials.setAlignment(Pos.CENTER);
+        playerInitials.relocate(WIDTH * 0.5, HEIGHT * 0.8);
         playerInitials.setTextFormatter(new TextFormatter<String>(change -> {
             if (change.getControlNewText().length() > 2) { return null; }
             if (change.getText().toUpperCase().matches("[A-Z\\-]{0,2}")) {
@@ -296,6 +298,7 @@ public class SpaceFXView extends BorderPane {
                 HBox p2Entry = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame2")));
                 HBox p3Entry = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame3")));
                 hallOfFameBox.getChildren().setAll(p1Entry, p2Entry, p3Entry);
+                hallOfFameBox.relocate((WIDTH - hallOfFameBox.getPrefWidth()) * 0.5, (HEIGHT - hallOfFameBox.getPrefHeight()) * 0.5);
 
                 Helper.enableNode(playerInitialsLabel, false);
                 Helper.enableNode(playerInitials, false);
@@ -323,10 +326,13 @@ public class SpaceFXView extends BorderPane {
         HBox p2Entry  = createHallOfFameEntry(p2);
         HBox p3Entry  = createHallOfFameEntry(p3);
         hallOfFameBox = new VBox(20, p1Entry, p2Entry, p3Entry);
-        hallOfFameBox.setMaxWidth(WIDTH * 0.4);
+        hallOfFameBox.setMinWidth(WIDTH * 0.6);
+        hallOfFameBox.setMaxWidth(WIDTH * 0.6);
+        hallOfFameBox.setPrefWidth(WIDTH * 0.6);
         hallOfFameBox.setAlignment(Pos.CENTER);
         hallOfFameBox.setTranslateY(-HEIGHT * 0.1);
         hallOfFameBox.setMouseTransparent(true);
+        hallOfFameBox.relocate((WIDTH - hallOfFameBox.getPrefWidth()) * 0.5, (HEIGHT - hallOfFameBox.getPrefHeight()) * 0.5);
         Helper.enableNode(hallOfFameBox, false);
 
         // Mediaplayer for background music
@@ -337,17 +343,12 @@ public class SpaceFXView extends BorderPane {
         gameMediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
         gameMediaPlayer.setVolume(0.5);
 
-        // Adjust audio clip volumes
-        explosionSound.setVolume(0.5);
-        torpedoHitSound.setVolume(0.5);
-
         // Variable initialization
         backgroundViewportY           = SWITCH_POINT;
         canvas                        = new Canvas(WIDTH, HEIGHT);
         ctx                           = canvas.getGraphicsContext2D();
         stars                         = new Star[NO_OF_STARS];
         asteroids                     = new Asteroid[NO_OF_ASTEROIDS];
-        spaceShip                     = new SpaceShip(spaceshipImg, spaceshipUpImg, spaceshipDownImg);
         spaceShipExplosion            = new SpaceShipExplosion(0, 0);
         waves                         = new ArrayList<>();
         wavesToRemove                 = new ArrayList<>();
@@ -448,84 +449,125 @@ public class SpaceFXView extends BorderPane {
             }
         };
 
-        mouseHandler = e -> {
-            // boolean snythesized = e.isSynthesized(); // detect if mouse event is coming from touch event
-            EventType<? extends MouseEvent> type   = e.getEventType();
-            double                          mouseX = e.getSceneX();
-            double mouseY = e.getSceneY();
-            if (type.equals(MouseEvent.MOUSE_PRESSED)) {
-                shipPressed = Helper.isInsideCircle(spaceShip.x, spaceShip.y, spaceShip.radius, mouseX, mouseY);
-            } else if (type.equals(MouseEvent.MOUSE_DRAGGED)) {
-                if (shipPressed) {
-                    spaceShip.x = mouseX;
-                    spaceShip.y = mouseY;
-                }
-            } else if (type.equals(MouseEvent.MOUSE_RELEASED)) {
-                shipPressed = false;
-            }
-        };
-
         touchHandler = e -> {
             EventType<TouchEvent>  type  = e.getEventType();
-            List<TouchPoint> touchPoints = e.getTouchPoints();
             if (TouchEvent.TOUCH_PRESSED.equals(type)) {
-                touchPoints.forEach(tp -> {
-                    double x = tp.getX();
-                    double y = tp.getY();
-                    shipPressed = Helper.isInsideCircle(spaceShip.x, spaceShip.y, spaceShip.radius, x, y);
-                    if (SHOW_BUTTONS) {
-                        if (Helper.isInsideCircle(TORPEDO_BUTTON_CX, TORPEDO_BUTTON_CY, TORPEDO_BUTTON_R, x, y)) {
-                            spawnTorpedo(spaceShip.x, spaceShip.y);
+                if (SHOW_BUTTONS) {
+                    double x = e.getTouchPoint().getX();
+                    double y = e.getTouchPoint().getY();
+                    if (Helper.isInsideCircle(TORPEDO_BUTTON_CX, TORPEDO_BUTTON_CY, TORPEDO_BUTTON_R, x, y)) {
+                        spawnTorpedo(spaceShip.x, spaceShip.y);
+                    } else if (Helper.isInsideCircle(ROCKET_BUTTON_CX, ROCKET_BUTTON_CY, ROCKET_BUTTON_R, x, y)) {
+                        if (rockets.size() < MAX_NO_OF_ROCKETS) {
+                            spawnRocket(spaceShip.x, spaceShip.y);
                         }
-                        if (Helper.isInsideCircle(ROCKET_BUTTON_CX, ROCKET_BUTTON_CY, ROCKET_BUTTON_R, x, y)) {
-                            if (rockets.size() < MAX_NO_OF_ROCKETS) {
-                                spawnRocket(spaceShip.x, spaceShip.y);
-                            }
-                        }
-                        if (Helper.isInsideCircle(SHIELD_BUTTON_CX, SHIELD_BUTTON_CY, SHIELD_BUTTON_R, x, y)) {
-                            if (noOfShields > 0 && !spaceShip.shield) {
-                                lastShieldActivated = System.currentTimeMillis();
-                                spaceShip.shield = true;
-                                playSound(deflectorShieldSound);
-                            }
+                    } else if (Helper.isInsideCircle(SHIELD_BUTTON_CX, SHIELD_BUTTON_CY, SHIELD_BUTTON_R, x, y)) {
+                        if (noOfShields > 0 && !spaceShip.shield) {
+                            lastShieldActivated = System.currentTimeMillis();
+                            spaceShip.shield = true;
+                            playSound(deflectorShieldSound);
                         }
                     }
-                });
-            } else if (TouchEvent.TOUCH_MOVED.equals(type)) {
-                if (shipPressed) {
-                    touchPoints.forEach(tp -> {
-                        double x = tp.getX();
-                        double y = tp.getY();
-                        if (Helper.isInsideCircle(spaceShip.x, spaceShip.y, spaceShip.radius, x, y)) {
-                            spaceShip.x = x;
-                            spaceShip.y = y;
-                            return;
-                        }
-                    });
                 }
-            } else if (TouchEvent.TOUCH_RELEASED.equals(type)) {
-                touchPoints.forEach(tp -> {
-                    double x = tp.getX();
-                    double y = tp.getY();
-                    if (Helper.isInsideCircle(spaceShip.x, spaceShip.y, spaceShip.radius, x, y)) {
-                        shipPressed = false;
-                        return;
-                    }
-                });
             }
         };
 
         initStars();
-        initAsteroids();
 
         scorePosX = WIDTH * 0.5;
         scorePosY = 40 * SCALING_FACTOR;
+
+        //mobileOffsetY = isDesktop() ? 0 : 30;
+        mobileOffsetY = 0;
 
         // Preparing GraphicsContext
         ctx.setFont(scoreFont);
         ctx.setTextAlign(TextAlignment.CENTER);
         ctx.setTextBaseline(VPos.CENTER);
         ctx.drawImage(startImg, 0, 0);
+    }
+
+    private void initOnBackground() {
+        initTask = new Task<>() {
+            @Override protected Boolean call() {
+                // Init levels
+                level1 = new Level1();
+                level2 = new Level2();
+                level3 = new Level3();
+                level  = level1;
+                // Load images
+                asteroidImages          = new Image[] { new Image(getClass().getResourceAsStream("asteroid1.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("asteroid2.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("asteroid3.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("asteroid4.png"), 110 * SCALING_FACTOR, 110 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("asteroid5.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("asteroid6.png"), 120 * SCALING_FACTOR, 120 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("asteroid7.png"), 110 * SCALING_FACTOR, 110 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("asteroid8.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("asteroid9.png"), 130 * SCALING_FACTOR, 130 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("asteroid10.png"), 120 * SCALING_FACTOR, 120 * SCALING_FACTOR, true, false),
+                                                        new Image(getClass().getResourceAsStream("asteroid11.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false) };
+                torpedoButtonImg        = new Image(getClass().getResourceAsStream("torpedoButton.png"), 64 * SCALING_FACTOR, 64 * SCALING_FACTOR, true, false);
+                rocketButtonImg         = new Image(getClass().getResourceAsStream("rocketButton.png"), 64 * SCALING_FACTOR, 64 * SCALING_FACTOR, true, false);
+                shieldButtonImg         = new Image(getClass().getResourceAsStream("shieldButton.png"), 64 * SCALING_FACTOR, 64 * SCALING_FACTOR, true, false);
+                spaceshipImg            = new Image(getClass().getResourceAsStream("spaceship.png"), 48 * SCALING_FACTOR, 48 * SCALING_FACTOR, true, false);
+                spaceshipUpImg          = new Image(getClass().getResourceAsStream("spaceshipUp.png"), 48 * SCALING_FACTOR, 48 * SCALING_FACTOR, true, false);
+                spaceshipDownImg        = new Image(getClass().getResourceAsStream("spaceshipDown.png"), 48 * SCALING_FACTOR, 48 * SCALING_FACTOR, true, false);
+                miniSpaceshipImg        = new Image(getClass().getResourceAsStream("spaceship.png"), 16 * SCALING_FACTOR, 16 * SCALING_FACTOR, true, false);
+                deflectorShieldImg      = new Image(getClass().getResourceAsStream("deflectorshield.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
+                miniDeflectorShieldImg  = new Image(getClass().getResourceAsStream("deflectorshield.png"), 16 * SCALING_FACTOR, 16 * SCALING_FACTOR, true, false);
+                torpedoImg              = new Image(getClass().getResourceAsStream("torpedo.png"), 17 * SCALING_FACTOR, 20 * SCALING_FACTOR, true, false);
+                asteroidExplosionImg    = new Image(getClass().getResourceAsStream("asteroidExplosion.png"), 2048 * SCALING_FACTOR, 1792 * SCALING_FACTOR, true, false);
+                spaceShipExplosionImg   = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800 * SCALING_FACTOR, 600 * SCALING_FACTOR, true, false);
+                hitImg                  = new Image(getClass().getResourceAsStream("torpedoHit2.png"), 400 * SCALING_FACTOR, 160 * SCALING_FACTOR, true, false);
+                shieldUpImg             = new Image(getClass().getResourceAsStream("shieldUp.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
+                lifeUpImg               = new Image(getClass().getResourceAsStream("lifeUp.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
+                upExplosionImg          = new Image(getClass().getResourceAsStream("upExplosion.png"), 400 * SCALING_FACTOR, 700 * SCALING_FACTOR, true, false);
+                rocketExplosionImg      = new Image(getClass().getResourceAsStream("rocketExplosion.png"), 960 * SCALING_FACTOR, 768 * SCALING_FACTOR, true, false);
+                rocketImg               = new Image(getClass().getResourceAsStream("rocket.png"), 17 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
+                // Load sounds
+                laserSound              = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
+                rocketLaunchSound       = new AudioClip(getClass().getResource("rocketLaunch.wav").toExternalForm());
+                rocketExplosionSound    = new AudioClip(getClass().getResource("rocketExplosion.wav").toExternalForm());
+                enemyLaserSound         = new AudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm());
+                enemyBombSound          = new AudioClip(getClass().getResource("enemyBomb.wav").toExternalForm());
+                explosionSound          = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
+                asteroidExplosionSound  = new AudioClip(getClass().getResource("asteroidExplosion.wav").toExternalForm());
+                torpedoHitSound         = new AudioClip(getClass().getResource("hit.wav").toExternalForm());
+                spaceShipExplosionSound = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
+                enemyBossExplosionSound = new AudioClip(getClass().getResource("enemyBossExplosion.wav").toExternalForm());
+                gameoverSound           = new AudioClip(getClass().getResource("gameover.wav").toExternalForm());
+                shieldHitSound          = new AudioClip(getClass().getResource("shieldhit.wav").toExternalForm());
+                enemyHitSound           = new AudioClip(getClass().getResource("enemyBossShieldHit.wav").toExternalForm());
+                deflectorShieldSound    = new AudioClip(getClass().getResource("deflectorshieldSound.wav").toExternalForm());
+                levelBossTorpedoSound   = new AudioClip(getClass().getResource("levelBossTorpedo.wav").toExternalForm());
+                levelBossRocketSound    = new AudioClip(getClass().getResource("levelBossRocket.wav").toExternalForm());
+                levelBossBombSound      = new AudioClip(getClass().getResource("levelBossBomb.wav").toExternalForm());
+                levelBossExplosionSound = new AudioClip(getClass().getResource("explosionSound1.wav").toExternalForm());
+                shieldUpSound           = new AudioClip(getClass().getResource("shieldUp.wav").toExternalForm());
+                lifeUpSound             = new AudioClip(getClass().getResource("lifeUp.wav").toExternalForm());
+                levelUpSound            = new AudioClip(getClass().getResource("levelUp.wav").toExternalForm());
+
+                deflectorShieldRadius   = deflectorShieldImg.getRequestedWidth() * 0.5;
+                spaceShip               = new SpaceShip(spaceshipImg, spaceshipUpImg, spaceshipDownImg);
+                shipTouchArea.setCenterX(spaceShip.x);
+                shipTouchArea.setCenterY(spaceShip.y);
+                shipTouchArea.setRadius(deflectorShieldRadius);
+                shipTouchArea.setStroke(Color.TRANSPARENT);
+                shipTouchArea.setFill(Color.TRANSPARENT);
+
+                // Adjust audio clip volumes
+                explosionSound.setVolume(0.5);
+                torpedoHitSound.setVolume(0.5);
+
+                initAsteroids();
+
+                return true;
+            }
+        };
+        initTask.setOnSucceeded(e -> readyToStart = true);
+        initTask.setOnFailed(e -> readyToStart = false);
+        new Thread(initTask, "initThread").start();
     }
 
     private void initStars() {
@@ -1099,16 +1141,16 @@ public class SpaceFXView extends BorderPane {
             // Draw score
             ctx.setFill(SPACEFX_COLOR);
             ctx.setFont(scoreFont);
-            ctx.fillText(Long.toString(score), scorePosX, scorePosY);
+            ctx.fillText(Long.toString(score), scorePosX, scorePosY + mobileOffsetY);
 
             // Draw lifes
             for (int i = 0 ; i < noOfLifes ; i++) {
-                ctx.drawImage(miniSpaceshipImg, i * miniSpaceshipImg.getWidth() + 10, 20);
+                ctx.drawImage(miniSpaceshipImg, i * miniSpaceshipImg.getWidth() + 10, 20 + mobileOffsetY);
             }
 
             // Draw shields
             for (int i = 0 ; i < noOfShields ; i++) {
-                ctx.drawImage(miniDeflectorShieldImg, WIDTH - i * (miniDeflectorShieldImg.getWidth() + 5), 20);
+                ctx.drawImage(miniDeflectorShieldImg, WIDTH - i * (miniDeflectorShieldImg.getWidth() + 5), 20 + mobileOffsetY);
             }
         }
 
@@ -1282,7 +1324,7 @@ public class SpaceFXView extends BorderPane {
             ctx.clearRect(0, 0, WIDTH, HEIGHT);
             ctx.drawImage(gameOverImg, 0, 0, WIDTH, HEIGHT);
             ctx.setFill(SPACEFX_COLOR);
-            ctx.setFont(spaceBoy(60 * SCALING_FACTOR));
+            ctx.setFont(spaceBoy(SCORE_FONT_SIZE));
             ctx.fillText(Long.toString(score), scorePosX, HEIGHT * 0.25);
             playSound(gameoverSound);
         });
@@ -1352,21 +1394,19 @@ public class SpaceFXView extends BorderPane {
 
     // Create Hall of Fame entry
     private HBox createHallOfFameEntry(final Player player) {
-        Font hofFont  = spaceBoy(30 * SCALING_FACTOR);
-
         Label playerName  = new Label(player.name);
-        playerName.setFont(hofFont);
         playerName.setTextFill(SPACEFX_COLOR);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Label playerScore = new Label(Long.toString(player.score));
-        playerScore.setFont(hofFont);
         playerScore.setTextFill(SPACEFX_COLOR);
         playerScore.setAlignment(Pos.CENTER_RIGHT);
 
-        return new HBox(20, playerName, spacer, playerScore);
+        HBox entry = new HBox(20, playerName, spacer, playerScore);
+        entry.setPrefWidth(WIDTH);
+        return entry;
     }
 
 
@@ -1381,15 +1421,17 @@ public class SpaceFXView extends BorderPane {
     // Font definition
     private static Font spaceBoy(final double size) { return new Font(SPACE_BOY, size); }
 
+    // Iterate through levels
     private void nextLevel() {
-        if (LEVEL_3.equals(level)) {
-            level = LEVEL_1;
+        playSound(levelUpSound);
+        if (level3.equals(level)) {
+            level = level1;
             return;
-        } else if (LEVEL_2.equals(level)) {
-            level = LEVEL_3;
+        } else if (level2.equals(level)) {
+            level = level3;
             return;
-        } else if (LEVEL_1.equals(level)) {
-            level = LEVEL_2;
+        } else if (level1.equals(level)) {
+            level = level2;
             return;
         }
     }
@@ -1412,6 +1454,8 @@ public class SpaceFXView extends BorderPane {
         timer.start();
     }
 
+    public boolean isReadyToStart() { return readyToStart; }
+
     public boolean isRunning() { return running; }
 
     public void increaseSpaceShipVx() { spaceShip.vX = 5; }
@@ -1422,7 +1466,7 @@ public class SpaceFXView extends BorderPane {
     public void decreaseSpaceShipVy() { spaceShip.vY = -5; }
     public void stopSpaceShipVy() { spaceShip.vY = 0; }
 
-    public void spaceShipShield() {
+    public void activateSpaceShipShield() {
         if (noOfShields > 0 && !spaceShip.shield) {
             lastShieldActivated = System.currentTimeMillis();
             spaceShip.shield = true;
@@ -1430,14 +1474,14 @@ public class SpaceFXView extends BorderPane {
         }
     }
 
-    public void spaceShipRocket() {
+    public void fireSpaceShipRocket() {
         // Max 5 rockets at the same time
         if (rockets.size() < MAX_NO_OF_ROCKETS) {
             spawnRocket(spaceShip.x, spaceShip.y);
         }
     }
 
-    public void spaceShipTorpedo() {
+    public void fireSpaceShipTorpedo() {
         spawnTorpedo(spaceShip.x, spaceShip.y);
     }
 
@@ -1648,6 +1692,8 @@ public class SpaceFXView extends BorderPane {
             if (y - height * 0.5 < 0) {
                 y = height * 0.5;
             }
+            shipTouchArea.setCenterX(x);
+            shipTouchArea.setCenterY(y);
         }
     }
 
@@ -1914,6 +1960,8 @@ public class SpaceFXView extends BorderPane {
                     hasBeenHit = false;
                     spaceShip.x = WIDTH * 0.5;
                     spaceShip.y = HEIGHT - 2 * spaceShip.height;
+                    shipTouchArea.setCenterX(spaceShip.x);
+                    shipTouchArea.setCenterY(spaceShip.y);
                 }
             }
         }

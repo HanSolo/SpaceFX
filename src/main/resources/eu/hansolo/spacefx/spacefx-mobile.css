@@ -1,0 +1,35 @@
+@font-face {
+    src : url("spaceboy.ttf");
+}
+
+.label {
+    -fx-text-fill  : rgb(51, 210, 206);
+    -fx-font-family: "Spaceboy";
+    -fx-font-size  : 1.5em;
+    -fx-alignment  : center;
+}
+
+.text-input {
+    -fx-pref-width         : 120px;
+    -fx-text-fill          : rgb(51, 210, 206);
+    -fx-font-family        : "Spaceboy";
+    -fx-font-size          : 1.5em;
+    -fx-highlight-fill     : transparent;
+    -fx-highlight-text-fill: transparent;
+    -fx-prompt-text-fill   : transparent;
+    -fx-background-color   : transparent;
+    -fx-background-insets  : 0;
+    -fx-background-radius  : 0;
+    -fx-cursor             : text;
+    -fx-padding            : 0;
+    -fx-alignment          : center;
+}
+.text-input:focused {
+    -fx-font-family        : "Spaceboy";
+    -fx-highlight-fill     : transparent;
+    -fx-highlight-text-fill: rgb(51, 210, 206);
+    -fx-background-color   : transparent;
+    -fx-background-insets  : 0;
+    -fx-background-radius  : 0;
+    -fx-prompt-text-fill   : transparent;
+}
