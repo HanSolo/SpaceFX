@@ -18,12 +18,13 @@ package eu.hansolo.spacefx;
 
 import javafx.scene.image.Image;
 
+import static eu.hansolo.spacefx.Config.BKG_SCALING_FACTOR;
 import static eu.hansolo.spacefx.Config.SCALING_FACTOR;
 
 
 public class Level1 implements Level {
     public final Difficulty difficulty              = Difficulty.EASY;
-    public final Image      backgroundImg           = new Image(getClass().getResourceAsStream("backgroundL1.jpg"));
+    public final Image      backgroundImg           = new Image(getClass().getResourceAsStream("backgroundL1.jpg"), 700 * BKG_SCALING_FACTOR, 3379 * BKG_SCALING_FACTOR, true, false);
     public final Image[]    enemyImages             = { new Image(getClass().getResourceAsStream("enemy1L1.png"), 56 * SCALING_FACTOR, 56 * SCALING_FACTOR, true, false),
                                                         new Image(getClass().getResourceAsStream("enemy2L1.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false),
                                                         new Image(getClass().getResourceAsStream("enemy3L1.png"), 68 * SCALING_FACTOR, 68 * SCALING_FACTOR, true, false) };

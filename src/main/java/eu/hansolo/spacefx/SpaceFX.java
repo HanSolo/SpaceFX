@@ -19,19 +19,17 @@ package eu.hansolo.spacefx;
 import com.jpro.webapi.WebAPI;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+//import static com.gluonhq.attach.util.Platform.isDesktop;
 import static eu.hansolo.spacefx.Config.HEIGHT;
 import static eu.hansolo.spacefx.Config.WIDTH;
 
 
 public class SpaceFX extends Application {
     private static final boolean     IS_BROWSER = WebAPI.isBrowser();
-    private static final Rectangle2D BOUNDS     = Screen.getPrimary().getVisualBounds();
     private              SpaceFXView view;
 
     @Override public void init() {
@@ -39,37 +37,68 @@ public class SpaceFX extends Application {
     }
 
     @Override public void start(Stage stage) {
-        //Scene scene = new Scene(view, BOUNDS.getWidth(), BOUNDS.getHeight());
         Scene scene = new Scene(view, WIDTH, HEIGHT);
+        //scene.getStylesheets().add(SpaceFX.class.getResource(isDesktop() ? "spacefx.css" : "spacefx-mobile.css").toExternalForm());
         scene.getStylesheets().add(SpaceFX.class.getResource("spacefx.css").toExternalForm());
 
         // Setup key listener
-        scene.setOnKeyPressed(e -> {
-            if (view.isRunning()) {
-                switch(e.getCode()) {
-                    case UP   : view.decreaseSpaceShipVy(); break;
-                    case RIGHT: view.increaseSpaceShipVx(); break;
-                    case DOWN : view.increaseSpaceShipVy(); break;
-                    case LEFT : view.decreaseSpaceShipVx(); break;
-                    case S    : view.spaceShipShield(); break;
-                    case R    : view.spaceShipRocket(); break;
-                    case SPACE: view.spaceShipTorpedo(); break;
+        //if (isDesktop()) {
+            scene.setOnKeyPressed(e -> {
+                if (view.isRunning()) {
+                    switch (e.getCode()) {
+                        case UP:
+                            view.decreaseSpaceShipVy();
+                            break;
+                        case RIGHT:
+                            view.increaseSpaceShipVx();
+                            break;
+                        case DOWN:
+                            view.increaseSpaceShipVy();
+                            break;
+                        case LEFT:
+                            view.decreaseSpaceShipVx();
+                            break;
+                        case S:
+                            view.activateSpaceShipShield();
+                            break;
+                        case R:
+                            view.fireSpaceShipRocket();
+                            break;
+                        case SPACE:
+                            view.fireSpaceShipTorpedo();
+                            break;
+                    }
+                } else if (e.getCode() == KeyCode.P && view.isReadyToStart()) {
+                    view.startGame();
                 }
-            } else if (e.getCode() == KeyCode.P) {
-                view.startGame();
-            }
-        });
-        scene.setOnKeyReleased(e -> {
-            if (view.isRunning()) {
-                switch (e.getCode()) {
-                    case UP   : view.stopSpaceShipVy(); break;
-                    case RIGHT: view.stopSpaceShipVx(); break;
-                    case DOWN : view.stopSpaceShipVy(); break;
-                    case LEFT : view.stopSpaceShipVx(); break;
+            });
+            scene.setOnKeyReleased(e -> {
+                if (view.isRunning()) {
+                    switch (e.getCode()) {
+                        case UP:
+                            view.stopSpaceShipVy();
+                            break;
+                        case RIGHT:
+                            view.stopSpaceShipVx();
+                            break;
+                        case DOWN:
+                            view.stopSpaceShipVy();
+                            break;
+                        case LEFT:
+                            view.stopSpaceShipVx();
+                            break;
+                    }
                 }
-            }
-        });
+            });
+        //}  else {
+        //    scene.setOnMousePressed(e -> {
+        //        if (!view.isRunning() && view.isReadToStart()) {
+        //            view.startGame();
+        //        }
+        //    });
+        //}       
 
+        //stage.setMaximized(true);
         stage.setScene(scene);
         stage.show();
     }
