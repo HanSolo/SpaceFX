@@ -20,6 +20,8 @@ import javafx.scene.image.Image;
 
 import static eu.hansolo.spacefx.Config.BKG_SCALING_FACTOR;
 import static eu.hansolo.spacefx.Config.SCALING_FACTOR;
+import static com.gluonhq.attach.util.Platform.isDesktop;
+import static com.gluonhq.attach.util.Platform.isIOS;
 
 
 public class Level1 implements Level {
