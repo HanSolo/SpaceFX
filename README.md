@@ -12,11 +12,62 @@ Be aware that the "mobile" branch is using maven where the other branches use gr
 Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 
 ### Overview
-![Overview](https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX.png)
-
-### Youtube video
-I've recorded a little [video](https://youtu.be/IS71geUu9RE) that shows the game in action.
+![Overview](https://raw.githubusercontent.com/HanSolo/SpaceFX/mobile/SpaceFX_iOS.png)
 
 
-### Run SpaceFX on iOS (you OS X to compile it)
-To run SpaceFX on iOS you will need JDK to 11 and follow the instructions from [gluon](https://github.com/gluonhq/client-samples)
+### Run SpaceFX on iOS (you need OS X to compile it)
+To compile/run SpaceFX on an iOS device you will need JDK 11 and you should follow the instructions from [gluon](https://github.com/gluonhq/client-samples)
+
+Make sure that in the pom.xml file the right target is configured as follows:
+
+```
+<plugin>
+    <groupId>com.gluonhq</groupId>
+    <artifactId>client-maven-plugin</artifactId>
+    <version>${client.plugin.version}</version>
+    <configuration>
+        <target>ios</target>        
+        ...
+    </configuration>
+</plugin>
+```
+
+You need to have an Apple developer account and your device must be registered for development.
+Make sure that your device is connected to your computer.
+
+If your setup is correct you can build the iOS version by using the following commands on the console:
+```
+export JAVA_HOME=$GRAALVM_HOME
+
+mvn clean client:build
+
+mvn client:run
+```
+
+### Run SpaceFX on Android (you need Linux to compile it)
+To compile/run SpaceFX on an Android device you will need JDK 11 and you should follow the instructions from [gluon](https://github.com/gluonhq/client-samples)
+
+Make sure that in the pom.xml file the right target is configured as follows:
+
+```
+<plugin>
+    <groupId>com.gluonhq</groupId>
+    <artifactId>client-maven-plugin</artifactId>
+    <version>${client.plugin.version}</version>
+    <configuration>
+        <target>android</target>        
+        ...
+    </configuration>
+</plugin>
+```
+
+Your device must be enabled as a developer device.
+Make sure that your device is connected to your computer.
+
+If your setup is correct you can build the Android version by using the following commands on the console:
+`
+export JAVA_HOME=$GRAALVM_HOME
+
+mvn clean client:build
+
+mvn client:run
