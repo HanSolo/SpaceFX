@@ -64,9 +64,10 @@ Your device must be enabled as a developer device.
 Make sure that your device is connected to your computer.
 
 If your setup is correct you can build the Android version by using the following commands on the console:
-`
+```
 export JAVA_HOME=$GRAALVM_HOME
 
 mvn clean client:build
 
 mvn client:run
+```
