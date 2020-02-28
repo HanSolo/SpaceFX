@@ -46,6 +46,20 @@ mvn client:run
 ### Run SpaceFX on Android (you need Linux to compile it)
 To compile/run SpaceFX on an Android device you will need JDK 11 and you should follow the instructions from [gluon](https://github.com/gluonhq/client-samples)
 
+Make sure that in the pom.xlm file the snapshot releases will be used as follows:
+
+```
+<properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <javafx.version>13.0.1</javafx.version>        
+        <attach.version>4.0.6-SNAPSHOT</attach.version>
+        <client.plugin.version>0.1.17-SNAPSHOT</client.plugin.version>
+        <mainClassName>eu.hansolo.spacefx.SpaceFX</mainClassName>
+    </properties>
+```
+
 Make sure that in the pom.xml file the right target is configured as follows:
 
 ```
