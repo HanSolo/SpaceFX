@@ -12,8 +12,7 @@ Be aware that the "mobile" branch is using maven where the other branches use gr
 Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 
 ### Overview
-![Overview](https://raw.githubusercontent.com/HanSolo/SpaceFX/mobile/SpaceFX_iOS.png)
-
+![Overview](https://github.com/HanSolo/SpaceFX/blob/mobile/SpaceFX_iOS.PNG)
 
 ### Run SpaceFX on iOS (you need OS X to compile it)
 To compile/run SpaceFX on an iOS device you will need JDK 11 and you should follow the instructions from [gluon](https://github.com/gluonhq/client-samples)
