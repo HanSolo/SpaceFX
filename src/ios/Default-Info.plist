@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
         <key>CFBundleIdentifier</key>
-        <string>eu.hansolo.spacefxmobile.SpaceFX</string>
+        <string>eu.hansolo.spacefx.SpaceFX</string>
         <key>CFBundleVersion</key>
         <string>1.0</string>
         <key>CFBundleExecutable</key>
@@ -11,7 +11,7 @@
         <key>CFBundleIconName</key>
         <string>AppIcon</string>
         <key>CFBundleName</key>
-        <string>SpaceFXMobile</string>
+        <string>SpaceFX</string>
         <key>CFBundlePackageType</key>
         <string>APPL</string>
         <key>LSRequiresIPhoneOS</key>
