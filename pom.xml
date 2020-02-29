@@ -14,12 +14,8 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <javafx.version>13.0.1</javafx.version>
-        <attach.version>4.0.5</attach.version>
-        <client.plugin.version>0.1.16</client.plugin.version>
-        <!--
         <attach.version>4.0.6-SNAPSHOT</attach.version>
         <client.plugin.version>0.1.17-SNAPSHOT</client.plugin.version>
-        -->
         <mainClassName>eu.hansolo.spacefx.SpaceFX</mainClassName>
     </properties>
 
@@ -30,16 +26,6 @@
             <version>${javafx.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.gluonhq</groupId>
-            <artifactId>charm-glisten</artifactId>
-            <version>6.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.gluonhq.attach</groupId>
-            <artifactId>util</artifactId>
-            <version>${attach.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.gluonhq.attach</groupId>
             <artifactId>display</artifactId>
             <version>${attach.version}</version>
@@ -47,11 +33,6 @@
         <dependency>
             <groupId>com.gluonhq.attach</groupId>
             <artifactId>lifecycle</artifactId>
-            <version>${attach.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.gluonhq.attach</groupId>
-            <artifactId>statusbar</artifactId>
             <version>${attach.version}</version>
         </dependency>
         <dependency>
@@ -68,7 +49,7 @@
 
     <repositories>
         <repository>
-            <id>Gluon</id>
+            <id>gluon-releases</id>
             <url>https://nexus.gluonhq.com/nexus/content/repositories/releases</url>
         </repository>
         <repository>
@@ -76,6 +57,54 @@
             <url>https://nexus.gluonhq.com/nexus/content/repositories/public-snapshots</url>
         </repository>
     </repositories>
+
+    <profiles>
+        <profile>
+            <id>desktop</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <clientTarget>host</clientTarget>
+            </properties>
+            <dependencies>
+                <!-- Attach for javafx:run -->
+                <dependency>
+                    <groupId>com.gluonhq.attach</groupId>
+                    <artifactId>display</artifactId>
+                    <version>${attach.version}</version>
+                    <classifier>desktop</classifier>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.gluonhq.attach</groupId>
+                    <artifactId>lifecycle</artifactId>
+                    <version>${attach.version}</version>
+                    <classifier>desktop</classifier>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.gluonhq.attach</groupId>
+                    <artifactId>storage</artifactId>
+                    <version>${attach.version}</version>
+                    <classifier>desktop</classifier>
+                    <scope>runtime</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>ios</id>
+            <properties>
+                <clientTarget>ios</clientTarget>
+            </properties>
+        </profile>
+        <profile>
+            <id>android</id>
+            <properties>
+                <clientTarget>android</clientTarget>
+            </properties>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
@@ -102,18 +131,13 @@
                 <artifactId>client-maven-plugin</artifactId>
                 <version>${client.plugin.version}</version>
                 <configuration>
-                    <!-- Uncomment to run on iOS: -->
-					<target>ios</target>
-                    <!-- Uncomment to run on Android:                    
-                    <target>android</target>
-                    -->
+                    <target>${clientTarget}</target>
                     <attachList>
                         <list>display</list>
-                        <list>lifecycle</list>
-                        <list>statusbar</list>
+                        <list>lifetyme</list>
                         <list>storage</list>
                     </attachList>
-                    <verbose>true</verbose>
+<!--                    <verbose>true</verbose>-->
                     <mainClass>${mainClassName}</mainClass>
                 </configuration>
             </plugin>
@@ -133,3 +157,4 @@
     </pluginRepositories>
 
 </project>
+

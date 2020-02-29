@@ -17,62 +17,20 @@ Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 ### Run SpaceFX on iOS (you need OS X to compile it)
 To compile/run SpaceFX on an iOS device you will need JDK 11 and you should follow the instructions from [gluon](https://github.com/gluonhq/client-samples)
 
-Make sure that in the pom.xml file the right target is configured as follows:
-
-```
-<plugin>
-    <groupId>com.gluonhq</groupId>
-    <artifactId>client-maven-plugin</artifactId>
-    <version>${client.plugin.version}</version>
-    <configuration>
-        <target>ios</target>        
-        ...
-    </configuration>
-</plugin>
-```
-
-You need to have an Apple developer account and your device must be registered for development.
+Your device must be registered for development. See [iOS deployment instructions](https://docs.gluonhq.com/client/#_ios_deployment).
 Make sure that your device is connected to your computer.
 
 If your setup is correct you can build the iOS version by using the following commands on the console:
 ```
 export JAVA_HOME=$GRAALVM_HOME
 
-mvn clean client:build
+mvn clean -Pios client:build
 
-mvn client:run
+mvn -Pios client:run
 ```
 
 ### Run SpaceFX on Android (you need Linux to compile it)
 To compile/run SpaceFX on an Android device you will need JDK 11 and you should follow the instructions from [gluon](https://github.com/gluonhq/client-samples)
-
-Make sure that in the pom.xlm file the snapshot releases will be used as follows:
-
-```
-<properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <javafx.version>13.0.1</javafx.version>        
-        <attach.version>4.0.6-SNAPSHOT</attach.version>
-        <client.plugin.version>0.1.17-SNAPSHOT</client.plugin.version>
-        <mainClassName>eu.hansolo.spacefx.SpaceFX</mainClassName>
-    </properties>
-```
-
-Make sure that in the pom.xml file the right target is configured as follows:
-
-```
-<plugin>
-    <groupId>com.gluonhq</groupId>
-    <artifactId>client-maven-plugin</artifactId>
-    <version>${client.plugin.version}</version>
-    <configuration>
-        <target>android</target>        
-        ...
-    </configuration>
-</plugin>
-```
 
 Your device must be enabled as a developer device.
 Make sure that your device is connected to your computer.
@@ -81,7 +39,7 @@ If your setup is correct you can build the Android version by using the followin
 ```
 export JAVA_HOME=$GRAALVM_HOME
 
-mvn clean client:build
+mvn clean -Pandroid client:build
 
-mvn client:run
+mvn -Pandroid client:run
 ```
