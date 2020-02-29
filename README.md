@@ -14,6 +14,26 @@ Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 ### Overview
 ![Overview](https://github.com/HanSolo/SpaceFX/blob/mobile/SpaceFX_iOS.PNG)
 
+### Verify SpaceFX on desktop
+
+Before building SpaceFX for a mobile device, it is convenient to test it first on desktop.
+
+You can test with JDK 11 (hotspot):
+
+```
+mvn javafx:run
+```
+
+and you can build a native image and run on desktop:
+
+```
+export JAVA_HOME=$GRAALVM_HOME
+
+mvn clean client:build
+
+mvn client:run
+```
+
 ### Run SpaceFX on iOS (you need OS X to compile it)
 To compile/run SpaceFX on an iOS device you will need JDK 11 and you should follow the instructions from [gluon](https://github.com/gluonhq/client-samples)
 
