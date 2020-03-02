@@ -47,6 +47,7 @@ public class Config {
     public static final boolean     SHOW_ENEMIES                        = true;
     public static final boolean     SHOW_ASTEROIDS                      = true;
     public static final boolean     SHOW_BUTTONS                        = !isDesktop();
+    //public static final boolean     SHOW_BUTTONS                        = Platform.isSupported(ConditionalFeature.INPUT_MULTITOUCH);
     public static final int         NO_OF_STARS                         = SHOW_STARS ? (int) (SCALING_FACTOR * 200) : 0;
     public static final int         NO_OF_ASTEROIDS                     = SHOW_ASTEROIDS ? (int) (SCALING_FACTOR * 10) : 0;
     public static final int         LIFES                               = 5;

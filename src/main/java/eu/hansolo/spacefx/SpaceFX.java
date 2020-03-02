@@ -98,7 +98,7 @@ public class SpaceFX extends Application {
             });
         }
 
-        stage.setMaximized(true);
+        stage.setMaximized(!isDesktop());
         stage.setScene(scene);
         stage.show();
     }
