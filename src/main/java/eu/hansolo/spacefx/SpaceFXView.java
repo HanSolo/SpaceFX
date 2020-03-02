@@ -1319,7 +1319,6 @@ public class SpaceFXView extends StackPane {
                     } else {
                         waves.add(new Wave(WaveType.TYPE_10_SLOW, WaveType.TYPE_11_SLOW, spaceShip, 10, level.getEnemyImages()[RND.nextInt(level.getEnemyImages().length)], false, false));
                     }
-
                 } else if (levelKills >= NO_OF_KILLS_STAGE_2 && !levelBossActive) {
                     spawnLevelBoss(spaceShip);
                 } else if (!levelBossActive) {
