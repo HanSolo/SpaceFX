@@ -155,10 +155,6 @@ public class SpaceFXView extends StackPane {
     private              List<EnemyBoss>            enemyBossesToRemove;
     private              List<LevelBoss>            levelBosses;
     private              List<LevelBoss>            levelBossesToRemove;
-    private              List<ShieldUp>             shieldUps;
-    private              List<ShieldUp>             shieldUpsToRemove;
-    private              List<LifeUp>               lifeUps;
-    private              List<LifeUp>               lifeUpsToRemove;
     private              List<Bonus>                bonuses;
     private              List<Bonus>                bonusesToRemove;
     private              List<Torpedo>              torpedos;
@@ -369,10 +365,6 @@ public class SpaceFXView extends StackPane {
         enemyBossesToRemove           = new ArrayList<>();
         levelBosses                   = new ArrayList<>();
         levelBossesToRemove           = new ArrayList<>();
-        shieldUps                     = new ArrayList<>();
-        shieldUpsToRemove             = new ArrayList<>();
-        lifeUps                       = new ArrayList<>();
-        lifeUpsToRemove               = new ArrayList<>();
         bonuses                       = new ArrayList<>();
         bonusesToRemove               = new ArrayList<>();
         rockets                       = new ArrayList<>();
@@ -629,8 +621,6 @@ public class SpaceFXView extends StackPane {
         asteroidExplosionsToRemove.clear();
         rocketExplosionsToRemove.clear();
         upExplosionsToRemove.clear();
-        shieldUpsToRemove.clear();
-        lifeUpsToRemove.clear();
         bonusesToRemove.clear();
         wavesToRemove.clear();
         enemyHitsToRemove.clear();
@@ -992,58 +982,6 @@ public class SpaceFXView extends StackPane {
         }
         levelBosses.removeAll(levelBossesToRemove);
 
-        // Draw ShieldUps
-        for (ShieldUp shieldUp : shieldUps) {
-            shieldUp.update();
-            ctx.save();
-            ctx.translate(shieldUp.cX, shieldUp.cY);
-            ctx.rotate(shieldUp.rot);
-            ctx.translate(-shieldUp.imgCenterX, -shieldUp.imgCenterY);
-            ctx.drawImage(shieldUp.image, 0, 0);
-            ctx.restore();
-
-            // Check for space ship contact
-            boolean hit;
-            if (spaceShip.shield) {
-                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, shieldUp.cX, shieldUp.cY, shieldUp.radius);
-            } else {
-                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, shieldUp.cX, shieldUp.cY, shieldUp.radius);
-            }
-            if (hit) {
-                if (noOfShields <= SHIELDS - 1) { noOfShields++; }
-                upExplosions.add(new UpExplosion(shieldUp.cX - UP_EXPLOSION_FRAME_CENTER, shieldUp.cY - UP_EXPLOSION_FRAME_CENTER, shieldUp.vX, shieldUp.vY, 1.0));
-                playSound(shieldUpSound);
-                shieldUpsToRemove.add(shieldUp);
-            }
-        }
-        shieldUps.removeAll(shieldUpsToRemove);
-
-        // Draw LifeUps
-        for (LifeUp lifeUp : lifeUps) {
-            lifeUp.update();
-            ctx.save();
-            ctx.translate(lifeUp.cX, lifeUp.cY);
-            ctx.rotate(lifeUp.rot);
-            ctx.translate(-lifeUp.imgCenterX, -lifeUp.imgCenterY);
-            ctx.drawImage(lifeUp.image, 0, 0);
-            ctx.restore();
-
-            // Check for space ship contact
-            boolean hit;
-            if (spaceShip.shield) {
-                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, lifeUp.cX, lifeUp.cY, lifeUp.radius);
-            } else {
-                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, lifeUp.cX, lifeUp.cY, lifeUp.radius);
-            }
-            if (hit) {
-                if (noOfLifes <= LIFES - 1) { noOfLifes++; }
-                upExplosions.add(new UpExplosion(lifeUp.cX - UP_EXPLOSION_FRAME_CENTER, lifeUp.cY - UP_EXPLOSION_FRAME_CENTER, lifeUp.vX, lifeUp.vY, 1.0));
-                playSound(lifeUpSound);
-                lifeUpsToRemove.add(lifeUp);
-            }
-        }
-        lifeUps.removeAll(lifeUpsToRemove);
-
         // Draw Bonuses
         for (Bonus bonus : bonuses) {
             bonus.update();
@@ -1062,7 +1000,11 @@ public class SpaceFXView extends StackPane {
                 hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, bonus.cX, bonus.cY, bonus.radius);
             }
             if (hit) {
-                if (bonus instanceof BigTorpedoBonus) {
+                if (bonus instanceof LifeUp) {
+                    if (noOfLifes <= LIFES - 1) { noOfLifes++; }
+                } else if (bonus instanceof ShieldUp) {
+                    if (noOfShields <= SHIELDS - 1) { noOfShields++; }
+                } else if (bonus instanceof BigTorpedoBonus) {
                     bigTorpedosEnabled = true;
                 } else if (bonus instanceof StarburstBonus) {
                     starburstEnabled = true;
@@ -1376,11 +1318,11 @@ public class SpaceFXView extends StackPane {
     }
 
     private void spawnShieldUp() {
-        shieldUps.add(new ShieldUp(shieldUpImg));
+        bonuses.add(new ShieldUp(shieldUpImg));
     }
 
     private void spawnLifeUp() {
-        lifeUps.add(new LifeUp(lifeUpImg));
+        bonuses.add(new LifeUp(lifeUpImg));
     }
 
     private void spawnBigTorpedoBonus() {
@@ -1550,6 +1492,7 @@ public class SpaceFXView extends StackPane {
         gameOverScreen = false;
         explosions.clear();
         torpedos.clear();
+        bigTorpedos.clear();
         enemyTorpedos.clear();
         enemyBombs.clear();
         enemyBossTorpedos.clear();
@@ -1559,8 +1502,7 @@ public class SpaceFXView extends StackPane {
         levelBossTorpedos.clear();
         levelBossRockets.clear();
         levelBossBombs.clear();
-        shieldUps.clear();
-        lifeUps.clear();
+        bonuses.clear();
         waves.clear();
         initAsteroids();
         spaceShip.init();
@@ -2329,29 +2271,33 @@ public class SpaceFXView extends StackPane {
         }
     }
 
-    private class ShieldUp {
-        private final Random  rnd          = new Random();
-        private final double  xVariation   = 2;
-        private final double  minSpeedY    = 2;
-        private final double  minRotationR = 0.1;
-        private       Image   image;
-        private       double  x;
-        private       double  y;
-        private       double  width;
-        private       double  height;
-        private       double  size;
-        private       double  imgCenterX;
-        private       double  imgCenterY;
-        private       double  radius;
-        private       double  cX;
-        private       double  cY;
-        private       double  rot;
-        private       double  vX;
-        private       double  vY;
-        private       double  vR;
-        private       boolean rotateRight;
-        private       double  vYVariation;
+    private abstract class Bonus {
+        protected final Random  rnd          = new Random();
+        protected final double  xVariation   = 2;
+        protected final double  minSpeedY    = 2;
+        protected final double  minRotationR = 0.1;
+        protected       Image   image;
+        protected       double  x;
+        protected       double  y;
+        protected       double  width;
+        protected       double  height;
+        protected       double  size;
+        protected       double  imgCenterX;
+        protected       double  imgCenterY;
+        protected       double  radius;
+        protected       double  cX;
+        protected       double  cY;
+        protected       double  rot;
+        protected       double  vX;
+        protected       double  vY;
+        protected       double  vR;
+        protected       boolean rotateRight;
+        protected       double  vYVariation;
 
+        protected abstract void update();
+    }
+
+    private class ShieldUp extends Bonus {
 
         public ShieldUp(final Image image) {
             // Image
@@ -2389,7 +2335,7 @@ public class SpaceFXView extends StackPane {
             rotateRight = rnd.nextBoolean();
         }
 
-        private void update() {
+        @Override protected void update() {
             x += vX;
             y += vY;
 
@@ -2406,34 +2352,12 @@ public class SpaceFXView extends StackPane {
 
             // Remove shieldUp
             if (x < -size || x - radius > WIDTH || y - height > HEIGHT) {
-                shieldUpsToRemove.add(ShieldUp.this);
+                bonusesToRemove.add(ShieldUp.this);
             }
         }
     }
 
-    private class LifeUp {
-        private final Random  rnd          = new Random();
-        private final double  xVariation   = 2;
-        private final double  minSpeedY    = 2;
-        private final double  minRotationR = 0.1;
-        private       Image   image;
-        private       double  x;
-        private       double  y;
-        private       double  width;
-        private       double  height;
-        private       double  size;
-        private       double  imgCenterX;
-        private       double  imgCenterY;
-        private       double  radius;
-        private       double  cX;
-        private       double  cY;
-        private       double  rot;
-        private       double  vX;
-        private       double  vY;
-        private       double  vR;
-        private       boolean rotateRight;
-        private       double  vYVariation;
-
+    private class LifeUp extends Bonus {
 
         public LifeUp(final Image image) {
             // Image
@@ -2471,7 +2395,7 @@ public class SpaceFXView extends StackPane {
             rotateRight = rnd.nextBoolean();
         }
 
-        private void update() {
+        @Override protected void update() {
             x += vX;
             y += vY;
 
@@ -2488,35 +2412,9 @@ public class SpaceFXView extends StackPane {
 
             // Remove lifeUp
             if (x < -size || x - radius > WIDTH || y - height > HEIGHT) {
-                lifeUpsToRemove.add(LifeUp.this);
+                bonusesToRemove.add(LifeUp.this);
             }
         }
-    }
-
-    private abstract class Bonus {
-        protected final Random  rnd          = new Random();
-        protected final double  xVariation   = 2;
-        protected final double  minSpeedY    = 2;
-        protected final double  minRotationR = 0.1;
-        protected       Image   image;
-        protected       double  x;
-        protected       double  y;
-        protected       double  width;
-        protected       double  height;
-        protected       double  size;
-        protected       double  imgCenterX;
-        protected       double  imgCenterY;
-        protected       double  radius;
-        protected       double  cX;
-        protected       double  cY;
-        protected       double  rot;
-        protected       double  vX;
-        protected       double  vY;
-        protected       double  vR;
-        protected       boolean rotateRight;
-        protected       double  vYVariation;
-
-        protected abstract void update();
     }
 
     private class BigTorpedoBonus extends Bonus {

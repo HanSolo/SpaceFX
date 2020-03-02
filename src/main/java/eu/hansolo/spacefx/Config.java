@@ -53,8 +53,8 @@ public class Config {
     public static final int         LIFES                               = 5;
     public static final int         SHIELDS                             = 10;
     public static final long        DEFLECTOR_SHIELD_TIME               = 5_000_000_000l;
-    public static final long        BIG_TORPEDO_TIME                    = 10_000_000_000l;
-    public static final long        STARBURST_TIME                      = 15_000_000_000l;
+    public static final long        BIG_TORPEDO_TIME                    = 40_000_000_000l;
+    public static final long        STARBURST_TIME                      = 40_000_000_000l;
     public static final int         MAX_NO_OF_ROCKETS                   = 3;
     public static final double      TORPEDO_SPEED                       = 6 * VELOCITY_FACTOR_Y;
     public static final double      BIG_TORPEDO_SPEED                   = 3 * VELOCITY_FACTOR_Y;
@@ -80,8 +80,8 @@ public class Config {
     public static final long        MIN_TORPEDO_INTERVAL                = 50_000_000l;
     public static final long        MIN_BIG_TORPEDO_INTERVAL            = 50_000_000l;
     public static final long        MIN_STARBURST_INTERVAL              = 300_000_000l;
-    public static final long        BIG_TORPEDO_BONUS_INTERVAL          = 65_000_000_000l;
-    public static final long        STARBURST_BONUS_INTERVAL            = 120_000_000_000l;
+    public static final long        BIG_TORPEDO_BONUS_INTERVAL          = 60_000_000_000l;
+    public static final long        STARBURST_BONUS_INTERVAL            = 100_000_000_000l;
     public static final int         NO_OF_KILLS_STAGE_1                 = 50;
     public static final int         NO_OF_KILLS_STAGE_2                 = 100;
     public static final double      FIRST_QUARTER_WIDTH                 = WIDTH * 0.25;
