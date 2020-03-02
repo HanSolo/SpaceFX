@@ -55,6 +55,7 @@ public class Config {
     public static final int         DEFLECTOR_SHIELD_TIME               = 5000;
     public static final int         MAX_NO_OF_ROCKETS                   = 3;
     public static final double      TORPEDO_SPEED                       = 6 * VELOCITY_FACTOR_Y;
+    public static final double      BIG_TORPEDO_SPEED                   = 3 * VELOCITY_FACTOR_Y;
     public static final double      ROCKET_SPEED                        = 4 * VELOCITY_FACTOR_Y;
     public static final double      ENEMY_TORPEDO_SPEED                 = 5 * VELOCITY_FACTOR_Y;
     public static final double      ENEMY_BOMB_SPEED                    = 3 * VELOCITY_FACTOR_Y;
@@ -65,11 +66,19 @@ public class Config {
     public static final double      LEVEL_BOSS_SPEED                    = 1 * VELOCITY_FACTOR_Y;
     public static final double      LEVEL_BOSS_TORPEDO_SPEED            = 6 * VELOCITY_FACTOR_Y;
     public static final double      LEVEL_BOSS_BOMB_SPEED               = 4 * VELOCITY_FACTOR_Y;
+    public static final int         TORPEDO_DAMAGE                      = 1;
+    public static final int         BIG_TORPEDO_DAMAGE                  = 3;
+    public static final int         ROCKET_DAMAGE                       = 3;
+    public static final int         SHIELD_DAMAGE                       = 5;
+    public static final long        STAR_BURST_TIME_TO_SHOOT            = 3_000_000_000l;
     public static final long        ENEMY_BOSS_ATTACK_INTERVAL          = 25_000_000_000l;
     public static final long        SHIELD_UP_SPAWN_INTERVAL            = 25_000_000_000l;
     public static final long        LIFE_UP_SPAWN_INTERVAL              = 55_000_000_000l;
     public static final long        WAVE_SPAWN_INTERVAL                 = 10_000_000_000l;
     public static final long        BOMB_DROP_INTERVAL                  = 1_000_000_000l;
+    public static final long        MIN_TORPEDO_INTERVAL                = 50_000_000l;
+    public static final long        MIN_BIG_TORPEDO_INTERVAL            = 50_000_000l;
+    public static final long        MIN_STARBURST_INTERVAL              = 300_000_000l;
     public static final int         NO_OF_KILLS_STAGE_1                 = 50;
     public static final int         NO_OF_KILLS_STAGE_2                 = 100;
     public static final double      FIRST_QUARTER_WIDTH                 = WIDTH * 0.25;

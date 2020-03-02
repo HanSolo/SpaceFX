@@ -103,6 +103,7 @@ public class SpaceFXView extends StackPane {
     private              Image                      deflectorShieldImg;
     private              Image                      miniDeflectorShieldImg;
     private              Image                      torpedoImg;
+    private              Image                      bigTorpedoImg;
     private              Image                      asteroidExplosionImg;
     private              Image                      spaceShipExplosionImg;
     private              Image                      hitImg;
@@ -158,6 +159,8 @@ public class SpaceFXView extends StackPane {
     private              List<LifeUp>               lifeUpsToRemove;
     private              List<Torpedo>              torpedos;
     private              List<Torpedo>              torpedosToRemove;
+    private              List<BigTorpedo>           bigTorpedos;
+    private              List<BigTorpedo>           bigTorpedosToRemove;
     private              List<Rocket>               rockets;
     private              List<Rocket>               rocketsToRemove;
     private              List<EnemyTorpedo>         enemyTorpedos;
@@ -207,6 +210,8 @@ public class SpaceFXView extends StackPane {
     private              long                       lastLifeUp;
     private              long                       lastWave;
     private              long                       lastBombDropped;
+    private              long                       lastTorpedoFired;
+    private              long                       lastStarBlast;
     private              long                       lastTimerCall;
     private              AnimationTimer             timer;
     private              AnimationTimer             screenTimer;
@@ -364,6 +369,8 @@ public class SpaceFXView extends StackPane {
         rocketsToRemove               = new ArrayList<>();
         torpedos                      = new ArrayList<>();
         torpedosToRemove              = new ArrayList<>();
+        bigTorpedos                   = new ArrayList<>();
+        bigTorpedosToRemove           = new ArrayList<>();
         enemyRocketExplosions         = new ArrayList<>();
         enemyRocketExplosionsToRemove = new ArrayList<>();
         explosions                    = new ArrayList<>();
@@ -407,6 +414,8 @@ public class SpaceFXView extends StackPane {
         lastShieldUp                  = System.nanoTime();
         lastLifeUp                    = System.nanoTime();
         lastWave                      = System.nanoTime();
+        lastTorpedoFired              = System.nanoTime();
+        lastStarBlast                 = System.nanoTime();
         //long deltaTime                = FPS_60;
         long deltaTime                = IS_BROWSER ? FPS_30 : FPS_60;
         timer = new AnimationTimer() {
@@ -517,6 +526,7 @@ public class SpaceFXView extends StackPane {
                 deflectorShieldImg      = new Image(getClass().getResourceAsStream("deflectorshield.png"), 100 * SCALING_FACTOR, 100 * SCALING_FACTOR, true, false);
                 miniDeflectorShieldImg  = new Image(getClass().getResourceAsStream("deflectorshield.png"), 16 * SCALING_FACTOR, 16 * SCALING_FACTOR, true, false);
                 torpedoImg              = new Image(getClass().getResourceAsStream("torpedo.png"), 17 * SCALING_FACTOR, 20 * SCALING_FACTOR, true, false);
+                bigTorpedoImg           = new Image(getClass().getResourceAsStream("bigtorpedo.png"), 22 * SCALING_FACTOR, 40 * SCALING_FACTOR, true, false);
                 asteroidExplosionImg    = new Image(getClass().getResourceAsStream("asteroidExplosion.png"), 2048 * SCALING_FACTOR, 1792 * SCALING_FACTOR, true, false);
                 spaceShipExplosionImg   = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800 * SCALING_FACTOR, 600 * SCALING_FACTOR, true, false);
                 hitImg                  = new Image(getClass().getResourceAsStream("torpedoHit2.png"), 400 * SCALING_FACTOR, 160 * SCALING_FACTOR, true, false);
@@ -588,6 +598,7 @@ public class SpaceFXView extends StackPane {
     // Update and draw
     private void updateAndDraw() {
         torpedosToRemove.clear();
+        bigTorpedosToRemove.clear();
         rocketsToRemove.clear();
         explosionsToRemove.clear();
         hitsToRemove.clear();
@@ -648,7 +659,7 @@ public class SpaceFXView extends StackPane {
             for (Torpedo torpedo : torpedos) {
                 if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
                     asteroid.hits--;
-                    if (asteroid.hits == 0) {
+                    if (asteroid.hits <= 0) {
                         asteroidExplosions.add(new AsteroidExplosion(asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
                         score += asteroid.value;
                         asteroid.respawn();
@@ -657,6 +668,24 @@ public class SpaceFXView extends StackPane {
                     } else {
                         hits.add(new Hit(torpedo.x - HIT_FRAME_CENTER, torpedo.y - HIT_FRAME_HEIGHT, asteroid.vX, asteroid.vY));
                         torpedosToRemove.add(torpedo);
+                        playSound(torpedoHitSound);
+                    }
+                }
+            }
+
+            // Check for bigTorpedo hits
+            for (BigTorpedo bigTorpedo : bigTorpedos) {
+                if (isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
+                    asteroid.hits--;
+                    if (asteroid.hits <= 0) {
+                        asteroidExplosions.add(new AsteroidExplosion(asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
+                        score += asteroid.value;
+                        asteroid.respawn();
+                        bigTorpedosToRemove.add(bigTorpedo);
+                        playSound(asteroidExplosionSound);
+                    } else {
+                        hits.add(new Hit(bigTorpedo.x - HIT_FRAME_CENTER, bigTorpedo.y - HIT_FRAME_HEIGHT, asteroid.vX, asteroid.vY));
+                        bigTorpedosToRemove.add(bigTorpedo);
                         playSound(torpedoHitSound);
                     }
                 }
@@ -728,7 +757,7 @@ public class SpaceFXView extends StackPane {
             // Check for torpedo hits with enemy boss
             for (Torpedo torpedo : torpedos) {
                 if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, enemyBoss.x, enemyBoss.y, enemyBoss.radius)) {
-                    enemyBoss.hits--;
+                    enemyBoss.hits -= TORPEDO_DAMAGE;
                     if (enemyBoss.hits == 0) {
                         enemyBossExplosions.add(
                             new EnemyBossExplosion(enemyBoss.x - ENEMY_BOSS_EXPLOSION_FRAME_WIDTH * 0.25, enemyBoss.y - ENEMY_BOSS_EXPLOSION_FRAME_HEIGHT * 0.25, enemyBoss.vX,
@@ -742,6 +771,28 @@ public class SpaceFXView extends StackPane {
                     } else {
                         enemyHits.add(new EnemyHit(torpedo.x - HIT_FRAME_CENTER, torpedo.y - HIT_FRAME_HEIGHT, enemyBoss.vX, enemyBoss.vY));
                         torpedosToRemove.add(torpedo);
+                        playSound(enemyHitSound);
+                    }
+                }
+            }
+
+            // Check for torpedo hits with enemy boss
+            for (BigTorpedo bigTorpedo : bigTorpedos) {
+                if (isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, enemyBoss.x, enemyBoss.y, enemyBoss.radius)) {
+                    enemyBoss.hits -= BIG_TORPEDO_DAMAGE;
+                    if (enemyBoss.hits <= 0) {
+                        enemyBossExplosions.add(
+                            new EnemyBossExplosion(enemyBoss.x - ENEMY_BOSS_EXPLOSION_FRAME_WIDTH * 0.25, enemyBoss.y - ENEMY_BOSS_EXPLOSION_FRAME_HEIGHT * 0.25, enemyBoss.vX,
+                                                   enemyBoss.vY, 0.5));
+                        score += enemyBoss.value;
+                        kills++;
+                        levelKills++;
+                        enemyBossesToRemove.add(enemyBoss);
+                        bigTorpedosToRemove.add(bigTorpedo);
+                        playSound(enemyBossExplosionSound);
+                    } else {
+                        enemyHits.add(new EnemyHit(bigTorpedo.x - HIT_FRAME_CENTER, bigTorpedo.y - HIT_FRAME_HEIGHT, enemyBoss.vX, enemyBoss.vY));
+                        bigTorpedosToRemove.add(bigTorpedo);
                         playSound(enemyHitSound);
                     }
                 }
@@ -808,8 +859,8 @@ public class SpaceFXView extends StackPane {
             // Check for torpedo hits with enemy boss
             for (Torpedo torpedo : torpedos) {
                 if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, levelBoss.x, levelBoss.y, levelBoss.radius)) {
-                    levelBoss.hits--;
-                    if (levelBoss.hits == 0) {
+                    levelBoss.hits -= TORPEDO_DAMAGE;
+                    if (levelBoss.hits <= 0) {
                         levelBossExplosions.add(new LevelBossExplosion(levelBoss.x - LEVEL_BOSS_EXPLOSION_FRAME_WIDTH * 0.25, levelBoss.y - LEVEL_BOSS_EXPLOSION_FRAME_HEIGHT * 0.25, levelBoss.vX, levelBoss.vY, 1.0));
                         score += levelBoss.value;
                         kills++;
@@ -827,10 +878,32 @@ public class SpaceFXView extends StackPane {
                 }
             }
 
+            // Check for bigTorpedo hits with enemy boss
+            for (BigTorpedo bigTorpedo : bigTorpedos) {
+                if (isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, levelBoss.x, levelBoss.y, levelBoss.radius)) {
+                    levelBoss.hits -= BIG_TORPEDO_DAMAGE;
+                    if (levelBoss.hits <= 0) {
+                        levelBossExplosions.add(new LevelBossExplosion(levelBoss.x - LEVEL_BOSS_EXPLOSION_FRAME_WIDTH * 0.25, levelBoss.y - LEVEL_BOSS_EXPLOSION_FRAME_HEIGHT * 0.25, levelBoss.vX, levelBoss.vY, 1.0));
+                        score += levelBoss.value;
+                        kills++;
+                        levelBossesToRemove.add(levelBoss);
+                        levelBossActive = false;
+                        levelKills = 0;
+                        nextLevel();
+                        bigTorpedosToRemove.add(bigTorpedo);
+                        playSound(levelBossExplosionSound);
+                    } else {
+                        enemyHits.add(new EnemyHit(bigTorpedo.x - HIT_FRAME_CENTER, bigTorpedo.y - HIT_FRAME_HEIGHT, levelBoss.vX, levelBoss.vY));
+                        bigTorpedosToRemove.add(bigTorpedo);
+                        playSound(enemyHitSound);
+                    }
+                }
+            }
+
             // Check for rocket hits with level boss
             for (Rocket rocket : rockets) {
                 if (isHitCircleCircle(rocket.x, rocket.y, rocket.radius, levelBoss.x, levelBoss.y, levelBoss.radius)) {
-                    levelBoss.hits -= 3;
+                    levelBoss.hits -= ROCKET_DAMAGE;
                     if (levelBoss.hits <= 0) {
                         levelBossExplosions.add(new LevelBossExplosion(levelBoss.x - LEVEL_BOSS_EXPLOSION_FRAME_WIDTH * 0.25, levelBoss.y - LEVEL_BOSS_EXPLOSION_FRAME_HEIGHT * 0.25, levelBoss.vX, levelBoss.vY, 1.0));
                         score += levelBoss.value;
@@ -860,8 +933,19 @@ public class SpaceFXView extends StackPane {
                 }
                 if (hit) {
                     if (spaceShip.shield) {
-                        explosions.add(new Explosion(levelBoss.x - EXPLOSION_FRAME_WIDTH * 0.125, levelBoss.y - EXPLOSION_FRAME_HEIGHT* 0.125, levelBoss.vX, levelBoss.vY, 0.5));
-                        playSound(spaceShipExplosionSound);
+                        lastShieldActivated = 0;
+                        levelBoss.hits -= SHIELD_DAMAGE;
+                        if (levelBoss.hits <= 0) {
+                            levelBossExplosions.add(new LevelBossExplosion(levelBoss.x - LEVEL_BOSS_EXPLOSION_FRAME_WIDTH * 0.25, levelBoss.y - LEVEL_BOSS_EXPLOSION_FRAME_HEIGHT * 0.25, levelBoss.vX, levelBoss.vY, 1.0));
+                            score += levelBoss.value;
+                            kills++;
+                            levelKills++;
+                            levelBossesToRemove.add(levelBoss);
+                            levelBossActive = false;
+                            levelKills = 0;
+                            nextLevel();
+                            playSound(levelBossExplosionSound);
+                        }
                     } else {
                         spaceShipExplosion.countX = 0;
                         spaceShipExplosion.countY = 0;
@@ -941,6 +1025,21 @@ public class SpaceFXView extends StackPane {
             ctx.drawImage(torpedo.image, torpedo.x - torpedo.radius, torpedo.y - torpedo.radius);
         }
         torpedos.removeAll(torpedosToRemove);
+
+        // Draw BigTorpedos
+        for (BigTorpedo bigTorpedo : bigTorpedos) {
+            bigTorpedo.update();
+            ctx.save();
+            ctx.translate(bigTorpedo.x - bigTorpedo.width / 2, bigTorpedo.y - bigTorpedo.height / 2);
+            ctx.save();
+            ctx.translate(bigTorpedo.width / 2, bigTorpedo.height / 2);
+            ctx.rotate(bigTorpedo.r - 45);
+            ctx.translate(-bigTorpedo.width / 2, -bigTorpedo.height / 2);
+            ctx.drawImage(bigTorpedo.image, 0, 0);
+            ctx.restore();
+            ctx.restore();
+        }
+        bigTorpedos.removeAll(bigTorpedosToRemove);
 
         // Draw Rockets
         for (Rocket rocket : rockets) {
@@ -1169,6 +1268,11 @@ public class SpaceFXView extends StackPane {
         playSound(laserSound);
     }
 
+    private void spawnBigTorpedo(final double x, final double y) {
+        bigTorpedos.add(new BigTorpedo(bigTorpedoImg, x, y, 0, -BIG_TORPEDO_SPEED * 2.333333, 45));
+        playSound(laserSound);
+    }
+
     private void spawnRocket(final double x, final double y) {
         rockets.add(new Rocket(rocketImg, x, y));
         playSound(rocketLaunchSound);
@@ -1272,8 +1376,8 @@ public class SpaceFXView extends StackPane {
     }
 
     private void spawnEnemyBossTorpedo(final double x, final double y, final double vX, final double vY) {
-        double vFactor = ENEMY_BOSS_TORPEDO_SPEED / Math.abs(vY); // make sure the speed is always the defined one
-        enemyBossTorpedos.add(new EnemyBossTorpedo(level.getEnemyBossTorpedoImg(), x, y, vFactor * vX, vFactor * vY));
+        double factor = ENEMY_BOSS_TORPEDO_SPEED / Math.abs(vY); // make sure the speed is always the defined one
+        enemyBossTorpedos.add(new EnemyBossTorpedo(level.getEnemyBossTorpedoImg(), x, y, factor * vX, factor * vY));
         playSound(enemyLaserSound);
     }
 
@@ -1283,8 +1387,8 @@ public class SpaceFXView extends StackPane {
     }
 
     private void spawnLevelBossTorpedo(final double x, final double y, final double vX, final double vY, final double r) {
-        double vFactor = LEVEL_BOSS_TORPEDO_SPEED / Math.abs(vY); // make sure the speed is always the defined one
-        levelBossTorpedos.add(new LevelBossTorpedo(level.getLevelBossTorpedoImg(), x, y, vFactor * vX, vFactor * vY, r));
+        double factor = LEVEL_BOSS_TORPEDO_SPEED / Math.abs(vY); // make sure the speed is always the defined one
+        levelBossTorpedos.add(new LevelBossTorpedo(level.getLevelBossTorpedoImg(), x, y, factor * vX, factor * vY, r));
         playSound(levelBossTorpedoSound);
     }
 
@@ -1482,7 +1586,34 @@ public class SpaceFXView extends StackPane {
     }
 
     public void fireSpaceShipTorpedo() {
+        if (System.nanoTime() - lastTorpedoFired < MIN_TORPEDO_INTERVAL) { return; }
         spawnTorpedo(spaceShip.x, spaceShip.y);
+        lastTorpedoFired = System.nanoTime();
+    }
+
+    public void fireSpaceShipBigTorpedo() {
+        if (System.nanoTime() - lastTorpedoFired < MIN_BIG_TORPEDO_INTERVAL) { return; }
+        spawnBigTorpedo(spaceShip.x, spaceShip.y);
+        lastTorpedoFired = System.nanoTime();
+    }
+
+    public void fireStarBlast() {
+        if (System.nanoTime() - lastStarBlast < MIN_STARBURST_INTERVAL) { return; }
+        double offset    = Math.toRadians(-135);
+        double angleStep = Math.toRadians(22.5);
+        double angle     = 0;
+        double x         = spaceShip.x;
+        double y         = spaceShip.y;
+        double vX;
+        double vY;
+        for (int i = 0 ; i < 5 ; i++) {
+            vX = BIG_TORPEDO_SPEED * Math.cos(offset + angle);
+            vY = BIG_TORPEDO_SPEED * Math.sin(offset + angle);
+            bigTorpedos.add(new BigTorpedo(bigTorpedoImg, x, y, vX * BIG_TORPEDO_SPEED, vY * BIG_TORPEDO_SPEED, Math.toDegrees(angle)));
+            angle += angleStep;
+        }
+        lastStarBlast = System.nanoTime();
+        playSound(laserSound);
     }
 
 
@@ -1726,6 +1857,42 @@ public class SpaceFXView extends StackPane {
             y -= vY;
             if (y < -size) {
                 torpedosToRemove.add(Torpedo.this);
+            }
+        }
+    }
+
+    private class BigTorpedo {
+        private final Image  image;
+        private       double x;
+        private       double y;
+        private       double r;
+        private       double width;
+        private       double height;
+        private       double size;
+        private       double radius;
+        private       double vX;
+        private       double vY;
+
+
+        public BigTorpedo(final Image image, final double x, final double y, final double vX, final double vY, final double r) {
+            this.image  = image;
+            this.x      = x;
+            this.y      = y;
+            this.r      = r;
+            this.width  = image.getWidth();
+            this.height = image.getHeight();
+            this.size   = width > height ? width : height;
+            this.radius = size * 0.5;
+            this.vX     = vX;
+            this.vY     = vY;
+        }
+
+
+        private void update() {
+            x += vX;
+            y += vY;
+            if (x < -width || x > WIDTH + width || y < -height || y > HEIGHT + height) {
+                bigTorpedosToRemove.add(BigTorpedo.this);
             }
         }
     }
@@ -3242,6 +3409,19 @@ public class SpaceFXView extends StackPane {
                             levelKills++;
                             enemiesToRemove.add(enemy);
                             torpedosToRemove.add(torpedo);
+                            playSound(spaceShipExplosionSound);
+                        }
+                    }
+
+                    // Check for bigTorpedo hits
+                    for (BigTorpedo bigTorpedo : bigTorpedos) {
+                        if (isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, enemy.x, enemy.y, enemy.radius)) {
+                            explosions.add(new Explosion(enemy.x - EXPLOSION_FRAME_WIDTH * 0.25, enemy.y - EXPLOSION_FRAME_HEIGHT * 0.25, enemy.vX, enemy.vY, 0.35));
+                            score += enemy.value;
+                            kills++;
+                            levelKills++;
+                            enemiesToRemove.add(enemy);
+                            bigTorpedosToRemove.add(bigTorpedo);
                             playSound(spaceShipExplosionSound);
                         }
                     }
