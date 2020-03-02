@@ -480,7 +480,7 @@ public class SpaceFXView extends StackPane {
         scorePosX = WIDTH * 0.5;
         scorePosY = 40 * SCALING_FACTOR;
 
-        mobileOffsetY = isDesktop() ? 0 : 30;
+        mobileOffsetY = isIOS() ? 30 : 0;
         //mobileOffsetY = 0;
 
         // Preparing GraphicsContext
