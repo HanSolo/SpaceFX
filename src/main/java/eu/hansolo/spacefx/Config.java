@@ -20,7 +20,6 @@ import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.stage.Screen;
 
 //import static com.gluonhq.attach.util.Platform.isDesktop;
@@ -47,6 +46,7 @@ public class Config {
     public static final boolean     SHOW_ENEMY_BOSS                     = true;
     public static final boolean     SHOW_ENEMIES                        = true;
     public static final boolean     SHOW_ASTEROIDS                      = true;
+    //public static final boolean     SHOW_BUTTONS                        = !isDesktop();
     public static final boolean     SHOW_BUTTONS                        = Platform.isSupported(ConditionalFeature.INPUT_MULTITOUCH);
     public static final int         NO_OF_STARS                         = SHOW_STARS ? (int) (SCALING_FACTOR * 200) : 0;
     public static final int         NO_OF_ASTEROIDS                     = SHOW_ASTEROIDS ? (int) (SCALING_FACTOR * 10) : 0;

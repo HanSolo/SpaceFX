@@ -25,6 +25,7 @@ import static eu.hansolo.spacefx.Config.SCALING_FACTOR;
 public class Level3 implements Level {
     public final Difficulty difficulty              = Difficulty.HARD;
     public final Image      backgroundImg           = new Image(getClass().getResourceAsStream("backgroundL3.jpg"), 700 * BKG_SCALING_FACTOR, 3379 * BKG_SCALING_FACTOR, true, false);
+    //public final Image      backgroundImg           = isDesktop() ? new Image(getClass().getResourceAsStream("backgroundL3.jpg"), 700 * BKG_SCALING_FACTOR, 3379 * BKG_SCALING_FACTOR, true, false) : isIOS() ? new Image(getClass().getResourceAsStream("backgroundL3.jpg"), 700 * BKG_SCALING_FACTOR, 3379 * BKG_SCALING_FACTOR, true, false) : new Image(getClass().getResourceAsStream("backgroundL3.png"), 700 * BKG_SCALING_FACTOR, 3379 * BKG_SCALING_FACTOR, true, false);
     public final Image[]    enemyImages             = { new Image(getClass().getResourceAsStream("enemy1L3.png"), 60 * SCALING_FACTOR, 60 * SCALING_FACTOR, true, false),
                                                         new Image(getClass().getResourceAsStream("enemy2L3.png"), 60 * SCALING_FACTOR, 60 * SCALING_FACTOR, true, false),
                                                         new Image(getClass().getResourceAsStream("enemy3L3.png"), 68 * SCALING_FACTOR, 68 * SCALING_FACTOR, true, false),
