@@ -70,7 +70,6 @@ public class Config {
     public static final int         BIG_TORPEDO_DAMAGE                  = 3;
     public static final int         ROCKET_DAMAGE                       = 3;
     public static final int         SHIELD_DAMAGE                       = 5;
-    public static final long        STAR_BURST_TIME_TO_SHOOT            = 3_000_000_000l;
     public static final long        ENEMY_BOSS_ATTACK_INTERVAL          = 25_000_000_000l;
     public static final long        SHIELD_UP_SPAWN_INTERVAL            = 25_000_000_000l;
     public static final long        LIFE_UP_SPAWN_INTERVAL              = 55_000_000_000l;
@@ -102,7 +101,9 @@ public class Config {
                                                                             WaveType.TYPE_8_SLOW,
                                                                             WaveType.TYPE_9_SLOW,
                                                                             WaveType.TYPE_10_SLOW,
-                                                                            WaveType.TYPE_11_SLOW };
+                                                                            WaveType.TYPE_11_SLOW,
+                                                                            WaveType.TYPE_12_SLOW,
+                                                                            WaveType.TYPE_13_SLOW};
     public static final WaveType[]  WAVE_TYPES_MEDIUM                   = { WaveType.TYPE_1_MEDIUM,
                                                                             WaveType.TYPE_2_MEDIUM,
                                                                             WaveType.TYPE_3_MEDIUM,
@@ -113,7 +114,9 @@ public class Config {
                                                                             WaveType.TYPE_8_MEDIUM,
                                                                             WaveType.TYPE_9_MEDIUM,
                                                                             WaveType.TYPE_10_MEDIUM,
-                                                                            WaveType.TYPE_11_MEDIUM };
+                                                                            WaveType.TYPE_11_MEDIUM,
+                                                                            WaveType.TYPE_12_MEDIUM,
+                                                                            WaveType.TYPE_13_MEDIUM};
     public static final WaveType[]  WAVE_TYPES_FAST                     = { WaveType.TYPE_1_FAST,
                                                                             WaveType.TYPE_2_FAST,
                                                                             WaveType.TYPE_3_FAST,
@@ -124,7 +127,9 @@ public class Config {
                                                                             WaveType.TYPE_8_FAST,
                                                                             WaveType.TYPE_9_FAST,
                                                                             WaveType.TYPE_10_FAST,
-                                                                            WaveType.TYPE_11_FAST };
+                                                                            WaveType.TYPE_11_FAST,
+                                                                            WaveType.TYPE_12_FAST,
+                                                                            WaveType.TYPE_13_FAST};
     public static final double      TORPEDO_BUTTON_X                    = 15;
     public static final double      TORPEDO_BUTTON_Y                    = HEIGHT * 0.7;
     public static final double      TORPEDO_BUTTON_R                    = 64 * SCALING_FACTOR * 0.5;
