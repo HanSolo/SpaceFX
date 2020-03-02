@@ -52,7 +52,9 @@ public class Config {
     public static final int         NO_OF_ASTEROIDS                     = SHOW_ASTEROIDS ? (int) (SCALING_FACTOR * 10) : 0;
     public static final int         LIFES                               = 5;
     public static final int         SHIELDS                             = 10;
-    public static final int         DEFLECTOR_SHIELD_TIME               = 5000;
+    public static final long        DEFLECTOR_SHIELD_TIME               = 5_000_000_000l;
+    public static final long        BIG_TORPEDO_TIME                    = 10_000_000_000l;
+    public static final long        STARBURST_TIME                      = 15_000_000_000l;
     public static final int         MAX_NO_OF_ROCKETS                   = 3;
     public static final double      TORPEDO_SPEED                       = 6 * VELOCITY_FACTOR_Y;
     public static final double      BIG_TORPEDO_SPEED                   = 3 * VELOCITY_FACTOR_Y;
@@ -78,6 +80,8 @@ public class Config {
     public static final long        MIN_TORPEDO_INTERVAL                = 50_000_000l;
     public static final long        MIN_BIG_TORPEDO_INTERVAL            = 50_000_000l;
     public static final long        MIN_STARBURST_INTERVAL              = 300_000_000l;
+    public static final long        BIG_TORPEDO_BONUS_INTERVAL          = 65_000_000_000l;
+    public static final long        STARBURST_BONUS_INTERVAL            = 120_000_000_000l;
     public static final int         NO_OF_KILLS_STAGE_1                 = 50;
     public static final int         NO_OF_KILLS_STAGE_2                 = 100;
     public static final double      FIRST_QUARTER_WIDTH                 = WIDTH * 0.25;
@@ -91,6 +95,7 @@ public class Config {
     public static final long        FPS_10                              = 0_100_000_000l;
     public static final long        FPS_2                               = 0_500_000_000l;
     public static final Color       SPACEFX_COLOR                       = Color.rgb(51, 210, 206);
+    public static final Color       SPACEFX_COLOR_TRANSLUCENT           = Color.rgb(51, 210, 206, 0.5);
     public static final WaveType[]  WAVE_TYPES_SLOW                     = { WaveType.TYPE_1_SLOW,
                                                                             WaveType.TYPE_2_SLOW,
                                                                             WaveType.TYPE_3_SLOW,

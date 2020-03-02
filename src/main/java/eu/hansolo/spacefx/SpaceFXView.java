@@ -109,6 +109,8 @@ public class SpaceFXView extends StackPane {
     private              Image                      hitImg;
     private              Image                      shieldUpImg;
     private              Image                      lifeUpImg;
+    private              Image                      bigTorpedoBonusImg;
+    private              Image                      starburstBonusImg;
     private              Image                      upExplosionImg;
     private              Image                      rocketExplosionImg;
     private              Image                      rocketImg;
@@ -157,6 +159,8 @@ public class SpaceFXView extends StackPane {
     private              List<ShieldUp>             shieldUpsToRemove;
     private              List<LifeUp>               lifeUps;
     private              List<LifeUp>               lifeUpsToRemove;
+    private              List<Bonus>                bonuses;
+    private              List<Bonus>                bonusesToRemove;
     private              List<Torpedo>              torpedos;
     private              List<Torpedo>              torpedosToRemove;
     private              List<BigTorpedo>           bigTorpedos;
@@ -204,6 +208,8 @@ public class SpaceFXView extends StackPane {
     private              boolean                    hasBeenHit;
     private              int                        noOfLifes;
     private              int                        noOfShields;
+    private              boolean                    bigTorpedosEnabled;
+    private              boolean                    starburstEnabled;
     private              long                       lastShieldActivated;
     private              long                       lastEnemyBossAttack;
     private              long                       lastShieldUp;
@@ -212,6 +218,8 @@ public class SpaceFXView extends StackPane {
     private              long                       lastBombDropped;
     private              long                       lastTorpedoFired;
     private              long                       lastStarBlast;
+    private              long                       lastBigTorpedoBonus;
+    private              long                       lastStarburstBonus;
     private              long                       lastTimerCall;
     private              AnimationTimer             timer;
     private              AnimationTimer             screenTimer;
@@ -365,6 +373,8 @@ public class SpaceFXView extends StackPane {
         shieldUpsToRemove             = new ArrayList<>();
         lifeUps                       = new ArrayList<>();
         lifeUpsToRemove               = new ArrayList<>();
+        bonuses                       = new ArrayList<>();
+        bonusesToRemove               = new ArrayList<>();
         rockets                       = new ArrayList<>();
         rocketsToRemove               = new ArrayList<>();
         torpedos                      = new ArrayList<>();
@@ -409,6 +419,8 @@ public class SpaceFXView extends StackPane {
         hasBeenHit                    = false;
         noOfLifes                     = LIFES;
         noOfShields                   = SHIELDS;
+        bigTorpedosEnabled            = false;
+        starburstEnabled              = false;
         lastShieldActivated           = 0;
         lastEnemyBossAttack           = System.nanoTime();
         lastShieldUp                  = System.nanoTime();
@@ -416,6 +428,8 @@ public class SpaceFXView extends StackPane {
         lastWave                      = System.nanoTime();
         lastTorpedoFired              = System.nanoTime();
         lastStarBlast                 = System.nanoTime();
+        lastBigTorpedoBonus           = System.nanoTime();
+        lastStarburstBonus            = System.nanoTime();
         //long deltaTime                = FPS_60;
         long deltaTime                = IS_BROWSER ? FPS_30 : FPS_60;
         timer = new AnimationTimer() {
@@ -439,6 +453,14 @@ public class SpaceFXView extends StackPane {
                 if (now > lastWave + WAVE_SPAWN_INTERVAL && SHOW_ENEMIES) {
                     spawnWave();
                     lastWave = now;
+                }
+                if (now > lastBigTorpedoBonus + BIG_TORPEDO_BONUS_INTERVAL) {
+                    spawnBigTorpedoBonus();
+                    lastBigTorpedoBonus = now;
+                }
+                if (now > lastStarburstBonus + STARBURST_BONUS_INTERVAL) {
+                    spawnStarburstBonus();
+                    lastStarburstBonus = now;
                 }
             }
         };
@@ -465,14 +487,14 @@ public class SpaceFXView extends StackPane {
                     double x = e.getTouchPoint().getX();
                     double y = e.getTouchPoint().getY();
                     if (Helper.isInsideCircle(TORPEDO_BUTTON_CX, TORPEDO_BUTTON_CY, TORPEDO_BUTTON_R, x, y)) {
-                        spawnTorpedo(spaceShip.x, spaceShip.y);
+                        spawnWeapon(spaceShip.x, spaceShip.y);
                     } else if (Helper.isInsideCircle(ROCKET_BUTTON_CX, ROCKET_BUTTON_CY, ROCKET_BUTTON_R, x, y)) {
                         if (rockets.size() < MAX_NO_OF_ROCKETS) {
                             spawnRocket(spaceShip.x, spaceShip.y);
                         }
                     } else if (Helper.isInsideCircle(SHIELD_BUTTON_CX, SHIELD_BUTTON_CY, SHIELD_BUTTON_R, x, y)) {
                         if (noOfShields > 0 && !spaceShip.shield) {
-                            lastShieldActivated = System.currentTimeMillis();
+                            lastShieldActivated = System.nanoTime();
                             spaceShip.shield = true;
                             playSound(deflectorShieldSound);
                         }
@@ -532,6 +554,8 @@ public class SpaceFXView extends StackPane {
                 hitImg                  = new Image(getClass().getResourceAsStream("torpedoHit2.png"), 400 * SCALING_FACTOR, 160 * SCALING_FACTOR, true, false);
                 shieldUpImg             = new Image(getClass().getResourceAsStream("shieldUp.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
                 lifeUpImg               = new Image(getClass().getResourceAsStream("lifeUp.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
+                bigTorpedoBonusImg      = new Image(getClass().getResourceAsStream("bigTorpedoBonus.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
+                starburstBonusImg       = new Image(getClass().getResourceAsStream("starburstBonus.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
                 upExplosionImg          = new Image(getClass().getResourceAsStream("upExplosion.png"), 400 * SCALING_FACTOR, 700 * SCALING_FACTOR, true, false);
                 rocketExplosionImg      = new Image(getClass().getResourceAsStream("rocketExplosion.png"), 960 * SCALING_FACTOR, 768 * SCALING_FACTOR, true, false);
                 rocketImg               = new Image(getClass().getResourceAsStream("rocket.png"), 17 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
@@ -607,6 +631,7 @@ public class SpaceFXView extends StackPane {
         upExplosionsToRemove.clear();
         shieldUpsToRemove.clear();
         lifeUpsToRemove.clear();
+        bonusesToRemove.clear();
         wavesToRemove.clear();
         enemyHitsToRemove.clear();
         enemyTorpedosToRemove.clear();
@@ -1019,6 +1044,36 @@ public class SpaceFXView extends StackPane {
         }
         lifeUps.removeAll(lifeUpsToRemove);
 
+        // Draw Bonuses
+        for (Bonus bonus : bonuses) {
+            bonus.update();
+            ctx.save();
+            ctx.translate(bonus.cX, bonus.cY);
+            ctx.rotate(bonus.rot);
+            ctx.translate(-bonus.imgCenterX, -bonus.imgCenterY);
+            ctx.drawImage(bonus.image, 0, 0);
+            ctx.restore();
+
+            // Check for space ship contact
+            boolean hit;
+            if (spaceShip.shield) {
+                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, bonus.cX, bonus.cY, bonus.radius);
+            } else {
+                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, bonus.cX, bonus.cY, bonus.radius);
+            }
+            if (hit) {
+                if (bonus instanceof BigTorpedoBonus) {
+                    bigTorpedosEnabled = true;
+                } else if (bonus instanceof StarburstBonus) {
+                    starburstEnabled = true;
+                }
+                upExplosions.add(new UpExplosion(bonus.cX - UP_EXPLOSION_FRAME_CENTER, bonus.cY - UP_EXPLOSION_FRAME_CENTER, bonus.vX, bonus.vY, 1.0));
+                playSound(lifeUpSound);
+                bonusesToRemove.add(bonus);
+            }
+        }
+        bonuses.removeAll(bonusesToRemove);
+
         // Draw Torpedos
         for (Torpedo torpedo : torpedos) {
             torpedo.update();
@@ -1220,19 +1275,33 @@ public class SpaceFXView extends StackPane {
                 ctx.restore();
 
                 if (spaceShip.shield) {
-                    long delta = System.currentTimeMillis() - lastShieldActivated;
+                    long delta = System.nanoTime() - lastShieldActivated;
                     if (delta > DEFLECTOR_SHIELD_TIME) {
                         spaceShip.shield = false;
                         noOfShields--;
                     } else {
-                        ctx.setStroke(SPACEFX_COLOR);
-                        ctx.setFill(SPACEFX_COLOR);
+                        ctx.setStroke(SPACEFX_COLOR_TRANSLUCENT);
+                        ctx.setFill(SPACEFX_COLOR_TRANSLUCENT);
                         ctx.strokeRect(SHIELD_INDICATOR_X, SHIELD_INDICATOR_Y, SHIELD_INDICATOR_WIDTH, SHIELD_INDICATOR_HEIGHT);
                         ctx.fillRect(SHIELD_INDICATOR_X, SHIELD_INDICATOR_Y, SHIELD_INDICATOR_WIDTH - SHIELD_INDICATOR_WIDTH * delta / DEFLECTOR_SHIELD_TIME,
                                      SHIELD_INDICATOR_HEIGHT);
                         ctx.setGlobalAlpha(RND.nextDouble() * 0.5 + 0.1);
                         ctx.drawImage(deflectorShieldImg, spaceShip.x - deflectorShieldRadius, spaceShip.y - deflectorShieldRadius);
                         ctx.setGlobalAlpha(1);
+                    }
+                }
+
+                if (bigTorpedosEnabled) {
+                    long delta = System.nanoTime() - lastBigTorpedoBonus;
+                    if (delta > BIG_TORPEDO_TIME) {
+                        bigTorpedosEnabled = false;
+                    }
+                }
+
+                if (starburstEnabled) {
+                    long delta = System.nanoTime() - lastStarburstBonus;
+                    if (delta > STARBURST_TIME) {
+                        starburstEnabled = false;
                     }
                 }
             }
@@ -1263,8 +1332,14 @@ public class SpaceFXView extends StackPane {
 
 
     // Spawn different objects
-    private void spawnTorpedo(final double x, final double y) {
-        torpedos.add(new Torpedo(torpedoImg, x, y));
+    private void spawnWeapon(final double x, final double y) {
+        if (starburstEnabled) {
+            fireStarburst();
+        } else if (bigTorpedosEnabled) {
+            bigTorpedos.add(new BigTorpedo(bigTorpedoImg, x, y, 0, -BIG_TORPEDO_SPEED * 2.333333, 45));
+        } else {
+            torpedos.add(new Torpedo(torpedoImg, x, y));
+        }
         playSound(laserSound);
     }
 
@@ -1306,6 +1381,14 @@ public class SpaceFXView extends StackPane {
 
     private void spawnLifeUp() {
         lifeUps.add(new LifeUp(lifeUpImg));
+    }
+
+    private void spawnBigTorpedoBonus() {
+        bonuses.add(new BigTorpedoBonus(bigTorpedoBonusImg));
+    }
+
+    private void spawnStarburstBonus() {
+        bonuses.add(new StarburstBonus(starburstBonusImg));
     }
 
     private void spawnWave() {
@@ -1571,7 +1654,7 @@ public class SpaceFXView extends StackPane {
 
     public void activateSpaceShipShield() {
         if (noOfShields > 0 && !spaceShip.shield) {
-            lastShieldActivated = System.currentTimeMillis();
+            lastShieldActivated = System.nanoTime();
             spaceShip.shield = true;
             playSound(deflectorShieldSound);
         }
@@ -1584,20 +1667,14 @@ public class SpaceFXView extends StackPane {
         }
     }
 
-    public void fireSpaceShipTorpedo() {
+    public void fireSpaceShipWeapon() {
         if (System.nanoTime() - lastTorpedoFired < MIN_TORPEDO_INTERVAL) { return; }
-        spawnTorpedo(spaceShip.x, spaceShip.y);
+        spawnWeapon(spaceShip.x, spaceShip.y);
         lastTorpedoFired = System.nanoTime();
     }
 
-    public void fireSpaceShipBigTorpedo() {
-        if (System.nanoTime() - lastTorpedoFired < MIN_BIG_TORPEDO_INTERVAL) { return; }
-        spawnBigTorpedo(spaceShip.x, spaceShip.y);
-        lastTorpedoFired = System.nanoTime();
-    }
-
-    public void fireStarBlast() {
-        if (System.nanoTime() - lastStarBlast < MIN_STARBURST_INTERVAL) { return; }
+    public void fireStarburst() {
+        if (!starburstEnabled || (System.nanoTime() - lastStarBlast < MIN_STARBURST_INTERVAL)) { return; }
         double offset    = Math.toRadians(-135);
         double angleStep = Math.toRadians(22.5);
         double angle     = 0;
@@ -2412,6 +2489,152 @@ public class SpaceFXView extends StackPane {
             // Remove lifeUp
             if (x < -size || x - radius > WIDTH || y - height > HEIGHT) {
                 lifeUpsToRemove.add(LifeUp.this);
+            }
+        }
+    }
+
+    private abstract class Bonus {
+        protected final Random  rnd          = new Random();
+        protected final double  xVariation   = 2;
+        protected final double  minSpeedY    = 2;
+        protected final double  minRotationR = 0.1;
+        protected       Image   image;
+        protected       double  x;
+        protected       double  y;
+        protected       double  width;
+        protected       double  height;
+        protected       double  size;
+        protected       double  imgCenterX;
+        protected       double  imgCenterY;
+        protected       double  radius;
+        protected       double  cX;
+        protected       double  cY;
+        protected       double  rot;
+        protected       double  vX;
+        protected       double  vY;
+        protected       double  vR;
+        protected       boolean rotateRight;
+        protected       double  vYVariation;
+
+        protected abstract void update();
+    }
+
+    private class BigTorpedoBonus extends Bonus {
+
+        public BigTorpedoBonus(final Image image) {
+            // Image
+            this.image = image;
+            init();
+        }
+
+
+        private void init() {
+            // Position
+            x = rnd.nextDouble() * WIDTH;
+            y = -image.getHeight();
+            rot = 0;
+
+            // Random Speed
+            vYVariation = (rnd.nextDouble() * 0.5) + 0.2;
+
+            width = image.getWidth();
+            height = image.getHeight();
+            size = width > height ? width : height;
+            radius = size * 0.5;
+            imgCenterX = image.getWidth() * 0.5;
+            imgCenterY = image.getHeight() * 0.5;
+
+            // Velocity
+            if (x < FIRST_QUARTER_WIDTH) {
+                vX = rnd.nextDouble() * VELOCITY_FACTOR_X;
+            } else if (x > LAST_QUARTER_WIDTH) {
+                vX = -rnd.nextDouble() * VELOCITY_FACTOR_X;
+            } else {
+                vX = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
+            }
+            vY = (((rnd.nextDouble() * 1.5) + minSpeedY) * vYVariation) * VELOCITY_FACTOR_Y;
+            vR = (((rnd.nextDouble()) * 0.5) + minRotationR) * VELOCITY_FACTOR_R;
+            rotateRight = rnd.nextBoolean();
+        }
+
+        @Override protected void update() {
+            x += vX;
+            y += vY;
+
+            cX = x + imgCenterX;
+            cY = y + imgCenterY;
+
+            if (rotateRight) {
+                rot += vR;
+                if (rot > 360) { rot = 0; }
+            } else {
+                rot -= vR;
+                if (rot < 0) { rot = 360; }
+            }
+
+            // Remove lifeUp
+            if (x < -size || x - radius > WIDTH || y - height > HEIGHT) {
+                bonusesToRemove.add(BigTorpedoBonus.this);
+            }
+        }
+    }
+
+    private class StarburstBonus extends Bonus {
+
+        public StarburstBonus(final Image image) {
+            // Image
+            this.image = image;
+            init();
+        }
+
+
+        private void init() {
+            // Position
+            x = rnd.nextDouble() * WIDTH;
+            y = -image.getHeight();
+            rot = 0;
+
+            // Random Speed
+            vYVariation = (rnd.nextDouble() * 0.5) + 0.2;
+
+            width = image.getWidth();
+            height = image.getHeight();
+            size = width > height ? width : height;
+            radius = size * 0.5;
+            imgCenterX = image.getWidth() * 0.5;
+            imgCenterY = image.getHeight() * 0.5;
+
+            // Velocity
+            if (x < FIRST_QUARTER_WIDTH) {
+                vX = rnd.nextDouble() * VELOCITY_FACTOR_X;
+            } else if (x > LAST_QUARTER_WIDTH) {
+                vX = -rnd.nextDouble() * VELOCITY_FACTOR_X;
+            } else {
+                vX = ((rnd.nextDouble() * xVariation) - xVariation * 0.5) * VELOCITY_FACTOR_X;
+            }
+            vY = (((rnd.nextDouble() * 1.5) + minSpeedY) * vYVariation) * VELOCITY_FACTOR_Y;
+            vR = (((rnd.nextDouble()) * 0.5) + minRotationR) * VELOCITY_FACTOR_R;
+            rotateRight = rnd.nextBoolean();
+        }
+
+        @Override protected void update() {
+            x += vX;
+            y += vY;
+
+            cX = x + imgCenterX;
+            cY = y + imgCenterY;
+
+            if (rotateRight) {
+                rot += vR;
+                if (rot > 360) { rot = 0; }
+            } else {
+                rot -= vR;
+                if (rot < 0) { rot = 360; }
+            }
+
+            // Remove lifeUp
+            if (x < -size || x - radius > WIDTH || y - height > HEIGHT) {
+                bonusesToRemove.add(StarburstBonus.this);
             }
         }
     }

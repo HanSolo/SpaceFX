@@ -65,7 +65,7 @@ public class SpaceFX extends Application {
                             view.fireSpaceShipRocket();
                             break;
                         case SPACE:
-                            view.fireSpaceShipTorpedo();
+                            view.fireSpaceShipWeapon();
                             break;
                     }
                 } else if (e.getCode() == KeyCode.P && view.isReadyToStart()) {
