@@ -262,6 +262,8 @@ public class SpaceFXView extends StackPane {
         setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         getChildren().add(pane);
 
+        getStyleClass().add("spacefx-view");
+
         // Start playing background music
         //if (PLAY_MUSIC) { mediaPlayer.play(); }
 
