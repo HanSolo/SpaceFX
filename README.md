@@ -11,8 +11,11 @@ Be aware that the "mobile" branch is using maven where the other branches use gr
 
 Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 
-### Overview
-![Overview](https://github.com/HanSolo/SpaceFX/blob/mobile/SpaceFX_iOS.PNG)
+### Desktop and Mobile
+![Desktop](https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_Desktop.jpg)
+![iOS](https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_iOS.jpg)
+![Android](https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_Android.jpg)
+
 
 ### Verify SpaceFX on desktop
 
