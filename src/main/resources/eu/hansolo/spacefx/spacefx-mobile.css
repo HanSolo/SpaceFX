@@ -2,10 +2,6 @@
     src : url("spaceboy.ttf");
 }
 
-.spacefx-view {
-    -fx-background-color: black;
-}
-
 .label {
     -fx-text-fill  : rgb(51, 210, 206);
     -fx-font-family: "Spaceboy";

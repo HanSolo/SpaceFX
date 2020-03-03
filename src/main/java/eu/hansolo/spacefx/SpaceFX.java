@@ -21,7 +21,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import static com.gluonhq.attach.util.Platform.isDesktop;
@@ -38,7 +37,7 @@ public class SpaceFX extends Application {
     }
 
     @Override public void start(Stage stage) {
-        Scene scene = new Scene(view, WIDTH, HEIGHT, Color.BLACK);
+        Scene scene = new Scene(view, WIDTH, HEIGHT);
         scene.getStylesheets().add(SpaceFX.class.getResource(isDesktop() ? "spacefx.css" : "spacefx-mobile.css").toExternalForm());
         //scene.getStylesheets().add(SpaceFX.class.getResource("spacefx.css").toExternalForm());
 
