@@ -797,7 +797,7 @@ public class SpaceFXView extends StackPane {
                 }
             }
 
-            // Check for torpedo hits with enemy boss
+            // Check for bigTorpedo hits with enemy boss
             for (BigTorpedo bigTorpedo : bigTorpedos) {
                 if (isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, enemyBoss.x, enemyBoss.y, enemyBoss.radius)) {
                     enemyBoss.hits -= BIG_TORPEDO_DAMAGE;
@@ -1555,7 +1555,7 @@ public class SpaceFXView extends StackPane {
     }
 
 
-    // Play audio clips in a separate thread
+    // Play audio clips
     private void playSound(final AudioClip audioClip) {
         if (PLAY_SOUND) {
             audioClip.play();
