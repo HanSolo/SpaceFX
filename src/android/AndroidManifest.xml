@@ -3,7 +3,7 @@
         <supports-screens a:xlargeScreens="true"/>
         <uses-sdk a:minSdkVersion="21" a:targetSdkVersion="28"/>
         <application a:label='SpaceFX' a:icon="@mipmap/ic_launcher">
-                <activity        a:name='eu.hansolo.spacefx.SpaceFX' a:configChanges="orientation|keyboardHidden" a:screenOrientation="portrait"
+                <activity        a:name='com.gluonhq.helloandroid.MainActivity' a:configChanges="orientation|keyboardHidden" a:screenOrientation="portrait"
 >
                         <intent-filter>
                                 <category a:name='android.intent.category.LAUNCHER'/>
