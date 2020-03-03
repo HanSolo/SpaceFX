@@ -8,8 +8,11 @@ enemy boss that also fires rockets.
 
 Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 
-### Overview
-![Overview](https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX.png)
+### Desktop and Mobile
+![Desktop](https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_Desktop.jpg)
+![iOS](https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_iOS.jpg)
+![Android](https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_Android.jpg)
+
 
 ### Youtube video
 I've recorded a little [video](https://youtu.be/IS71geUu9RE) that shows the game in action.
