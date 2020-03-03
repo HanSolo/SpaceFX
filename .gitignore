@@ -10,7 +10,4 @@
 /RUNNING_PID
 /logs
 /tmp
-#/src/main/resources/eu/hansolo/spacefx/*.afphoto
-#/src/main/resources/eu/hansolo/spacefx/*.afdesign
-/src/main/resources/eu/hansolo/spacefx/beams.png
 *.class
