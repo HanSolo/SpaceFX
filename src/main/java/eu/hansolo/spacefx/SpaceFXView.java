@@ -111,6 +111,8 @@ public class SpaceFXView extends StackPane {
     private              Image                      lifeUpImg;
     private              Image                      bigTorpedoBonusImg;
     private              Image                      starburstBonusImg;
+    private              Image                      miniBigTorpedoBonusImg;
+    private              Image                      miniStarburstBonusImg;
     private              Image                      upExplosionImg;
     private              Image                      rocketExplosionImg;
     private              Image                      rocketImg;
@@ -135,6 +137,7 @@ public class SpaceFXView extends StackPane {
     private              AudioClip                  shieldUpSound;
     private              AudioClip                  lifeUpSound;
     private              AudioClip                  levelUpSound;
+    private              AudioClip                  bonusSound;
     private final        Media                      gameSoundTheme          = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
     private final        Media                      soundTheme              = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
     private final        MediaPlayer                gameMediaPlayer         = new MediaPlayer(gameSoundTheme);
@@ -548,6 +551,8 @@ public class SpaceFXView extends StackPane {
                 lifeUpImg               = new Image(getClass().getResourceAsStream("lifeUp.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
                 bigTorpedoBonusImg      = new Image(getClass().getResourceAsStream("bigTorpedoBonus.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
                 starburstBonusImg       = new Image(getClass().getResourceAsStream("starburstBonus.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
+                miniBigTorpedoBonusImg  = new Image(getClass().getResourceAsStream("bigTorpedoBonus.png"), 20 * SCALING_FACTOR, 20 * SCALING_FACTOR, true, false);
+                miniStarburstBonusImg   = new Image(getClass().getResourceAsStream("starburstBonus.png"), 20 * SCALING_FACTOR, 20 * SCALING_FACTOR, true, false);
                 upExplosionImg          = new Image(getClass().getResourceAsStream("upExplosion.png"), 400 * SCALING_FACTOR, 700 * SCALING_FACTOR, true, false);
                 rocketExplosionImg      = new Image(getClass().getResourceAsStream("rocketExplosion.png"), 960 * SCALING_FACTOR, 768 * SCALING_FACTOR, true, false);
                 rocketImg               = new Image(getClass().getResourceAsStream("rocket.png"), 17 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
@@ -573,6 +578,7 @@ public class SpaceFXView extends StackPane {
                 shieldUpSound           = new AudioClip(getClass().getResource("shieldUp.wav").toExternalForm());
                 lifeUpSound             = new AudioClip(getClass().getResource("lifeUp.wav").toExternalForm());
                 levelUpSound            = new AudioClip(getClass().getResource("levelUp.wav").toExternalForm());
+                bonusSound              = new AudioClip(getClass().getResource("bonus.wav").toExternalForm());
 
                 deflectorShieldRadius   = deflectorShieldImg.getRequestedWidth() * 0.5;
                 spaceShip               = new SpaceShip(spaceshipImg, spaceshipUpImg, spaceshipDownImg);
@@ -1002,15 +1008,18 @@ public class SpaceFXView extends StackPane {
             if (hit) {
                 if (bonus instanceof LifeUp) {
                     if (noOfLifes <= LIFES - 1) { noOfLifes++; }
+                    playSound(lifeUpSound);
                 } else if (bonus instanceof ShieldUp) {
                     if (noOfShields <= SHIELDS - 1) { noOfShields++; }
+                    playSound(shieldUpSound);
                 } else if (bonus instanceof BigTorpedoBonus) {
                     bigTorpedosEnabled = true;
+                    playSound(bonusSound);
                 } else if (bonus instanceof StarburstBonus) {
                     starburstEnabled = true;
+                    playSound(bonusSound);
                 }
                 upExplosions.add(new UpExplosion(bonus.cX - UP_EXPLOSION_FRAME_CENTER, bonus.cY - UP_EXPLOSION_FRAME_CENTER, bonus.vX, bonus.vY, 1.0));
-                playSound(lifeUpSound);
                 bonusesToRemove.add(bonus);
             }
         }
@@ -1262,6 +1271,13 @@ public class SpaceFXView extends StackPane {
             for (int i = 0 ; i < noOfShields ; i++) {
                 ctx.drawImage(miniDeflectorShieldImg, WIDTH - i * (miniDeflectorShieldImg.getWidth() + 5), 20 + mobileOffsetY);
             }
+
+            // Draw bigTorpedo and starburst icon
+            if (starburstEnabled) {
+                ctx.drawImage(miniStarburstBonusImg, 10, 40 + mobileOffsetY);
+            } else if (bigTorpedosEnabled) {
+                ctx.drawImage(miniBigTorpedoBonusImg, 10, 40 + mobileOffsetY);
+            }
         }
 
         // Draw Buttons
@@ -1330,6 +1346,7 @@ public class SpaceFXView extends StackPane {
     }
 
     private void spawnStarburstBonus() {
+        if (level.equals(level1)) { return; }
         bonuses.add(new StarburstBonus(starburstBonusImg));
     }
 
