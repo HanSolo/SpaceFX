@@ -696,7 +696,7 @@ public class SpaceFXView extends StackPane {
                     }
                 }
             }
-            
+
             // Check for bigTorpedo hits
             for (BigTorpedo bigTorpedo : bigTorpedos) {
                 if (isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
@@ -1236,8 +1236,8 @@ public class SpaceFXView extends StackPane {
                     } else {
                         ctx.setStroke(SPACEFX_COLOR_TRANSLUCENT);
                         ctx.setFill(SPACEFX_COLOR_TRANSLUCENT);
-                        ctx.strokeRect(SHIELD_INDICATOR_X, SHIELD_INDICATOR_Y, SHIELD_INDICATOR_WIDTH, SHIELD_INDICATOR_HEIGHT);
-                        ctx.fillRect(SHIELD_INDICATOR_X, SHIELD_INDICATOR_Y, SHIELD_INDICATOR_WIDTH - SHIELD_INDICATOR_WIDTH * delta / DEFLECTOR_SHIELD_TIME,
+                        ctx.strokeRect(SHIELD_INDICATOR_X, SHIELD_INDICATOR_Y + mobileOffsetY, SHIELD_INDICATOR_WIDTH, SHIELD_INDICATOR_HEIGHT);
+                        ctx.fillRect(SHIELD_INDICATOR_X, SHIELD_INDICATOR_Y + mobileOffsetY, SHIELD_INDICATOR_WIDTH - SHIELD_INDICATOR_WIDTH * delta / DEFLECTOR_SHIELD_TIME,
                                      SHIELD_INDICATOR_HEIGHT);
                         ctx.setGlobalAlpha(RND.nextDouble() * 0.5 + 0.1);
                         ctx.drawImage(deflectorShieldImg, spaceShip.x - deflectorShieldRadius, spaceShip.y - deflectorShieldRadius);
