@@ -1523,12 +1523,13 @@ public class SpaceFXView extends StackPane {
         waves.clear();
         initAsteroids();
         spaceShip.init();
-        hasBeenHit = false;
-        noOfLifes = LIFES;
+        hasBeenHit  = false;
+        noOfLifes   = LIFES;
         noOfShields = SHIELDS;
-        score = 0;
-        kills = 0;
-        levelKills = 0;
+        level       = level1;
+        score       = 0;
+        kills       = 0;
+        levelKills  = 0;
         if (PLAY_MUSIC) {
             mediaPlayer.play();
         }

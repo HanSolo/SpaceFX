@@ -100,6 +100,7 @@ public class SpaceFX extends Application {
 
         //stage.setMaximized(!isDesktop());
         stage.setScene(scene);
+        //if (isDesktop() { stage.setResizable(false); }
         stage.setResizable(false);
         stage.show();
     }
