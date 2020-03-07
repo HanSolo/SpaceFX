@@ -18,12 +18,13 @@ package eu.hansolo.spacefx;
 
 
 public enum Difficulty {
-    EASY(5), NORMAL(7), HARD(10);
+    EASY(5, 0), NORMAL(7, 1), HARD(10, 2);
 
     public final int noOfEnemies;
+    public final int noOfSmartEnemies;
 
-
-    Difficulty(final int noOfEnemies) {
-        this.noOfEnemies = noOfEnemies;
+    Difficulty(final int noOfEnemies, final int noOfSmartEnemies) {
+        this.noOfEnemies      = noOfEnemies;
+        this.noOfSmartEnemies = noOfSmartEnemies;
     }
 }

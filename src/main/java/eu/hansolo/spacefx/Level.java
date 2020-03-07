@@ -21,6 +21,8 @@ import javafx.scene.image.Image;
 
 public interface Level {
 
+    int getIndex();
+
     Difficulty getDifficulty();
 
     Image getBackgroundImg();

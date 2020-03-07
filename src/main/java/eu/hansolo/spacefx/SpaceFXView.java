@@ -412,8 +412,8 @@ public class SpaceFXView extends StackPane {
         levelKills                    = 0;
         kills                         = 0;
         hasBeenHit                    = false;
-        noOfLifes                     = LIFES;
-        noOfShields                   = SHIELDS;
+        noOfLifes                     = NO_OF_LIFES;
+        noOfShields                   = NO_OF_SHIELDS;
         bigTorpedosEnabled            = false;
         starburstEnabled              = false;
         lastShieldActivated           = 0;
@@ -437,11 +437,11 @@ public class SpaceFXView extends StackPane {
                     spawnEnemyBoss(spaceShip);
                     lastEnemyBossAttack = now;
                 }
-                if (now > lastShieldUp + SHIELD_UP_SPAWN_INTERVAL) {
+                if (now > lastShieldUp + SHIELD_UP_SPAWN_INTERVAL && noOfShields < NO_OF_SHIELDS) {
                     spawnShieldUp();
                     lastShieldUp = now;
                 }
-                if (now > lastLifeUp + LIFE_UP_SPAWN_INTERVAL) {
+                if (now > lastLifeUp + LIFE_UP_SPAWN_INTERVAL && noOfLifes < NO_OF_LIFES) {
                     spawnLifeUp();
                     lastLifeUp = now;
                 }
@@ -1007,10 +1007,10 @@ public class SpaceFXView extends StackPane {
             }
             if (hit) {
                 if (bonus instanceof LifeUp) {
-                    if (noOfLifes <= LIFES - 1) { noOfLifes++; }
+                    if (noOfLifes <= NO_OF_LIFES - 1) { noOfLifes++; }
                     playSound(lifeUpSound);
                 } else if (bonus instanceof ShieldUp) {
-                    if (noOfShields <= SHIELDS - 1) { noOfShields++; }
+                    if (noOfShields <= NO_OF_SHIELDS - 1) { noOfShields++; }
                     playSound(shieldUpSound);
                 } else if (bonus instanceof BigTorpedoBonus) {
                     bigTorpedosEnabled = true;
@@ -1524,8 +1524,8 @@ public class SpaceFXView extends StackPane {
         initAsteroids();
         spaceShip.init();
         hasBeenHit  = false;
-        noOfLifes   = LIFES;
-        noOfShields = SHIELDS;
+        noOfLifes   = NO_OF_LIFES;
+        noOfShields = NO_OF_SHIELDS;
         level       = level1;
         score       = 0;
         kills       = 0;
@@ -2563,17 +2563,22 @@ public class SpaceFXView extends StackPane {
         private static final int       MAX_VALUE           = 50;
         private final        Random    rnd                 = new Random();
         private final        WaveType  waveType;
-        private              int       frameCounter;
+        public               int       frameCounter;
         private              SpaceShip spaceShip;
         public               Image     image;
         public               boolean   canFire;
         public               boolean   canBomb;
+        public               boolean   smart;
         private              int       noOfBombs;
         private              double    oldX;
         private              double    oldY;
         public               double    x;
         public               double    y;
         public               double    r;
+        private              double    dX;
+        private              double    dY;
+        private              double    dist;
+        private              double    factor;
         public               double    width;
         public               double    height;
         private              double    size;
@@ -2587,6 +2592,9 @@ public class SpaceFXView extends StackPane {
 
 
         public Enemy(final WaveType waveType, final SpaceShip spaceShip, final Image image, final boolean canFire, final boolean canBomb) {
+            this(waveType, spaceShip, image, canFire, canBomb, false);
+        }
+        public Enemy(final WaveType waveType, final SpaceShip spaceShip, final Image image, final boolean canFire, final boolean canBomb, final boolean smart) {
             this.waveType     = waveType;
             this.frameCounter = 0;
             this.spaceShip    = spaceShip;
@@ -2625,11 +2633,25 @@ public class SpaceFXView extends StackPane {
             if (toBeRemoved) { return; }
             oldX = x;
             oldY = y;
-            x    = waveType.coordinates.get(frameCounter).x;
-            y    = waveType.coordinates.get(frameCounter).y;
-            r    = waveType.coordinates.get(frameCounter).r;
-            vX   = x - oldX;
-            vY   = y - oldY;
+            if (smart) {
+                dX     = spaceShip.x - x;
+                dY     = spaceShip.y - y;
+                dist   = Math.sqrt(dX * dX + dY * dY);
+                factor = ENEMY_SPEED / dist;
+                if (spaceShip.isVulnerable && spaceShip.y > y && y < OUT_OF_SENSING_HEIGHT) {
+                    vX = dX * factor;
+                    vY = dY * factor;
+                }
+                x += vX;
+                y += vY;
+                r = Math.toDegrees(Math.atan2(vY, vX)) - 90;
+            } else {
+                x  = waveType.coordinates.get(frameCounter).x;
+                y  = waveType.coordinates.get(frameCounter).y;
+                r  = waveType.coordinates.get(frameCounter).r;
+                vX = x - oldX;
+                vY = y - oldY;
+            }
 
             long now = System.nanoTime();
 
@@ -2661,9 +2683,15 @@ public class SpaceFXView extends StackPane {
             }
 
             // Remove Enemy
-            frameCounter++;
-            if (frameCounter >= waveType.totalFrames) {
-                toBeRemoved = true;
+            if (smart) {
+                if(x < -size || x - radius > WIDTH || y - height > HEIGHT) {
+                    toBeRemoved = true;
+                }
+            } else {
+                frameCounter++;
+                if (frameCounter >= waveType.totalFrames) {
+                    toBeRemoved = true;
+                }
             }
         }
     }
@@ -2840,8 +2868,10 @@ public class SpaceFXView extends StackPane {
             dY     = spaceShip.y - y;
             dist   = Math.sqrt(dX * dX + dY * dY);
             factor = ENEMY_BOSS_SPEED / dist;
-            vX     = dX * factor;
-            vY     = dY * factor;
+            if (spaceShip.isVulnerable && y < OUT_OF_SENSING_HEIGHT) {
+                vX = dX * factor;
+                vY = dY * factor;
+            }
 
             x += vX;
             y += vY;
@@ -2886,6 +2916,11 @@ public class SpaceFXView extends StackPane {
                 case 3: image = level.getEnemyBossImg2();break;
                 case 2: image = level.getEnemyBossImg1();break;
                 case 1: image = level.getEnemyBossImg0();break;
+            }
+
+            // Remove enemy boss
+            if(x < -size || x - radius > WIDTH || y - height > HEIGHT) {
+                enemyBossesToRemove.add(EnemyBoss.this);
             }
         }
     }
@@ -3154,7 +3189,7 @@ public class SpaceFXView extends StackPane {
                     // Waiting
                     vX = dX * factor * 10;
                     vY = 0;
-                } else {
+                } else if (y < OUT_OF_SENSING_HEIGHT) {
                     // Attacking
                     vX = vpX;
                     vY = vpY;
@@ -3204,6 +3239,11 @@ public class SpaceFXView extends StackPane {
                     spawnLevelBossTorpedo(tp[0], tp[1], vX, vY, r);
                     lastShot = now;
                 }
+            }
+
+            // Remove level boss
+            if(x < -size || x - radius > WIDTH || y - height > HEIGHT) {
+                levelBossesToRemove.add(LevelBoss.this);
             }
         }
     }
@@ -3477,37 +3517,41 @@ public class SpaceFXView extends StackPane {
     }
 
     private class Wave {
-        private static final long        ENEMY_SPAWN_INTERVAL = 250_000_000l;
-        private final        WaveType    waveType1;
-        private final        WaveType    waveType2;
-        private final        SpaceShip   spaceShip;
-        private final        int         noOfEnemies;
-        private final        Image       image;
-        private final        boolean     canFire;
-        private final        boolean     canBomb;
-        private final        List<Enemy> enemies;
-        private final        List<Enemy> enemiesToRemove;
-        private              int         enemiesSpawned;
-        private              long        lastEnemySpawned;
-        private              boolean     alternateWaveType;
-        private              boolean     toggle;
-        private              boolean     isRunning;
+        private static final long         ENEMY_SPAWN_INTERVAL = 250_000_000l;
+        private final        WaveType     waveType1;
+        private final        WaveType     waveType2;
+        private final        SpaceShip    spaceShip;
+        private final        int          noOfEnemies;
+        private final        int          noOfSmartEnemies;
+        private final        Image        image;
+        private final        boolean      canFire;
+        private final        boolean      canBomb;
+        private final        List<Enemy>  enemies;
+        private final        List<Enemy>  enemiesToRemove;
+        private final        List<Enemy>  smartEnemies;
+        private              int          enemiesSpawned;
+        private              long         lastEnemySpawned;
+        private              boolean      alternateWaveType;
+        private              boolean      toggle;
+        private              boolean      isRunning;
 
 
         public Wave(final WaveType waveType, final SpaceShip spaceShip, final int noOfEnemies, final Image image, final boolean canFire, final boolean canBomb) {
             this(waveType, null, spaceShip, noOfEnemies, image, canFire, canBomb);
         }
         public Wave(final WaveType waveType1, final WaveType waveType2, final SpaceShip spaceShip, final int noOfEnemies, final Image image, final boolean canFire, final boolean canBomb) {
-            if (null == waveType1) { throw new IllegalArgumentException("You need at least define one wave type."); }
+            if (null == waveType1) { throw new IllegalArgumentException("You need at least define waveType1."); }
             this.waveType1         = waveType1;
             this.waveType2         = waveType2;
             this.spaceShip         = spaceShip;
             this.noOfEnemies       = noOfEnemies;
+            this.noOfSmartEnemies  = level.getDifficulty().noOfSmartEnemies;
             this.image             = image;
             this.canFire           = canFire;
             this.canBomb           = canBomb;
             this.enemies           = new ArrayList<>(noOfEnemies);
             this.enemiesToRemove   = new ArrayList<>();
+            this.smartEnemies      = new ArrayList<>();
             this.enemiesSpawned    = 0;
             this.alternateWaveType = null == waveType2 ? false : true;
             this.toggle            = true;
@@ -3518,11 +3562,22 @@ public class SpaceFXView extends StackPane {
         public void update(final GraphicsContext ctx) {
             if (isRunning) {
                 if (enemiesSpawned < noOfEnemies && System.nanoTime() - lastEnemySpawned > ENEMY_SPAWN_INTERVAL) {
-                    spawnEnemy();
+                    Enemy enemy = spawnEnemy();
+                    if (smartEnemies.size() < level.getDifficulty().noOfSmartEnemies && RND.nextBoolean()) {
+                        smartEnemies.add(enemy);
+                    }
                     lastEnemySpawned = System.nanoTime();
                 }
 
                 enemies.forEach(enemy -> {
+                    if (//level.getIndex() > 2 &&
+                        level.getIndex() == 1 &&
+                        !enemy.smart &&
+                        enemy.frameCounter > waveType1.totalFrames * 0.35 &&
+                        smartEnemies.contains(enemy)) {
+                        enemy.smart = RND.nextBoolean();
+                    }
+
                     enemy.update();
                     if (enemy.toBeRemoved) {
                         enemiesToRemove.add(enemy);
@@ -3612,7 +3667,7 @@ public class SpaceFXView extends StackPane {
             }
         }
 
-        private void spawnEnemy() {
+        private Enemy spawnEnemy() {
             Enemy enemy;
             if (alternateWaveType) {
                 enemy = new Enemy(toggle ? waveType1 : waveType2, spaceShip, image, canFire, canBomb);
@@ -3622,6 +3677,7 @@ public class SpaceFXView extends StackPane {
             toggle = !toggle;
             enemies.add(enemy);
             enemiesSpawned++;
+            return enemy;
         }
     }
 }
