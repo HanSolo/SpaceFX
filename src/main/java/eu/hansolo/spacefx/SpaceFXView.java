@@ -3020,8 +3020,10 @@ public class SpaceFXView extends StackPane {
             dY     = spaceShip.y - y;
             dist   = Math.sqrt(dX * dX + dY * dY);
             factor = ENEMY_BOSS_ROCKET_SPEED / dist;
-            vX     = dX * factor;
-            vY     = dY * factor;
+            if (spaceShip.y > y) {
+                vX = dX * factor;
+                vY = dY * factor;
+            }
 
             x += vX;
             y += vY;
@@ -3345,8 +3347,10 @@ public class SpaceFXView extends StackPane {
             dY     = spaceShip.y - y;
             dist   = Math.sqrt(dX * dX + dY * dY);
             factor = ENEMY_BOSS_ROCKET_SPEED / dist;
-            vX     = dX * factor;
-            vY     = dY * factor;
+            if (spaceShip.y > y) {
+                vX = dX * factor;
+                vY = dY * factor;
+            }
 
             x += vX;
             y += vY;
