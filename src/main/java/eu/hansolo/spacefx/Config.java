@@ -50,8 +50,8 @@ public class Config {
     //public static final boolean     SHOW_BUTTONS                        = Platform.isSupported(ConditionalFeature.INPUT_MULTITOUCH);
     public static final int         NO_OF_STARS                         = SHOW_STARS ? (int) (SCALING_FACTOR * 200) : 0;
     public static final int         NO_OF_ASTEROIDS                     = SHOW_ASTEROIDS ? (int) (SCALING_FACTOR * 10) : 0;
-    public static final int         LIFES                               = 5;
-    public static final int         SHIELDS                             = 10;
+    public static final int         NO_OF_LIFES                         = 5;
+    public static final int         NO_OF_SHIELDS                       = 10;
     public static final long        DEFLECTOR_SHIELD_TIME               = 5_000_000_000l;
     public static final long        BIG_TORPEDO_TIME                    = 40_000_000_000l;
     public static final long        STARBURST_TIME                      = 40_000_000_000l;
@@ -59,6 +59,7 @@ public class Config {
     public static final double      TORPEDO_SPEED                       = 6 * VELOCITY_FACTOR_Y;
     public static final double      BIG_TORPEDO_SPEED                   = 3 * VELOCITY_FACTOR_Y;
     public static final double      ROCKET_SPEED                        = 4 * VELOCITY_FACTOR_Y;
+    public static final double      ENEMY_SPEED                         = 4 * VELOCITY_FACTOR_Y;
     public static final double      ENEMY_TORPEDO_SPEED                 = 5 * VELOCITY_FACTOR_Y;
     public static final double      ENEMY_BOMB_SPEED                    = 3 * VELOCITY_FACTOR_Y;
     public static final int         NO_OF_ENEMY_BOMBS                   = 3;
@@ -68,6 +69,7 @@ public class Config {
     public static final double      LEVEL_BOSS_SPEED                    = 1 * VELOCITY_FACTOR_Y;
     public static final double      LEVEL_BOSS_TORPEDO_SPEED            = 6 * VELOCITY_FACTOR_Y;
     public static final double      LEVEL_BOSS_BOMB_SPEED               = 4 * VELOCITY_FACTOR_Y;
+    public static final double      OUT_OF_SENSING_HEIGHT               = HEIGHT * 0.8;
     public static final int         TORPEDO_DAMAGE                      = 1;
     public static final int         BIG_TORPEDO_DAMAGE                  = 3;
     public static final int         ROCKET_DAMAGE                       = 3;

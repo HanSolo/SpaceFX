@@ -25,6 +25,7 @@ import static com.gluonhq.attach.util.Platform.isIOS;
 
 
 public class Level3 implements Level {
+    public final int        index                   = 3;
     public final Difficulty difficulty              = Difficulty.HARD;
     //public final Image      backgroundImg           = new Image(getClass().getResourceAsStream("backgroundL3.jpg"), 700 * BKG_SCALING_FACTOR, 3379 * BKG_SCALING_FACTOR, true, false);
     public final Image      backgroundImg           = isDesktop() ? new Image(getClass().getResourceAsStream("backgroundL3.jpg"), 700 * BKG_SCALING_FACTOR, 3379 * BKG_SCALING_FACTOR, true, false) : isIOS() ? new Image(getClass().getResourceAsStream("backgroundL3.jpg"), 700 * BKG_SCALING_FACTOR, 3379 * BKG_SCALING_FACTOR, true, false) : new Image(getClass().getResourceAsStream("backgroundL3.png"), 700 * BKG_SCALING_FACTOR, 3379 * BKG_SCALING_FACTOR, true, false);
@@ -52,6 +53,8 @@ public class Level3 implements Level {
     public final Image      levelBossBombImg        = new Image(getClass().getResourceAsStream("levelBossBombL3.png"), 30 * SCALING_FACTOR, 30 * SCALING_FACTOR, true, false);
     public final Image      levelBossExplosionImg   = new Image(getClass().getResourceAsStream("levelBossExplosionL3.png"), 2048 * SCALING_FACTOR, 768 * SCALING_FACTOR, true, false);
 
+
+    @Override public int getIndex() { return index; }
 
     @Override public Difficulty getDifficulty() { return difficulty; }
 
