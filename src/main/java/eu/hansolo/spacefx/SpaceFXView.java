@@ -2603,6 +2603,7 @@ public class SpaceFXView extends StackPane {
             this.canBomb      = canBomb;
             this.noOfBombs    = NO_OF_ENEMY_BOMBS;
             this.toBeRemoved  = false;
+            this.smart        = smart;
             init();
         }
 
@@ -3246,6 +3247,7 @@ public class SpaceFXView extends StackPane {
             // Remove level boss
             if(x < -size || x - radius > WIDTH || y - height > HEIGHT) {
                 levelBossesToRemove.add(LevelBoss.this);
+                nextLevel();
             }
         }
     }
@@ -3574,8 +3576,7 @@ public class SpaceFXView extends StackPane {
                 }
 
                 enemies.forEach(enemy -> {
-                    if (//level.getIndex() > 2 &&
-                        level.getIndex() == 1 &&
+                    if (level.getIndex() > 1 &&
                         !enemy.smart &&
                         enemy.frameCounter > waveType1.totalFrames * 0.35 &&
                         smartEnemies.contains(enemy)) {
