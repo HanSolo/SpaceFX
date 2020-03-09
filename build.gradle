@@ -46,7 +46,7 @@ dependencies {
     implementation "com.sandec.jpro:jpro-webapi:2019.2.2"
 }
 
-mainClassName = '$spacefx/eu.hansolo.spacefx.SpaceFX'
+mainClassName = "$moduleName/eu.hansolo.spacefx.SpaceFX"
 
 jar {
     from {
