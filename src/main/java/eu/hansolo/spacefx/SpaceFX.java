@@ -29,11 +29,17 @@ import static eu.hansolo.spacefx.Config.WIDTH;
 
 
 public class SpaceFX extends Application {
-    private static final boolean     IS_BROWSER = WebAPI.isBrowser();
+    private static final boolean IS_BROWSER = WebAPI.isBrowser();
+    private              boolean torpedoArmed;
+    private              boolean rocketArmed;
+    private              boolean shieldArmed;
     private              SpaceFXView view;
 
     @Override public void init() {
-        view = new SpaceFXView();
+        torpedoArmed = true;
+        rocketArmed  = true;
+        shieldArmed  = true;
+        view         = new SpaceFXView();
     }
 
     @Override public void start(Stage stage) {
@@ -59,13 +65,22 @@ public class SpaceFX extends Application {
                             view.decreaseSpaceShipVx();
                             break;
                         case S:
-                            view.activateSpaceShipShield();
+                            if (shieldArmed) {
+                                view.activateSpaceShipShield();
+                                shieldArmed = false;
+                            }
                             break;
                         case R:
-                            view.fireSpaceShipRocket();
+                            if (rocketArmed) {
+                                view.fireSpaceShipRocket();
+                                rocketArmed = false;
+                            }
                             break;
                         case SPACE:
-                            view.fireSpaceShipWeapon();
+                            if (torpedoArmed) {
+                                view.fireSpaceShipWeapon();
+                                torpedoArmed = false;
+                            }
                             break;
                     }
                 } else if (e.getCode() == KeyCode.P && view.isReadyToStart()) {
@@ -86,6 +101,15 @@ public class SpaceFX extends Application {
                             break;
                         case LEFT:
                             view.stopSpaceShipVx();
+                            break;
+                        case S:
+                            shieldArmed = true;
+                            break;
+                        case R:
+                            rocketArmed = true;
+                            break;
+                        case SPACE:
+                            torpedoArmed = true;
                             break;
                     }
                 }
