@@ -83,7 +83,7 @@ public class SpaceFXView extends StackPane {
     private              boolean                    hallOfFameScreen;
     private              Properties                 properties;
     private              Label                      playerInitialsLabel;
-    private              TextField                  playerInitials;
+    private              TextField                  playerInitialsTextField;
     private              List<Player>               hallOfFame;
     private              VBox                       hallOfFameBox;
     private              Level                      level;
@@ -219,7 +219,7 @@ public class SpaceFXView extends StackPane {
 
         shipTouchArea = new Circle();
 
-        Pane pane = new Pane(canvas, shipTouchArea, hallOfFameBox, playerInitialsLabel, playerInitials);
+        Pane pane = new Pane(canvas, shipTouchArea, hallOfFameBox, playerInitialsLabel, playerInitialsTextField);
         pane.setPrefSize(WIDTH, HEIGHT);
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
@@ -258,13 +258,13 @@ public class SpaceFXView extends StackPane {
 
         playerInitialsLabel = new Label("Type in your initials");
         playerInitialsLabel.setAlignment(Pos.CENTER);
-        playerInitialsLabel.relocate(WIDTH * 0.5, HEIGHT * 0.7);
+        playerInitialsLabel.setPrefWidth(WIDTH);
         Helper.enableNode(playerInitialsLabel, false);
 
-        playerInitials   = new TextField("--");
-        playerInitials.setAlignment(Pos.CENTER);
-        playerInitials.relocate(WIDTH * 0.5, HEIGHT * 0.8);
-        playerInitials.setTextFormatter(new TextFormatter<String>(change -> {
+        playerInitialsTextField   = new TextField("--");
+        playerInitialsTextField.setAlignment(Pos.CENTER);
+        playerInitialsTextField.setPrefWidth(WIDTH);
+        playerInitialsTextField.setTextFormatter(new TextFormatter<String>(change -> {
             if (change.getControlNewText().length() > 2) { return null; }
             if (change.getText().toUpperCase().matches("[A-Z\\-]{0,2}")) {
                 change.setText(change.getText().toUpperCase());
@@ -273,9 +273,9 @@ public class SpaceFXView extends StackPane {
                 return null;
             }
         }));
-        playerInitials.setOnKeyPressed(e -> {
-            if (e.getCode().equals(KeyCode.ENTER) && playerInitials.getText().length() == 2) {
-                hallOfFame.add(new Player(playerInitials.getText(), score));
+        playerInitialsTextField.setOnKeyPressed(e -> {
+            if (e.getCode().equals(KeyCode.ENTER) && playerInitialsTextField.getText().length() == 2) {
+                hallOfFame.add(new Player(playerInitialsTextField.getText(), score));
                 Collections.sort(hallOfFame);
                 hallOfFame = hallOfFame.stream().limit(3).collect(Collectors.toList());
 
@@ -292,14 +292,14 @@ public class SpaceFXView extends StackPane {
                 hallOfFameBox.relocate((WIDTH - hallOfFameBox.getPrefWidth()) * 0.5, (HEIGHT - hallOfFameBox.getPrefHeight()) * 0.5);
 
                 Helper.enableNode(playerInitialsLabel, false);
-                Helper.enableNode(playerInitials, false);
+                Helper.enableNode(playerInitialsTextField, false);
 
                 PauseTransition waitForHallOfFame = new PauseTransition(Duration.millis(3000));
                 waitForHallOfFame.setOnFinished(a -> reInitGame());
                 waitForHallOfFame.play();
             }
         });
-        Helper.enableNode(playerInitials, false);
+        Helper.enableNode(playerInitialsTextField, false);
 
         // PreFill hall of fame
         properties = PropertyManager.INSTANCE.getProperties();
@@ -317,8 +317,6 @@ public class SpaceFXView extends StackPane {
         HBox p2Entry  = createHallOfFameEntry(p2);
         HBox p3Entry  = createHallOfFameEntry(p3);
         hallOfFameBox = new VBox(20, p1Entry, p2Entry, p3Entry);
-        hallOfFameBox.setMinWidth(WIDTH * 0.6);
-        hallOfFameBox.setMaxWidth(WIDTH * 0.6);
         hallOfFameBox.setPrefWidth(WIDTH * 0.6);
         hallOfFameBox.setAlignment(Pos.CENTER);
         hallOfFameBox.setTranslateY(-HEIGHT * 0.1);
@@ -1422,10 +1420,12 @@ public class SpaceFXView extends StackPane {
 
                 Helper.enableNode(hallOfFameBox, true);
                 Helper.enableNode(playerInitialsLabel, true);
-                Helper.enableNode(playerInitials, true);
+                Helper.enableNode(playerInitialsTextField, true);
+                playerInitialsLabel.relocate((WIDTH - playerInitialsLabel.getPrefWidth()) * 0.5, HEIGHT * 0.7);
+                playerInitialsTextField.relocate((WIDTH - playerInitialsTextField.getPrefWidth()) * 0.5, HEIGHT * 0.8);
                 Platform.runLater(() -> {
-                    playerInitials.requestFocus();
-                    playerInitials.selectAll();
+                    playerInitialsTextField.requestFocus();
+                    playerInitialsTextField.selectAll();
                 });
             });
             pauseInGameOverScreen.play();
