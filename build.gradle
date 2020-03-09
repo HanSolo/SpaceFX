@@ -5,7 +5,7 @@ buildscript {
             url "https://plugins.gradle.org/m2/"
         }
         maven {
-            url "http://sandec.bintray.com/repo"
+            url "https://sandec.bintray.com/repo"
         }
     }
     dependencies {
@@ -17,7 +17,7 @@ buildscript {
 }
 
 plugins {
-    id 'java'
+    id 'java-library'
     id 'application'
     id 'com.google.osdetector' version '1.6.2'
     id 'org.javamodularity.moduleplugin' version '1.6.0'
@@ -35,24 +35,23 @@ repositories {
     mavenCentral()
 }
 
-// JDK 11 (used for jpro)
 sourceCompatibility = 11
 targetCompatibility = 11
 
 dependencies {
-    compile "org.openjfx:javafx-base:11:$platform"
-    compile "org.openjfx:javafx-graphics:11:$platform"
-    compile "org.openjfx:javafx-controls:11:$platform"
-    compile "org.openjfx:javafx-media:11:$platform"
-    compile "com.sandec.jpro:jpro-webapi:2019.2.2"
+    implementation "org.openjfx:javafx-base:11:$platform"
+    implementation "org.openjfx:javafx-graphics:11:$platform"
+    implementation "org.openjfx:javafx-controls:11:$platform"
+    implementation "org.openjfx:javafx-media:11:$platform"
+    implementation "com.sandec.jpro:jpro-webapi:2019.2.2"
 }
 
-mainClassName = 'eu.hansolo.spacefx.SpaceFX'
+mainClassName = '$spacefx/eu.hansolo.spacefx.SpaceFX'
 
 jar {
-    dependsOn configurations.runtime
     from {
-        (configurations.runtime).collect {  it.isDirectory() ? it : zipTree(it)  }
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        configurations.runtimeClasspath.collect {  it.isDirectory() ? it : zipTree(it)  }
     } {
         exclude "META-INF/*.SF"
         exclude "META-INF/*.DSA"
@@ -60,8 +59,8 @@ jar {
     }
     manifest {
         attributes ('Implementation-Title': 'SpaceFX',
-                'Class-Path': 'SpaceFX-1.0-SNAPSHOT.jar ',
-                'Main-Class': 'eu.hansolo.spacefx.Launcher')
+                    'Class-Path': 'SpaceFX-1.0-SNAPSHOT.jar ',
+                    'Main-Class': 'eu.hansolo.spacefx.Launcher')
     }
 }
 
@@ -74,7 +73,6 @@ jlink {
 
 jpro {
     port             = 8080
-    //JVMArgs << '-Djava.security.policy=/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home/conf/security/java.policy - Xmx1000m'
     JVMArgs << '-Xmx1000m'
     visible          = false // Debug mode can also be used to create images via canvas and snapshot
     noRenderJobs     = true // false to enable snapshot support
