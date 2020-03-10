@@ -28,11 +28,10 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -65,12 +64,9 @@ import java.util.stream.Collectors;
 import static eu.hansolo.spacefx.Config.*;
 
 
-
 public class SpaceFXView extends StackPane {
     private static final long                       SCREEN_TOGGLE_INTERVAL  = 10_000_000_000l;
     private static final Random                     RND                     = new Random();
-    private static final String                     SPACE_BOY;
-    private static       String                     spaceBoyName;
     private static final boolean                    IS_BROWSER              = WebAPI.isBrowser();
     private              Task<Boolean>              initTask;
     private              Level1                     level1;
@@ -83,7 +79,10 @@ public class SpaceFXView extends StackPane {
     private              boolean                    hallOfFameScreen;
     private              Properties                 properties;
     private              Label                      playerInitialsLabel;
-    private              TextField                  playerInitialsTextField;
+    private              InitialDigit               digit1;
+    private              InitialDigit               digit2;
+    private              HBox                       playerInitialsDigits;
+    private              Button                     saveInitialsButton;
     private              List<Player>               hallOfFame;
     private              VBox                       hallOfFameBox;
     private              Level                      level;
@@ -204,13 +203,6 @@ public class SpaceFXView extends StackPane {
     private              Circle                     shipTouchArea;
     private              EventHandler<TouchEvent>   touchHandler;
 
-    static {
-        try {
-            spaceBoyName = Font.loadFont(SpaceFXView.class.getResourceAsStream("spaceboy.ttf"), 10).getName();
-        } catch (Exception exception) { }
-        SPACE_BOY = spaceBoyName;
-    }
-
 
     // ******************** Constructor ***************************************
     public SpaceFXView() {
@@ -219,7 +211,7 @@ public class SpaceFXView extends StackPane {
 
         shipTouchArea = new Circle();
 
-        Pane pane = new Pane(canvas, shipTouchArea, hallOfFameBox, playerInitialsLabel, playerInitialsTextField);
+        Pane pane = new Pane(canvas, shipTouchArea, hallOfFameBox, playerInitialsLabel, playerInitialsDigits, saveInitialsButton);
         pane.setPrefSize(WIDTH, HEIGHT);
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
@@ -236,6 +228,8 @@ public class SpaceFXView extends StackPane {
             });
         }
 
+        saveInitialsButton.setOnAction(e -> storePlayer());
+
         setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         getChildren().add(pane);
 
@@ -249,7 +243,7 @@ public class SpaceFXView extends StackPane {
 
     // ******************** Methods *******************************************
     public void init() {
-        scoreFont        = spaceBoy(SCORE_FONT_SIZE);
+        scoreFont        = Fonts.spaceBoy(SCORE_FONT_SIZE);
         running          = false;
         gameOverScreen   = false;
         levelBossActive  = false;
@@ -261,45 +255,18 @@ public class SpaceFXView extends StackPane {
         playerInitialsLabel.setPrefWidth(WIDTH);
         Helper.enableNode(playerInitialsLabel, false);
 
-        playerInitialsTextField   = new TextField("--");
-        playerInitialsTextField.setAlignment(Pos.CENTER);
-        playerInitialsTextField.setPrefWidth(WIDTH);
-        playerInitialsTextField.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() > 2) { return null; }
-            if (change.getText().toUpperCase().matches("[A-Z\\-]{0,2}")) {
-                change.setText(change.getText().toUpperCase());
-                return change;
-            } else {
-                return null;
-            }
-        }));
-        playerInitialsTextField.setOnKeyPressed(e -> {
-            if (e.getCode().equals(KeyCode.ENTER) && playerInitialsTextField.getText().length() == 2) {
-                hallOfFame.add(new Player(playerInitialsTextField.getText(), score));
-                Collections.sort(hallOfFame);
-                hallOfFame = hallOfFame.stream().limit(3).collect(Collectors.toList());
+        digit1 = new InitialDigit();
+        digit2 = new InitialDigit();
+        ToggleGroup toggleGroup = new ToggleGroup();
+        digit1.setToggleGroup(toggleGroup);
+        digit2.setToggleGroup(toggleGroup);
+        digit1.setSelected(true);
+        playerInitialsDigits = new HBox(0, digit1, digit2);
+        Helper.enableNode(playerInitialsDigits, false);
 
-                // Store hall of fame in properties
-                properties.setProperty("hallOfFame1", hallOfFame.get(0).toPropertyString());
-                properties.setProperty("hallOfFame2", hallOfFame.get(1).toPropertyString());
-                properties.setProperty("hallOfFame3", hallOfFame.get(2).toPropertyString());
-                PropertyManager.INSTANCE.storeProperties();
-
-                HBox p1Entry = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame1")));
-                HBox p2Entry = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame2")));
-                HBox p3Entry = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame3")));
-                hallOfFameBox.getChildren().setAll(p1Entry, p2Entry, p3Entry);
-                hallOfFameBox.relocate((WIDTH - hallOfFameBox.getPrefWidth()) * 0.5, (HEIGHT - hallOfFameBox.getPrefHeight()) * 0.5);
-
-                Helper.enableNode(playerInitialsLabel, false);
-                Helper.enableNode(playerInitialsTextField, false);
-
-                PauseTransition waitForHallOfFame = new PauseTransition(Duration.millis(3000));
-                waitForHallOfFame.setOnFinished(a -> reInitGame());
-                waitForHallOfFame.play();
-            }
-        });
-        Helper.enableNode(playerInitialsTextField, false);
+        saveInitialsButton = new Button("Save Initials");
+        saveInitialsButton.setPrefWidth(WIDTH * 0.6);
+        Helper.enableNode(saveInitialsButton, false);
 
         // PreFill hall of fame
         properties = PropertyManager.INSTANCE.getProperties();
@@ -1405,7 +1372,7 @@ public class SpaceFXView extends StackPane {
             ctx.clearRect(0, 0, WIDTH, HEIGHT);
             ctx.drawImage(gameOverImg, 0, 0, WIDTH, HEIGHT);
             ctx.setFill(SPACEFX_COLOR);
-            ctx.setFont(spaceBoy(SCORE_FONT_SIZE));
+            ctx.setFont(Fonts.spaceBoy(SCORE_FONT_SIZE));
             ctx.fillText(Long.toString(score), scorePosX, HEIGHT * 0.25);
             playSound(gameoverSound);
         });
@@ -1418,15 +1385,15 @@ public class SpaceFXView extends StackPane {
                 ctx.clearRect(0, 0, WIDTH, HEIGHT);
                 ctx.drawImage(hallOfFameImg, 0, 0);
 
+                hallOfFameScreen = true;
                 Helper.enableNode(hallOfFameBox, true);
                 Helper.enableNode(playerInitialsLabel, true);
-                Helper.enableNode(playerInitialsTextField, true);
+                Helper.enableNode(playerInitialsDigits, true);
+                Helper.enableNode(saveInitialsButton, true);
                 playerInitialsLabel.relocate((WIDTH - playerInitialsLabel.getPrefWidth()) * 0.5, HEIGHT * 0.7);
-                playerInitialsTextField.relocate((WIDTH - playerInitialsTextField.getPrefWidth()) * 0.5, HEIGHT * 0.8);
-                Platform.runLater(() -> {
-                    playerInitialsTextField.requestFocus();
-                    playerInitialsTextField.selectAll();
-                });
+                playerInitialsDigits.relocate((WIDTH - digit1.getPrefWidth() - digit2.getPrefWidth()) * 0.5, HEIGHT * 0.8);
+                saveInitialsButton.relocate((WIDTH - saveInitialsButton.getPrefWidth()) * 0.5, HEIGHT - saveInitialsButton.getPrefHeight() - HEIGHT * 0.075);
+                Platform.runLater(() -> playerInitialsDigits.requestFocus());
             });
             pauseInGameOverScreen.play();
         } else {
@@ -1502,9 +1469,6 @@ public class SpaceFXView extends StackPane {
     }
 
 
-    // Font definition
-    private static Font spaceBoy(final double size) { return new Font(SPACE_BOY, size); }
-
     // Iterate through levels
     private void nextLevel() {
         playSound(levelUpSound);
@@ -1541,6 +1505,8 @@ public class SpaceFXView extends StackPane {
     public boolean isReadyToStart() { return readyToStart; }
 
     public boolean isRunning() { return running; }
+
+    public boolean isHallOfFameScreen() { return hallOfFameScreen; }
 
     public void increaseSpaceShipVx() { spaceShip.vX = 5; }
     public void decreaseSpaceShipVx() { spaceShip.vX = -5; }
@@ -1588,6 +1554,35 @@ public class SpaceFXView extends StackPane {
         }
         lastStarBlast = System.nanoTime();
         playSound(laserSound);
+    }
+
+    public InitialDigit getDigit1() { return digit1; }
+    public InitialDigit getDigit2() { return digit2; }
+
+    public void storePlayer() {
+        hallOfFame.add(new Player((digit1.getCharacter() + digit2.getCharacter()), score));
+        Collections.sort(hallOfFame);
+        hallOfFame = hallOfFame.stream().limit(3).collect(Collectors.toList());
+
+        // Store hall of fame in properties
+        properties.setProperty("hallOfFame1", hallOfFame.get(0).toPropertyString());
+        properties.setProperty("hallOfFame2", hallOfFame.get(1).toPropertyString());
+        properties.setProperty("hallOfFame3", hallOfFame.get(2).toPropertyString());
+        PropertyManager.INSTANCE.storeProperties();
+
+        HBox p1Entry = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame1")));
+        HBox p2Entry = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame2")));
+        HBox p3Entry = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame3")));
+        hallOfFameBox.getChildren().setAll(p1Entry, p2Entry, p3Entry);
+        hallOfFameBox.relocate((WIDTH - hallOfFameBox.getPrefWidth()) * 0.5, (HEIGHT - hallOfFameBox.getPrefHeight()) * 0.5);
+
+        Helper.enableNode(playerInitialsLabel, false);
+        Helper.enableNode(playerInitialsDigits, false);
+        Helper.enableNode(saveInitialsButton, false);
+
+        PauseTransition waitForHallOfFame = new PauseTransition(Duration.millis(3000));
+        waitForHallOfFame.setOnFinished(a -> reInitGame());
+        waitForHallOfFame.play();
     }
 
 

@@ -83,6 +83,30 @@ public class SpaceFX extends Application {
                             }
                             break;
                     }
+                } else if (view.isHallOfFameScreen()) {
+                    switch (e.getCode()) {
+                        case UP:
+                            if (view.getDigit1().isSelected()) { view.getDigit1().up(); }
+                            if (view.getDigit2().isSelected()) { view.getDigit2().up(); }
+                            break;
+                        case RIGHT:
+                            if (view.getDigit1().isSelected()) {
+                                view.getDigit2().setSelected(true);
+                            }
+                            break;
+                        case DOWN:
+                            if (view.getDigit1().isSelected()) { view.getDigit1().down(); }
+                            if (view.getDigit2().isSelected()) { view.getDigit2().down(); }
+                            break;
+                        case LEFT:
+                            if (view.getDigit2().isSelected()) {
+                                view.getDigit1().setSelected(true);
+                            }
+                            break;
+                        case SPACE:
+                            view.storePlayer();
+                            break;
+                    }
                 } else if (e.getCode() == KeyCode.P && view.isReadyToStart()) {
                     view.startGame();
                 }
