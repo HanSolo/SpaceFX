@@ -9,27 +9,18 @@
     -fx-alignment  : center;
 }
 
-.text-input {
-    -fx-pref-width         : 120px;
-    -fx-text-fill          : rgb(51, 210, 206);
-    -fx-font-family        : "Spaceboy";
-    -fx-font-size          : 1.5em;
-    -fx-highlight-fill     : transparent;
-    -fx-highlight-text-fill: transparent;
-    -fx-prompt-text-fill   : transparent;
-    -fx-background-color   : transparent;
-    -fx-background-insets  : 0;
-    -fx-background-radius  : 0;
-    -fx-cursor             : text;
-    -fx-padding            : 0;
+.button {
     -fx-alignment          : center;
-}
-.text-input:focused {
     -fx-font-family        : "Spaceboy";
-    -fx-highlight-fill     : transparent;
-    -fx-highlight-text-fill: rgb(51, 210, 206);
+    -fx-font-size          : 1em;
+    -fx-text-fill          : rgb(51, 210, 206);
     -fx-background-color   : transparent;
+    -fx-faint-focus-color  : transparent;
     -fx-background-insets  : 0;
     -fx-background-radius  : 0;
-    -fx-prompt-text-fill   : transparent;
+    -fx-highlight-fill     : transparent;
+    -fx-padding            : 0 0 0.5em 0;
+    -fx-border-color       : rgb(51, 210, 206);
+    -fx-border-width       : 0.08333333em;
+    -fx-border-radius      : 1em;
 }
