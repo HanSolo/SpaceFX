@@ -115,7 +115,7 @@ mvn -Pandroid client:run
 
 The Android spacefx.apk file can be found at
 ```
-/PATH/TO/SpaceFX/target/a.,dflaskdjf
+/PATH/TO/SpaceFX/target/client/aarch64-android/gvm/apk/bin
 ```
 
 
@@ -130,7 +130,7 @@ mvn clean client:build
 
 The Linux binary can be found at
 ```
-/PATH/TO/SpaceFX/target/a.,dflaskdjf
+/PATH/TO/SpaceFX/target/x86_64-linux
 ```
 
 Keep in mind that at the moment there is no support for sound when using the GraalVM/Substrate combo.
