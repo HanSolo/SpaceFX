@@ -386,10 +386,10 @@ public class SpaceFXView extends StackPane {
             @Override public void handle(final long now) {
                 if (!running && now > lastScreenToggle + SCREEN_TOGGLE_INTERVAL) {
                     if (hallOfFameScreen) {
-                        ctx.drawImage(hallOfFameImg, 0, 0);
+                        ctx.drawImage(hallOfFameImg, 0, 0, WIDTH, HEIGHT);
                         Helper.enableNode(hallOfFameBox, true);
                     } else {
-                        ctx.drawImage(startImg, 0, 0);
+                        ctx.drawImage(startImg, 0, 0, WIDTH, HEIGHT);
                         Helper.enableNode(hallOfFameBox, false);
                     }
                     hallOfFameScreen = !hallOfFameScreen;
@@ -435,7 +435,7 @@ public class SpaceFXView extends StackPane {
         ctx.setFont(scoreFont);
         ctx.setTextAlign(TextAlignment.CENTER);
         ctx.setTextBaseline(VPos.CENTER);
-        ctx.drawImage(startImg, 0, 0);
+        ctx.drawImage(startImg, 0, 0, WIDTH, HEIGHT);
     }
 
     private void initOnBackground() {
@@ -1390,7 +1390,7 @@ public class SpaceFXView extends StackPane {
             pauseInGameOverScreen.setOnFinished(e -> {
                 // Add player to hall of fame
                 ctx.clearRect(0, 0, WIDTH, HEIGHT);
-                ctx.drawImage(hallOfFameImg, 0, 0);
+                ctx.drawImage(hallOfFameImg, 0, 0, WIDTH, HEIGHT);
 
                 hallOfFameScreen = true;
                 Helper.enableNode(hallOfFameBox, true);
@@ -1415,7 +1415,7 @@ public class SpaceFXView extends StackPane {
     // Reinitialize game
     private void reInitGame() {
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        ctx.drawImage(startImg, 0, 0);
+        ctx.drawImage(startImg, 0, 0, WIDTH, HEIGHT);
 
         Helper.enableNode(hallOfFameBox, false);
         gameOverScreen = false;
