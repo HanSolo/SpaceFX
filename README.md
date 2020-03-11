@@ -9,9 +9,9 @@ enemy boss that also fires rockets.
 Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 
 ### Desktop and Mobile
-![Desktop](https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_Desktop.jpg)
-![iOS](https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_iOS.jpg)
-![Android](https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_Android.jpg)
+<p>Desktop<br><img src="https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_Desktop.jpg" width=50%></img></p>
+<p>iOS<br><img src="https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_iOS.jpg" width=50%></img></p>
+<p>Android<br><img src="https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_Android.jpg" width=50%></img></p>
 
 
 ### Youtube video
