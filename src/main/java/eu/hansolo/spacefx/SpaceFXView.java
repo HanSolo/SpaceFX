@@ -209,8 +209,6 @@ public class SpaceFXView extends StackPane {
         init();
         initOnBackground();
 
-        shipTouchArea = new Circle();
-
         Pane pane = new Pane(canvas, shipTouchArea, hallOfFameBox, playerInitialsLabel, playerInitialsDigits, saveInitialsButton);
         pane.setPrefSize(WIDTH, HEIGHT);
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -397,6 +395,8 @@ public class SpaceFXView extends StackPane {
             }
         };
 
+        shipTouchArea = new Circle();
+
         touchHandler = e -> {
             EventType<TouchEvent>  type  = e.getEventType();
             if (TouchEvent.TOUCH_PRESSED.equals(type)) {
@@ -504,11 +504,6 @@ public class SpaceFXView extends StackPane {
 
                 deflectorShieldRadius   = deflectorShieldImg.getRequestedWidth() * 0.5;
                 spaceShip               = new SpaceShip(spaceshipImg, spaceshipUpImg, spaceshipDownImg);
-                shipTouchArea.setCenterX(spaceShip.x);
-                shipTouchArea.setCenterY(spaceShip.y);
-                shipTouchArea.setRadius(deflectorShieldRadius);
-                shipTouchArea.setStroke(Color.TRANSPARENT);
-                shipTouchArea.setFill(Color.TRANSPARENT);
 
                 // Adjust audio clip volumes
                 explosionSound.setVolume(0.5);
@@ -519,7 +514,14 @@ public class SpaceFXView extends StackPane {
                 return true;
             }
         };
-        initTask.setOnSucceeded(e -> readyToStart = true);
+        initTask.setOnSucceeded(e -> {
+            shipTouchArea.setCenterX(spaceShip.x);
+            shipTouchArea.setCenterY(spaceShip.y);
+            shipTouchArea.setRadius(deflectorShieldRadius);
+            shipTouchArea.setStroke(Color.TRANSPARENT);
+            shipTouchArea.setFill(Color.TRANSPARENT);
+            readyToStart = true;
+        });
         initTask.setOnFailed(e -> readyToStart = false);
         new Thread(initTask, "initThread").start();
     }
