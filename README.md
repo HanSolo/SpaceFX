@@ -15,7 +15,7 @@ Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 <p>Web<br><img src="https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_Web.jpg" width=50%></img></p>
 
 ### Youtube video
-I've recorded a little [video](https://www.youtube.com/watch?v=Kc0lv3R5VG0) that shows the game in action.
+I've recorded a little [video](https://youtu.be/Kc0lv3R5VG0) that shows the game in action.
 
 
 ### Requirements for building a native package
