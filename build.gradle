@@ -48,6 +48,9 @@ dependencies {
 
 mainClassName = "$moduleName/eu.hansolo.spacefx.SpaceFX"
 
+// To run SpaceFX in the browser with jPro use:
+//mainClassName = "eu.hansolo.spacefx.SpaceFX"
+
 jar {
     from {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE

@@ -12,10 +12,19 @@ Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 <p>Desktop<br><img src="https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_Desktop.jpg" width=50%></img></p>
 <p>iOS<br><img src="https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_iOS.jpg" width=50%></img></p>
 <p>Android<br><img src="https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_Android.jpg" width=50%></img></p>
-
+<p>Web<br><img src="https://raw.githubusercontent.com/HanSolo/SpaceFX/master/SpaceFX_Web.jpg" width=50%></img></p>
 
 ### Youtube video
 I've recorded a little [video](https://youtu.be/IS71geUu9RE) that shows the game in action.
+
+
+### Requirements for building a native package
+If you would like to build a native package you should have at least JDK 13 installed
+on your machine. Make sure you run on Java13 and do a `gradle clean build jar` on the 
+command line and execute the build app script e.g. `bash build_app.sh`. If everything 
+worked ok you will find the native app in the folder `/build/installer`.
+To build a native package you will need the early access release of the 
+jpackage tool. Please find more info [here](https://github.com/dlemmermann/JPackageScriptFX).
 
 
 ### master branch
@@ -73,7 +82,7 @@ mvn -Pios client:run
 
 The iOS spacefx.app file can be found at 
 ```
-/PATH/TO/SpaceFX/target/ios-Arm64
+/PATH/TO/SpaceFX/target/client/arm64-ios/
 ```
 
 
@@ -88,7 +97,7 @@ mvn clean client:build
 
 The OSX spacefx binary can be found at
 ```
-/PATH/TO/SpaceFX/target/
+/PATH/TO/SpaceFX/target/client/x86_64-darwin
 ```
 
 
@@ -126,6 +135,25 @@ The Linux binary can be found at
 
 Keep in mind that at the moment there is no support for sound when using the GraalVM/Substrate combo.
 
+###Attention:
+Because we use different build tools for the master and mobile branch at the moment it can lead to problems
+in your favourite IDE when switching branches. To avoid those problems just keep the following steps in mind:
+
+When switching from the master to the mobile branch you should follow these simple steps:
+- remove the project from your IDE
+- close your IDE
+- switch branch from master to mobile
+- remove files/folders like .gradle, .idea, /build and /logs
+- start your IDE
+- open the pom.xml file as a project
+
+When switching from mobile to the master branch you should follow these simple steps:
+- remove the project from your IDE
+- close your IDE
+- switch branch from mobile to master
+- start your IDE
+- open the build.gradle file as a project
+
 
 ### Run SpaceFX in the browser using jpro
 To run SpaceFX in the browser you will need to set the used JDK to 11 in
@@ -133,11 +161,21 @@ the build.gradle file. In the future you will also be able to use JDK 13 etc.
 More info on how to run a JavaFX application in the browser can be found
 here [jpro](https://www.jpro.one/?page=docs/current/1.1/).
 
+To make SpaceFX run in your browser you need to be on the master branch and execute the following steps:
+Open the build.gradle file in an editor and comment out the line:
+```
+//mainClassName = "$moduleName/eu.hansolo.spacefx.SpaceFX"
+```
+Now enable the line:
+```
+mainClassName = "eu.hansolo.spacefx.SpaceFX"
+```
 
-### Building a native package
-If you would like to build a native package you should have at least JDK 13 installed
-on your machine. Make sure you run on Java13 and do a `gradle clean build jar` on the 
-command line and execute the build app script e.g. `bash build_app.sh`. If everything 
-worked ok you will find the native app in the folder `/build/installer`.
-To build a native package you will need the early access release of the 
-jpackage tool. Please find more info [here](https://github.com/dlemmermann/JPackageScriptFX).
+On the command line execute:
+```
+cd /PATH/TO/SpaceFX
+
+./gradlew jproRun
+```
+
+Open a browser and go to ```localhost:8080```
