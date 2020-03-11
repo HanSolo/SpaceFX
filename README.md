@@ -18,6 +18,115 @@ Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 I've recorded a little [video](https://youtu.be/IS71geUu9RE) that shows the game in action.
 
 
+### master branch
+These branches are using gradle for the build and they need JDK 13 with OpenJFX13 (and JDK 14 if you want native bundles).
+On my machines I use [AdoptOpenJDK](https://adoptopenjdk.net/?variant=openjdk12&jvmVariant=hotspot) for the JDK13 installation and
+[OpenJFX](https://openjfx.io/) for the JavaFX installation.
+You should be able to fork the branch and open the build.gradle file in your favourite IDE as a project to run it from the code.
+To compile it you need to make sure you are on JDK13 and OpenJFX is installed, then execute the following on the command line.
+
+OS X:
+```
+cd /PATH/TO/SpaceFX
+
+./gradlew clean build jar
+
+./build_app.sh
+```
+
+Windows:
+```
+cd \PATH\TO\SpaceFX
+
+.\gradlew clean build jar
+
+.\build_app.bat
+```
+
+After that you will find the runnable jar file in
+```
+/PATH/TO/SpaceFX/build/libs
+```
+and the bundle created by the jpackage tool from JDK14 in
+```
+/PATH/TO/SpaceFX/build/installer
+```
+
+### mobile branch
+This branch uses maven for the build and it needs at least JDK 11. In principle you simply have to follow the instructions
+over at [github](https://github.com/gluonhq/client-samples) from Gluon to make it run on iOS and Android.
+If you have the setup your system as mentioned on the github page with the Gluon examples you can build/deploy SpaceFX to your
+device as follows. To build/run it on iOS you need to run it on a Mac and to build/run it on Android you need to run it on Linux.
+First of all make sure you are on JDK11 and that you have installed all things described on github.
+
+iOS:
+Make sure your iPhone is registered as a developer device at [apple](https://developer.apple.com/) and is plugged into your Mac.
+```
+export JAVA_HOME=$GRAALVM_HOME
+
+cd /PATH/TO/SpaceFX
+
+mvn clean -Pios client:build
+
+mvn -Pios client:run
+```
+
+The iOS spacefx.app file can be found at 
+```
+/PATH/TO/SpaceFX/target/ios-Arm64
+```
+
+
+OSX:
+```
+export JAVA_HOME=$GRAALVM_HOME
+
+cd /PATH/TO/SpaceFX
+
+mvn clean client:build
+```
+
+The OSX spacefx binary can be found at
+```
+/PATH/TO/SpaceFX/target/
+```
+
+
+Android:
+Make sure your Android phone is a developer phone and is plugged into your Linux machine.
+```
+export JAVA_HOME=$GRAALVM_HOME
+
+cd /PATH/TO/SpaceFX
+
+mvn clean -Pandroid client:build
+
+mvn -Pandroid client:run
+```
+
+The Android spacefx.apk file can be found at
+```
+/PATH/TO/SpaceFX/target/a.,dflaskdjf
+```
+
+
+Linux:
+```
+export JAVA_HOME=$GRAALVM_HOME
+
+cd /PATH/TO/SpaceFX
+
+mvn clean client:build
+```
+
+The Linux binary can be found at
+```
+/PATH/TO/SpaceFX/target/a.,dflaskdjf
+```
+
+Keep in mind that at the moment there is no support for sound when using the GraalVM/Substrate combo.
+
+
 ### Run SpaceFX in the browser using jpro
 To run SpaceFX in the browser you will need to set the used JDK to 11 in
 the build.gradle file. In the future you will also be able to use JDK 13 etc.
