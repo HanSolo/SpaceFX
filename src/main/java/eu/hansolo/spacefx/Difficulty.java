@@ -24,7 +24,7 @@ public enum Difficulty {
     public final int noOfSmartEnemies;
 
     Difficulty(final int noOfEnemies, final int noOfSmartEnemies) {
-        this.noOfEnemies = noOfEnemies;
+        this.noOfEnemies      = noOfEnemies;
         this.noOfSmartEnemies = noOfSmartEnemies;
     }
 }
