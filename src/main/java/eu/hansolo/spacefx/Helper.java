@@ -40,6 +40,13 @@ public class Helper {
         return new double[] { nX, nY };
     }
 
+    public static final boolean isHitCircleCircle(final double c1X, final double c1Y, final double c1R, final double c2X, final double c2Y, final double c2R) {
+        double distX    = c1X - c2X;
+        double distY    = c1Y - c2Y;
+        double distance = Math.sqrt((distX * distX) + (distY * distY));
+        return (distance <= c1R + c2R);
+    }
+
     /*
      * t   -> Point in time  (Values between 0 - 1)
      * ap0 -> AnchorPoint  (Start point of the curve)

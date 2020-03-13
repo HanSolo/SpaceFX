@@ -581,7 +581,7 @@ public class SpaceFXView extends StackPane {
 
             // Check for torpedo hits
             for (Torpedo torpedo : torpedos) {
-                if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
+                if (Helper.isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
                     asteroid.hits--;
                     if (asteroid.hits <= 0) {
                         asteroidExplosions.add(new AsteroidExplosion(asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
@@ -599,7 +599,7 @@ public class SpaceFXView extends StackPane {
 
             // Check for bigTorpedo hits
             for (BigTorpedo bigTorpedo : bigTorpedos) {
-                if (isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
+                if (Helper.isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
                     asteroid.hits--;
                     if (asteroid.hits <= 0) {
                         asteroidExplosions.add(new AsteroidExplosion(asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
@@ -617,7 +617,7 @@ public class SpaceFXView extends StackPane {
 
             // Check for rocket hits
             for (Rocket rocket : rockets) {
-                if (isHitCircleCircle(rocket.x, rocket.y, rocket.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
+                if (Helper.isHitCircleCircle(rocket.x, rocket.y, rocket.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
                     rocketExplosions.add(new RocketExplosion(asteroid.cX - ROCKET_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ROCKET_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
                     score += asteroid.value;
                     asteroid.respawn();
@@ -630,9 +630,9 @@ public class SpaceFXView extends StackPane {
             if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
-                    hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, asteroid.cX, asteroid.cY, asteroid.radius);
+                    hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, asteroid.cX, asteroid.cY, asteroid.radius);
                 } else {
-                    hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, asteroid.cX, asteroid.cY, asteroid.radius);
+                    hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, asteroid.cX, asteroid.cY, asteroid.radius);
                 }
                 if (hit) {
                     spaceShipExplosion.countX = 0;
@@ -680,7 +680,7 @@ public class SpaceFXView extends StackPane {
 
             // Check for torpedo hits with enemy boss
             for (Torpedo torpedo : torpedos) {
-                if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, enemyBoss.x, enemyBoss.y, enemyBoss.radius)) {
+                if (Helper.isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, enemyBoss.x, enemyBoss.y, enemyBoss.radius)) {
                     enemyBoss.hits -= TORPEDO_DAMAGE;
                     if (enemyBoss.hits == 0) {
                         enemyBossExplosions.add(
@@ -702,7 +702,7 @@ public class SpaceFXView extends StackPane {
 
             // Check for bigTorpedo hits with enemy boss
             for (BigTorpedo bigTorpedo : bigTorpedos) {
-                if (isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, enemyBoss.x, enemyBoss.y, enemyBoss.radius)) {
+                if (Helper.isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, enemyBoss.x, enemyBoss.y, enemyBoss.radius)) {
                     enemyBoss.hits -= BIG_TORPEDO_DAMAGE;
                     if (enemyBoss.hits <= 0) {
                         enemyBossExplosions.add(
@@ -724,7 +724,7 @@ public class SpaceFXView extends StackPane {
 
             // Check for rocket hits with enemy boss
             for (Rocket rocket : rockets) {
-                if (isHitCircleCircle(rocket.x, rocket.y, rocket.radius, enemyBoss.x, enemyBoss.y, enemyBoss.radius)) {
+                if (Helper.isHitCircleCircle(rocket.x, rocket.y, rocket.radius, enemyBoss.x, enemyBoss.y, enemyBoss.radius)) {
                     enemyBossExplosions.add(
                         new EnemyBossExplosion(enemyBoss.x - ENEMY_BOSS_EXPLOSION_FRAME_WIDTH * 0.25, enemyBoss.y - ENEMY_BOSS_EXPLOSION_FRAME_HEIGHT * 0.25, enemyBoss.vX, enemyBoss.vY, 0.5));
                     score += enemyBoss.value;
@@ -741,9 +741,9 @@ public class SpaceFXView extends StackPane {
             if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
-                    hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, enemyBoss.x, enemyBoss.y, enemyBoss.radius);
+                    hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, enemyBoss.x, enemyBoss.y, enemyBoss.radius);
                 } else {
-                    hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, enemyBoss.x, enemyBoss.y, enemyBoss.radius);
+                    hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, enemyBoss.x, enemyBoss.y, enemyBoss.radius);
                 }
                 if (hit) {
                     if (spaceShip.shield) {
@@ -781,7 +781,7 @@ public class SpaceFXView extends StackPane {
 
             // Check for torpedo hits with enemy boss
             for (Torpedo torpedo : torpedos) {
-                if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, levelBoss.x, levelBoss.y, levelBoss.radius)) {
+                if (Helper.isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, levelBoss.x, levelBoss.y, levelBoss.radius)) {
                     levelBoss.hits -= TORPEDO_DAMAGE;
                     if (levelBoss.hits <= 0) {
                         levelBossExplosions.add(new LevelBossExplosion(levelBoss.x - LEVEL_BOSS_EXPLOSION_FRAME_WIDTH * 0.25, levelBoss.y - LEVEL_BOSS_EXPLOSION_FRAME_HEIGHT * 0.25, levelBoss.vX, levelBoss.vY, 1.0));
@@ -803,7 +803,7 @@ public class SpaceFXView extends StackPane {
 
             // Check for bigTorpedo hits with enemy boss
             for (BigTorpedo bigTorpedo : bigTorpedos) {
-                if (isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, levelBoss.x, levelBoss.y, levelBoss.radius)) {
+                if (Helper.isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, levelBoss.x, levelBoss.y, levelBoss.radius)) {
                     levelBoss.hits -= BIG_TORPEDO_DAMAGE;
                     if (levelBoss.hits <= 0) {
                         levelBossExplosions.add(new LevelBossExplosion(levelBoss.x - LEVEL_BOSS_EXPLOSION_FRAME_WIDTH * 0.25, levelBoss.y - LEVEL_BOSS_EXPLOSION_FRAME_HEIGHT * 0.25, levelBoss.vX, levelBoss.vY, 1.0));
@@ -825,7 +825,7 @@ public class SpaceFXView extends StackPane {
 
             // Check for rocket hits with level boss
             for (Rocket rocket : rockets) {
-                if (isHitCircleCircle(rocket.x, rocket.y, rocket.radius, levelBoss.x, levelBoss.y, levelBoss.radius)) {
+                if (Helper.isHitCircleCircle(rocket.x, rocket.y, rocket.radius, levelBoss.x, levelBoss.y, levelBoss.radius)) {
                     levelBoss.hits -= ROCKET_DAMAGE;
                     if (levelBoss.hits <= 0) {
                         levelBossExplosions.add(new LevelBossExplosion(levelBoss.x - LEVEL_BOSS_EXPLOSION_FRAME_WIDTH * 0.25, levelBoss.y - LEVEL_BOSS_EXPLOSION_FRAME_HEIGHT * 0.25, levelBoss.vX, levelBoss.vY, 1.0));
@@ -850,9 +850,9 @@ public class SpaceFXView extends StackPane {
             if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
-                    hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, levelBoss.x, levelBoss.y, levelBoss.radius);
+                    hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, levelBoss.x, levelBoss.y, levelBoss.radius);
                 } else {
-                    hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, levelBoss.x, levelBoss.y, levelBoss.radius);
+                    hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, levelBoss.x, levelBoss.y, levelBoss.radius);
                 }
                 if (hit) {
                     if (spaceShip.shield) {
@@ -902,9 +902,9 @@ public class SpaceFXView extends StackPane {
             // Check for space ship contact
             boolean hit;
             if (spaceShip.shield) {
-                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, bonus.cX, bonus.cY, bonus.radius);
+                hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, bonus.cX, bonus.cY, bonus.radius);
             } else {
-                hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, bonus.cX, bonus.cY, bonus.radius);
+                hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, bonus.cX, bonus.cY, bonus.radius);
             }
             if (hit) {
                 if (bonus instanceof LifeUp) {
@@ -1351,16 +1351,7 @@ public class SpaceFXView extends StackPane {
         //playSound(levelBossBombSound);
     }
 
-
-    // Hit test
-    private boolean isHitCircleCircle(final double c1X, final double c1Y, final double c1R, final double c2X, final double c2Y, final double c2R) {
-        double distX    = c1X - c2X;
-        double distY    = c1Y - c2Y;
-        double distance = Math.sqrt((distX * distX) + (distY * distY));
-        return (distance <= c1R + c2R);
-    }
-
-
+    
     // Game Over
     private void gameOver() {
         timer.stop();
@@ -1867,7 +1858,7 @@ public class SpaceFXView extends StackPane {
 
                     // Check for torpedo hits
                     for (Torpedo torpedo : torpedos) {
-                        if (isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, enemy.x, enemy.y, enemy.radius)) {
+                        if (Helper.isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, enemy.x, enemy.y, enemy.radius)) {
                             explosions.add(new Explosion(enemy.x - EXPLOSION_FRAME_WIDTH * 0.25, enemy.y - EXPLOSION_FRAME_HEIGHT * 0.25, enemy.vX, enemy.vY, 0.35));
                             score += enemy.value;
                             kills++;
@@ -1880,7 +1871,7 @@ public class SpaceFXView extends StackPane {
 
                     // Check for bigTorpedo hits
                     for (BigTorpedo bigTorpedo : bigTorpedos) {
-                        if (isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, enemy.x, enemy.y, enemy.radius)) {
+                        if (Helper.isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, enemy.x, enemy.y, enemy.radius)) {
                             explosions.add(new Explosion(enemy.x - EXPLOSION_FRAME_WIDTH * 0.25, enemy.y - EXPLOSION_FRAME_HEIGHT * 0.25, enemy.vX, enemy.vY, 0.35));
                             score += enemy.value;
                             kills++;
@@ -1893,7 +1884,7 @@ public class SpaceFXView extends StackPane {
 
                     // Check for rocket hits
                     for (Rocket rocket : rockets) {
-                        if (isHitCircleCircle(rocket.x, rocket.y, rocket.radius, enemy.x, enemy.y, enemy.radius)) {
+                        if (Helper.isHitCircleCircle(rocket.x, rocket.y, rocket.radius, enemy.x, enemy.y, enemy.radius)) {
                             rocketExplosions.add(new RocketExplosion(enemy.x - ROCKET_EXPLOSION_FRAME_WIDTH * 0.25, enemy.y - ROCKET_EXPLOSION_FRAME_HEIGHT * 0.25, enemy.vX, enemy.vY, 0.5));
                             score += enemy.value;
                             kills++;
@@ -1908,9 +1899,9 @@ public class SpaceFXView extends StackPane {
                     if (spaceShip.isVulnerable && !hasBeenHit) {
                         boolean hit;
                         if (spaceShip.shield) {
-                            hit = isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, enemy.x, enemy.y, enemy.radius);
+                            hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, enemy.x, enemy.y, enemy.radius);
                         } else {
-                            hit = isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, enemy.x, enemy.y, enemy.radius);
+                            hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, enemy.x, enemy.y, enemy.radius);
                         }
                         if (hit) {
                             if (spaceShip.shield) {
@@ -2296,9 +2287,9 @@ public class SpaceFXView extends StackPane {
             if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
                 } else {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
                 }
                 if (hit) {
                     toBeRemoved = true;
@@ -2333,9 +2324,9 @@ public class SpaceFXView extends StackPane {
             if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
                 } else {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
                 }
                 if (hit) {
                     toBeRemoved = true;
@@ -2478,9 +2469,9 @@ public class SpaceFXView extends StackPane {
             if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
                 } else {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
                 }
                 if (hit) {
                     toBeRemoved = true;
@@ -2536,9 +2527,9 @@ public class SpaceFXView extends StackPane {
             if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
                 } else {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
                 }
                 if (hit) {
                     toBeRemoved = true;
@@ -2717,9 +2708,9 @@ public class SpaceFXView extends StackPane {
             if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
                 } else {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
                 }
                 if (hit) {
                     toBeRemoved = true;
@@ -2775,9 +2766,9 @@ public class SpaceFXView extends StackPane {
             if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
                 } else {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
                 }
                 if (hit) {
                     toBeRemoved = true;
@@ -2816,9 +2807,9 @@ public class SpaceFXView extends StackPane {
             if (spaceShip.isVulnerable && !hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
                 } else {
-                    hit = isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
+                    hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, spaceShip.radius);
                 }
                 if (hit) {
                     toBeRemoved = true;
