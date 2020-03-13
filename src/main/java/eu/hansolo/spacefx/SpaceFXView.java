@@ -1640,7 +1640,7 @@ public class SpaceFXView extends StackPane {
             this.vR          = vR;
             this.width       = null == image ? 0 : image.getWidth();
             this.height      = null == image ? 0 : image.getHeight();
-            this.size        = this.width > this.height ? width : height;
+            this.size        = this.width > this.height ? this.width : this.height;
             this.radius      = this.size * 0.5;
             this.toBeRemoved = false;
         }
