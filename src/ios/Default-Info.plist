@@ -6,6 +6,8 @@
         <string>eu.hansolo.spacefx.SpaceFX</string>
         <key>CFBundleVersion</key>
         <string>1.0</string>
+        <key>CFBundleShortVersionString</key>
+        <string>1.0</string>
         <key>CFBundleExecutable</key>
         <string>spacefx</string>
         <key>CFBundleIconName</key>
@@ -28,8 +30,8 @@
         <array>
                 <string>armv7</string>
         </array>
-        <key>CFBundleShortVersionString</key>
-        <string>1.0</string>
+        <key>UIStatusBarHidden</key>
+        <true/>
         <key>UIDeviceFamily</key>
         <array>
                 <integer>1</integer>
