@@ -11,7 +11,7 @@ buildscript {
     dependencies {
         classpath 'com.google.gradle:osdetector-gradle-plugin:1.6.2'
         classpath 'org.javamodularity:moduleplugin:1.6.0'
-        classpath 'org.beryx:badass-jlink-plugin:2.16.4'
+        classpath 'org.beryx:badass-jlink-plugin:2.17.2'
         classpath 'com.sandec.jpro:jpro-plugin-gradle:2019.2.2'
     }
 }
@@ -21,7 +21,7 @@ plugins {
     id 'application'
     id 'com.google.osdetector' version '1.6.2'
     id 'org.javamodularity.moduleplugin' version '1.6.0'
-    id 'org.beryx.jlink' version '2.16.4'
+    id 'org.beryx.jlink' version '2.17.2'
 }
 
 apply plugin: 'com.sandec.jpro'
