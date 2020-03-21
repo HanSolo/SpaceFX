@@ -211,6 +211,11 @@ public class InitialDigit extends Region implements Toggle {
         draw();
     }
 
+    public void reset() {
+        counter = 0;
+        draw();
+    }
+
     @Override public ToggleGroup getToggleGroup() { return null == toggleGroup ? null : toggleGroupProperty().get(); }
     @Override public void setToggleGroup(final ToggleGroup toggleGroup) { toggleGroupProperty().set(toggleGroup); }
     @Override public ObjectProperty<ToggleGroup> toggleGroupProperty() {
