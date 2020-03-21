@@ -25,6 +25,7 @@ import javafx.stage.Stage;
 
 //import static com.gluonhq.attach.util.Platform.isDesktop;
 import static eu.hansolo.spacefx.Config.HEIGHT;
+import static eu.hansolo.spacefx.Config.MULTI_PLAYER;
 import static eu.hansolo.spacefx.Config.WIDTH;
 
 
@@ -82,6 +83,10 @@ public class SpaceFX extends Application {
                                 torpedoArmed = false;
                             }
                             break;
+                        case P:
+                            if (MULTI_PLAYER) {
+                                view.addPlayer();
+                            }
                     }
                 } else if (view.isHallOfFameScreen()) {
                     switch (e.getCode()) {

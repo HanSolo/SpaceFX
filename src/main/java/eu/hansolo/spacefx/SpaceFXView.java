@@ -89,7 +89,7 @@ public class SpaceFXView extends StackPane {
     private              List<Player>               hallOfFame;
     private              VBox                       hallOfFameBox;
     private              Level                      level;
-    private              long                       currentScore;
+    private              Player                     playerToStore;
     private final        Image                      startImg                = new Image(getClass().getResourceAsStream("startscreen.jpg"));
     private final        Image                      gameOverImg             = new Image(getClass().getResourceAsStream("gameover.jpg"));
     private final        Image                      hallOfFameImg           = new Image(getClass().getResourceAsStream("halloffamescreen.jpg"));
@@ -167,6 +167,7 @@ public class SpaceFXView extends StackPane {
     private              Star[]                     stars;
     private              Asteroid[]                 asteroids;
     private              SpaceShip                  controlledSpaceShip;
+    private              List<Player>               players;
     private              List<SpaceShip>            spaceShips;
     private              List<Wave>                 waves;
     private              List<Wave>                 wavesToRemove;
@@ -198,7 +199,6 @@ public class SpaceFXView extends StackPane {
     private              double                     scorePosX;
     private              double                     scorePosY;
     private              double                     mobileOffsetY;
-    private              boolean                    hasBeenHit;
     private              long                       lastEnemyBossAttack;
     private              long                       lastShieldUp;
     private              long                       lastLifeUp;
@@ -227,18 +227,21 @@ public class SpaceFXView extends StackPane {
         if (SHOW_BUTTONS) {
             canvas.addEventHandler(TouchEvent.TOUCH_PRESSED, touchHandler);
             shipTouchArea.setOnTouchMoved(e -> {
-                spaceShips.get(0).x = e.getTouchPoint().getX();
-                spaceShips.get(0).y = e.getTouchPoint().getY();
+                if (null == controlledSpaceShip) { return; }
+                controlledSpaceShip.x = e.getTouchPoint().getX();
+                controlledSpaceShip.y = e.getTouchPoint().getY();
             });
         } else {
             shipTouchArea.setOnMouseDragged(e -> {
-                spaceShips.get(0).x = e.getX();
-                spaceShips.get(0).y = e.getY();
+                if (null == controlledSpaceShip) { return; }
+                controlledSpaceShip.x = e.getX();
+                controlledSpaceShip.y = e.getY();
             });
         }
 
         saveInitialsButton.setOnAction(e -> {
-            if (currentScore > 0) { storePlayer(); }
+            if (null == playerToStore) { return; }
+            storePlayer();
         });
 
         setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -316,6 +319,8 @@ public class SpaceFXView extends StackPane {
         ctx                           = canvas.getGraphicsContext2D();
         stars                         = new Star[NO_OF_STARS];
         asteroids                     = new Asteroid[NO_OF_ASTEROIDS];
+        players                       = new ArrayList<>();
+        spaceShips                    = new ArrayList<>();
         waves                         = new ArrayList<>();
         wavesToRemove                 = new ArrayList<>();
         enemyBosses                   = new ArrayList<>();
@@ -343,7 +348,6 @@ public class SpaceFXView extends StackPane {
         enemyHits                     = new ArrayList<>();
         levelKills                    = 0;
         kills                         = 0;
-        hasBeenHit                    = false;
         lastEnemyBossAttack           = System.nanoTime();
         lastShieldUp                  = System.nanoTime();
         lastLifeUp                    = System.nanoTime();
@@ -447,12 +451,12 @@ public class SpaceFXView extends StackPane {
         initTask = new Task<>() {
             @Override protected Boolean call() {
                 // Init levels
-                level1       = new Level1();
-                level2       = new Level2();
-                level3       = new Level3();
-                level        = level1;
+                level1 = new Level1();
+                level2 = new Level2();
+                level3 = new Level3();
+                level  = level1;
 
-                currentScore = -1;
+                playerToStore = null;
 
                 // Load images
                 asteroidImages          = new Image[] { new Image(getClass().getResourceAsStream("asteroid1.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
@@ -525,9 +529,6 @@ public class SpaceFXView extends StackPane {
                 bonusSound              = new AudioClip(getClass().getResource("bonus.wav").toExternalForm());
 
                 deflectorShieldRadius   = deflectorShieldImg.getRequestedWidth() * 0.5;
-                spaceShips              = new ArrayList<>();
-                controlledSpaceShip     = new SpaceShip(true, spaceshipImg, spaceshipUpImg, spaceshipDownImg);
-                spaceShips.add(controlledSpaceShip);
 
                 // Adjust audio clip volumes
                 explosionSound.setVolume(0.5);
@@ -538,16 +539,7 @@ public class SpaceFXView extends StackPane {
                 return true;
             }
         };
-        initTask.setOnSucceeded(e -> {
-            SpaceShip spaceShip = spaceShips.stream().filter(sp -> sp.controlledLocally).findFirst().orElse(null);
-            if (null == spaceShip) { return; }
-            shipTouchArea.setCenterX(spaceShip.x);
-            shipTouchArea.setCenterY(spaceShip.y);
-            shipTouchArea.setRadius(deflectorShieldRadius);
-            shipTouchArea.setStroke(Color.TRANSPARENT);
-            shipTouchArea.setFill(Color.TRANSPARENT);
-            readyToStart = true;
-        });
+        initTask.setOnSucceeded(e -> readyToStart = true);
         initTask.setOnFailed(e -> readyToStart = false);
         new Thread(initTask, "initThread").start();
     }
@@ -654,7 +646,7 @@ public class SpaceFXView extends StackPane {
 
             // Check for space ship hit
             spaceShips.forEach(spaceShip -> {
-                if (spaceShip.isVulnerable && !hasBeenHit) {
+                if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
                 boolean hit;
                 if (spaceShip.shield) {
                     hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, asteroid.cX, asteroid.cY, asteroid.radius);
@@ -662,16 +654,17 @@ public class SpaceFXView extends StackPane {
                     hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, asteroid.cX, asteroid.cY, asteroid.radius);
                 }
                 if (hit) {
-                    spaceShipExplosions.add(new SpaceShipExplosion(spaceShip,spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH, spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT, spaceShip.vX, spaceShip.vY));
+                    spaceShipExplosions.add(new SpaceShipExplosion(spaceShip,spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH * 0.5, spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT * 0.5, spaceShip.vX, spaceShip.vY));
                     if (spaceShip.shield) {
                         playSound(explosionSound);
                         asteroidExplosions.add(new AsteroidExplosion(asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
                     } else {
                         playSound(spaceShipExplosionSound);
-                        hasBeenHit = true;
+                        spaceShip.hasBeenHit = true;
                         spaceShip.noOfLifes--;
                         if (0 == spaceShip.noOfLifes) {
                             spaceShip.toBeRemoved = true;
+                            players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
                         }
                     }
                     asteroid.respawn();
@@ -767,7 +760,7 @@ public class SpaceFXView extends StackPane {
 
             // Check for space ship hit with enemy boss
             spaceShips.forEach(spaceShip -> {
-                if (spaceShip.isVulnerable && !hasBeenHit) {
+                if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
                     boolean hit;
                     if (spaceShip.shield) {
                         hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, enemyBoss.x, enemyBoss.y, enemyBoss.radius);
@@ -779,12 +772,13 @@ public class SpaceFXView extends StackPane {
                             enemyBossExplosions.add(new EnemyBossExplosion(enemyBoss.x - ENEMY_BOSS_EXPLOSION_FRAME_WIDTH * 0.125, enemyBoss.y - ENEMY_BOSS_EXPLOSION_FRAME_HEIGHT * 0.125, enemyBoss.vX, enemyBoss.vY, 0.5));
                             //playSound(enemyBossExplosionSound);
                         } else {
-                            spaceShipExplosions.add(new SpaceShipExplosion(spaceShip,spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH, spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT, spaceShip.vX, spaceShip.vY));
+                            spaceShipExplosions.add(new SpaceShipExplosion(spaceShip,spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH * 0.5, spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT * 0.5, spaceShip.vX, spaceShip.vY));
                             playSound(spaceShipExplosionSound);
-                            hasBeenHit = true;
+                            spaceShip.hasBeenHit = true;
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
+                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                         enemyBoss.toBeRemoved = true;
@@ -878,7 +872,7 @@ public class SpaceFXView extends StackPane {
 
             // Check for space ship hit with level boss
             spaceShips.forEach(spaceShip -> {
-                if (spaceShip.isVulnerable && !hasBeenHit) {
+                if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
                     boolean hit;
                     if (spaceShip.shield) {
                         hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, levelBoss.x, levelBoss.y, levelBoss.radius);
@@ -902,12 +896,13 @@ public class SpaceFXView extends StackPane {
                                 playSound(levelBossExplosionSound);
                             }
                         } else {
-                            spaceShipExplosions.add(new SpaceShipExplosion(spaceShip,spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH, spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT, spaceShip.vX, spaceShip.vY));
+                            spaceShipExplosions.add(new SpaceShipExplosion(spaceShip,spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH * 0.5, spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT * 0.5, spaceShip.vX, spaceShip.vY));
                             playSound(spaceShipExplosionSound);
-                            hasBeenHit = true;
+                            spaceShip.hasBeenHit = true;
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
+                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                         levelBoss.toBeRemoved = true;
@@ -1132,7 +1127,7 @@ public class SpaceFXView extends StackPane {
         spaceShips.forEach(spaceShip -> {
             if (spaceShip.noOfLifes > 0) {
                 // Draw Spaceship or it's explosion
-                if (hasBeenHit) {
+                if (spaceShip.hasBeenHit) {
                     spaceShip.respawn();
                 } else {
                     // Draw space ship
@@ -1238,6 +1233,7 @@ public class SpaceFXView extends StackPane {
 
         // Remove sprites
         spaceShips.removeIf(sprite -> sprite.toBeRemoved);
+        spaceShipExplosions.removeIf(sprite -> sprite.toBeRemoved);
         enemyBosses.removeIf(sprite -> sprite.toBeRemoved);
         levelBosses.removeIf(sprite -> sprite.toBeRemoved);
         bonuses.removeIf(sprite -> sprite.toBeRemoved);
@@ -1274,9 +1270,19 @@ public class SpaceFXView extends StackPane {
     private void spawnSpaceShip() {
         if (spaceShips.size() < 2) {
             if (spaceShips.stream().filter(sp -> sp.controlledLocally).findFirst().isPresent()) {
-                spaceShips.add(new SpaceShip(spaceship1Img, spaceshipUp1Img, spaceshipDown1Img));
+                SpaceShip spaceShip = new SpaceShip(spaceship1Img, spaceshipUp1Img, spaceshipDown1Img);
+                spaceShip.x = WIDTH * 0.5;
+                spaceShip.y = HEIGHT - 2 * spaceShip.height;
+                spaceShips.add(spaceShip);
             } else {
                 controlledSpaceShip = new SpaceShip(true, spaceshipImg, spaceshipUpImg, spaceshipDownImg);
+                controlledSpaceShip.x = WIDTH * 0.5;
+                controlledSpaceShip.y = HEIGHT - 2 * controlledSpaceShip.height;
+                shipTouchArea.setCenterX(controlledSpaceShip.x);
+                shipTouchArea.setCenterY(controlledSpaceShip.y);
+                shipTouchArea.setRadius(deflectorShieldRadius);
+                shipTouchArea.setStroke(Color.TRANSPARENT);
+                shipTouchArea.setFill(Color.TRANSPARENT);
                 spaceShips.add(controlledSpaceShip);
             }
         }
@@ -1444,22 +1450,26 @@ public class SpaceFXView extends StackPane {
         if (PLAY_MUSIC) {
             gameMediaPlayer.pause();
         }
-        spaceShips.forEach(spaceShip -> {
-            boolean isInHallOfFame = spaceShip.score > hallOfFame.get(2).score;
 
-            PauseTransition pauseBeforeGameOverScreen = new PauseTransition(Duration.millis(1000));
-            pauseBeforeGameOverScreen.setOnFinished(e -> {
-                ctx.clearRect(0, 0, WIDTH, HEIGHT);
-                ctx.drawImage(gameOverImg, 0, 0, WIDTH, HEIGHT);
-                ctx.setFill(SPACEFX_COLOR);
+        PauseTransition pauseBeforeGameOverScreen = new PauseTransition(Duration.millis(1000));
+        pauseBeforeGameOverScreen.setOnFinished(e -> {
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+            ctx.drawImage(gameOverImg, 0, 0, WIDTH, HEIGHT);
+            double scoreOffsetY = 0;
+            for (Player player : players) {
+                ctx.setFill(player.playerColor);
                 ctx.setFont(Fonts.spaceBoy(SCORE_FONT_SIZE));
-                ctx.fillText(Long.toString(spaceShip.score), scorePosX, HEIGHT * 0.25);
-                playSound(gameoverSound);
-            });
-            pauseBeforeGameOverScreen.play();
+                ctx.fillText(Long.toString(player.score), scorePosX, HEIGHT * 0.25 + scoreOffsetY);
+                scoreOffsetY += SCORE_FONT_SIZE * 1.5;
+            }
+            playSound(gameoverSound);
+        });
+        pauseBeforeGameOverScreen.play();
 
+        players.forEach(player -> {
+            boolean isInHallOfFame = player.score > hallOfFame.get(2).score;
             if (isInHallOfFame) {
-                currentScore = spaceShip.score;
+                playerToStore = player;
 
                 PauseTransition pauseInGameOverScreen = new PauseTransition(Duration.millis(5000));
                 pauseInGameOverScreen.setOnFinished(e -> {
@@ -1478,14 +1488,14 @@ public class SpaceFXView extends StackPane {
                     Platform.runLater(() -> playerInitialsDigits.requestFocus());
                 });
                 pauseInGameOverScreen.play();
-            } else {
-                currentScore = -1;
-                // Back to StartScreen
-                PauseTransition pauseInGameOverScreen = new PauseTransition(Duration.millis(5000));
-                pauseInGameOverScreen.setOnFinished(a -> reInitGame());
-                pauseInGameOverScreen.play();
             }
         });
+
+        playerToStore = null;
+        // Back to StartScreen
+        PauseTransition pauseInGameOverScreen = new PauseTransition(Duration.millis(5000));
+        pauseInGameOverScreen.setOnFinished(a -> reInitGame());
+        pauseInGameOverScreen.play();
     }
 
 
@@ -1496,22 +1506,32 @@ public class SpaceFXView extends StackPane {
 
         Helper.enableNode(hallOfFameBox, false);
         gameOverScreen = false;
-        explosions.clear();
+        spaceShips.clear();
+        spaceShipExplosions.clear();
+        enemyBosses.clear();
+        levelBosses.clear();
+        bonuses.clear();
         torpedos.clear();
         bigTorpedos.clear();
+        rockets.clear();
         enemyTorpedos.clear();
         enemyBombs.clear();
         enemyBossTorpedos.clear();
         enemyBossRockets.clear();
-        enemyBosses.clear();
-        levelBosses.clear();
         levelBossTorpedos.clear();
         levelBossRockets.clear();
         levelBossBombs.clear();
-        bonuses.clear();
-        waves.clear();
+        levelBossExplosions.clear();
+        enemyBossExplosions.clear();
+        enemyRocketExplosions.clear();
+        rocketExplosions.clear();
+        explosions.clear();
+        asteroidExplosions.clear();
+        upExplosions.clear();
+        hits.clear();
+        enemyHits.clear();
+        players.clear();
         initAsteroids();
-        spaceShips.forEach(spaceShip -> spaceShip.init());
         level       = level1;
         kills       = 0;
         levelKills  = 0;
@@ -1578,6 +1598,7 @@ public class SpaceFXView extends StackPane {
         }
         Helper.enableNode(hallOfFameBox, false);
         screenTimer.stop();
+        spawnSpaceShip();
         running = true;
         timer.start();
     }
@@ -1685,8 +1706,13 @@ public class SpaceFXView extends StackPane {
     public InitialDigit getDigit1() { return digit1; }
     public InitialDigit getDigit2() { return digit2; }
 
+    public void addPlayer() {
+        spawnSpaceShip();
+    }
+
     public void storePlayer() {
-        hallOfFame.add(new Player((digit1.getCharacter() + digit2.getCharacter()), currentScore));
+        playerToStore.name = (digit1.getCharacter() + digit2.getCharacter());
+        hallOfFame.add(playerToStore);
         Collections.sort(hallOfFame);
         hallOfFame = hallOfFame.stream().limit(3).collect(Collectors.toList());
 
@@ -1874,20 +1900,22 @@ public class SpaceFXView extends StackPane {
 
     private class Player implements Comparable<Player> {
         private final String id;
-        private       String name;
-        private       Long   score;
+        public        String name;
+        public        Long   score;
+        public        Color  playerColor;
 
 
         public Player(final String propertyString) {
-            this(propertyString.split(",")[0], propertyString.split(",")[1], Long.valueOf(propertyString.split(",")[2]));
+            this(propertyString.split(",")[0], propertyString.split(",")[1], Long.parseLong(propertyString.split(",")[2]), SPACEFX_COLOR);
         }
-        public Player(final String name, final Long score) {
-            this(UUID.randomUUID().toString(), name, score);
+        public Player(final long score, final Color playerColor) {
+            this(UUID.randomUUID().toString(), "--", score, playerColor);
         }
-        public Player(final String id, final String name, final Long score) {
-            this.id    = id;
-            this.name  = name;
-            this.score = score;
+        public Player(final String id, final String name, final long score, final Color playerColor) {
+            this.id          = id;
+            this.name        = name;
+            this.score       = score;
+            this.playerColor = playerColor;
         }
 
 
@@ -2024,7 +2052,7 @@ public class SpaceFXView extends StackPane {
 
                     // Check for space ship hit
                     spaceShips.forEach(spaceShip -> {
-                        if (spaceShip.isVulnerable && !hasBeenHit) {
+                        if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
                             boolean hit;
                             if (spaceShip.shield) {
                                 hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, enemy.x, enemy.y, enemy.radius);
@@ -2036,12 +2064,13 @@ public class SpaceFXView extends StackPane {
                                     explosions.add(new Explosion(enemy.x - EXPLOSION_FRAME_WIDTH * 0.125, enemy.y - EXPLOSION_FRAME_HEIGHT * 0.125, enemy.vX, enemy.vY, 0.35));
                                     playSound(spaceShipExplosionSound);
                                 } else {
-                                    spaceShipExplosions.add(new SpaceShipExplosion(spaceShip,spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH, spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT, spaceShip.vX, spaceShip.vY));
+                                    spaceShipExplosions.add(new SpaceShipExplosion(spaceShip,spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH * 0.5, spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT * 0.5, spaceShip.vX, spaceShip.vY));
                                     playSound(spaceShipExplosionSound);
-                                    hasBeenHit = true;
+                                    spaceShip.hasBeenHit = true;
                                     spaceShip.noOfLifes--;
                                     if (0 == spaceShip.noOfLifes) {
                                         spaceShip.toBeRemoved = true;
+                                        players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
                                     }
                                 }
                                 enemy.toBeRemoved = true;
@@ -2150,6 +2179,8 @@ public class SpaceFXView extends StackPane {
         }
 
         @Override public void respawn() {
+            this.x            = WIDTH * 0.5;
+            this.y            = HEIGHT - 2 * this.height;
             this.vX           = 0;
             this.vY           = 0;
             this.shield       = false;
@@ -2484,7 +2515,7 @@ public class SpaceFXView extends StackPane {
             y += vY;
 
             spaceShips.forEach(spaceShip -> {
-                if (spaceShip.isVulnerable && !hasBeenHit) {
+                if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
                     boolean hit;
                     if (spaceShip.shield) {
                         hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
@@ -2496,11 +2527,12 @@ public class SpaceFXView extends StackPane {
                         if (spaceShip.shield) {
                             playSound(shieldHitSound);
                         } else {
-                            hasBeenHit = true;
+                            spaceShip.hasBeenHit = true;
                             playSound(spaceShipExplosionSound);
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
+                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -2526,7 +2558,7 @@ public class SpaceFXView extends StackPane {
             y += vY;
 
             spaceShips.forEach(spaceShip -> {
-                if (spaceShip.isVulnerable && !hasBeenHit) {
+                if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
                     boolean hit;
                     if (spaceShip.shield) {
                         hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
@@ -2538,11 +2570,12 @@ public class SpaceFXView extends StackPane {
                         if (spaceShip.shield) {
                             playSound(shieldHitSound);
                         } else {
-                            hasBeenHit = true;
+                            spaceShip.hasBeenHit = true;
                             playSound(spaceShipExplosionSound);
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
+                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -2692,7 +2725,7 @@ public class SpaceFXView extends StackPane {
             y += vY;
 
             spaceShips.forEach(spaceShip -> {
-                if (spaceShip.isVulnerable && !hasBeenHit) {
+                if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
                     boolean hit;
                     if (spaceShip.shield) {
                         hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
@@ -2704,11 +2737,12 @@ public class SpaceFXView extends StackPane {
                         if (spaceShip.shield) {
                             playSound(shieldHitSound);
                         } else {
-                            hasBeenHit = true;
+                            spaceShip.hasBeenHit = true;
                             playSound(spaceShipExplosionSound);
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
+                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -2752,7 +2786,7 @@ public class SpaceFXView extends StackPane {
 
                 r = Math.toDegrees(Math.atan2(vY, vX)) - 90;
 
-                if (spaceShip.isVulnerable && !hasBeenHit) {
+                if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
                     boolean hit;
                     if (spaceShip.shield) {
                         hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
@@ -2764,11 +2798,12 @@ public class SpaceFXView extends StackPane {
                         if (spaceShip.shield) {
                             playSound(shieldHitSound);
                         } else {
-                            hasBeenHit = true;
+                            spaceShip.hasBeenHit = true;
                             playSound(spaceShipExplosionSound);
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
+                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -2952,7 +2987,7 @@ public class SpaceFXView extends StackPane {
             x += vX;
             y += vY;
             spaceShips.forEach(spaceShip -> {
-                if (spaceShip.isVulnerable && !hasBeenHit) {
+                if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
                     boolean hit;
                     if (spaceShip.shield) {
                         hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
@@ -2964,11 +2999,12 @@ public class SpaceFXView extends StackPane {
                         if (spaceShip.shield) {
                             playSound(shieldHitSound);
                         } else {
-                            hasBeenHit = true;
+                            spaceShip.hasBeenHit = true;
                             playSound(spaceShipExplosionSound);
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
+                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -3012,7 +3048,7 @@ public class SpaceFXView extends StackPane {
 
                 r = Math.toDegrees(Math.atan2(vY, vX)) - 90;
 
-                if (spaceShip.isVulnerable && !hasBeenHit) {
+                if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
                     boolean hit;
                     if (spaceShip.shield) {
                         hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
@@ -3024,11 +3060,12 @@ public class SpaceFXView extends StackPane {
                         if (spaceShip.shield) {
                             playSound(shieldHitSound);
                         } else {
-                            hasBeenHit = true;
+                            spaceShip.hasBeenHit = true;
                             playSound(spaceShipExplosionSound);
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
+                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -3057,7 +3094,7 @@ public class SpaceFXView extends StackPane {
             x += vX;
             y += vY;
             spaceShips.forEach(spaceShip -> {
-                if (spaceShip.isVulnerable && !hasBeenHit) {
+                if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
                     boolean hit;
                     if (spaceShip.shield) {
                         hit = Helper.isHitCircleCircle(x, y, radius, spaceShip.x, spaceShip.y, deflectorShieldRadius);
@@ -3069,11 +3106,12 @@ public class SpaceFXView extends StackPane {
                         if (spaceShip.shield) {
                             playSound(shieldHitSound);
                         } else {
-                            hasBeenHit = true;
+                            spaceShip.hasBeenHit = true;
                             playSound(spaceShipExplosionSound);
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved  = true;
+                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -3248,17 +3286,13 @@ public class SpaceFXView extends StackPane {
         @Override public void update() {
             countX++;
             if (countX == maxFrameX) {
-                countX = 0;
                 countY++;
+                if (countX == maxFrameX && countY == maxFrameY) {
+                    toBeRemoved = true;
+                }
+                countX = 0;
                 if (countY == maxFrameY) {
                     countY = 0;
-                }
-                if (countX == 0 && countY == 0) {
-                    hasBeenHit = false;
-                    spaceShip.x = WIDTH * 0.5;
-                    spaceShip.y = HEIGHT - 2 * spaceShip.height;
-                    shipTouchArea.setCenterX(spaceShip.x);
-                    shipTouchArea.setCenterY(spaceShip.y);
                 }
             }
         }
