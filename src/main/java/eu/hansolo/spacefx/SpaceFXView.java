@@ -120,6 +120,7 @@ public class SpaceFXView extends StackPane {
     private              Image                      rocket1Img;
     private              Image                      bigTorpedo1Img;
     private              Image                      asteroidExplosionImg;
+    private              Image                      asteroidExplosion1Img;
     private              Image                      spaceShipExplosionImg;
     private              Image                      hitImg;
     private              Image                      shieldUpImg;
@@ -492,6 +493,7 @@ public class SpaceFXView extends StackPane {
                 rocket1Img              = new Image(getClass().getResourceAsStream("rocket1.png"), 17 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
                 bigTorpedo1Img          = new Image(getClass().getResourceAsStream("bigtorpedo1.png"), 22 * SCALING_FACTOR, 40 * SCALING_FACTOR, true, false);
                 asteroidExplosionImg    = new Image(getClass().getResourceAsStream("asteroidExplosion.png"), 2048 * SCALING_FACTOR, 1792 * SCALING_FACTOR, true, false);
+                asteroidExplosion1Img   = new Image(getClass().getResourceAsStream("asteroidExplosion1.png"), 2048 * SCALING_FACTOR, 1792 * SCALING_FACTOR, true, false);
                 spaceShipExplosionImg   = new Image(getClass().getResourceAsStream("spaceshipexplosion.png"), 800 * SCALING_FACTOR, 600 * SCALING_FACTOR, true, false);
                 hitImg                  = new Image(getClass().getResourceAsStream("torpedoHit2.png"), 400 * SCALING_FACTOR, 160 * SCALING_FACTOR, true, false);
                 shieldUpImg             = new Image(getClass().getResourceAsStream("shieldUp.png"), 50 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
@@ -1421,7 +1423,17 @@ public class SpaceFXView extends StackPane {
     }
 
     private void spawnEnemyBossRocket(final double x, final double y) {
-        enemyBossRockets.add(new EnemyBossRocket(spaceShips, level.getEnemyBossRocketImg(), x, y));
+        Map<SpaceShip, Double> shipDistanceMap = new HashMap<>();
+        spaceShips.forEach(spaceShip -> {
+            double dX = spaceShip.x - x;
+            double dY = spaceShip.y - y;
+            shipDistanceMap.put(spaceShip, Math.sqrt(dX * dX + dY * dY));
+        });
+        SpaceShip spaceShipToAttack = shipDistanceMap.entrySet()
+                                           .stream()
+                                           .min(Comparator.comparingDouble(Map.Entry::getValue))
+                                           .map(Map.Entry::getKey).orElse(null);
+        enemyBossRockets.add(new EnemyBossRocket(spaceShipToAttack, spaceShips, level.getEnemyBossRocketImg(), x, y));
         playSound(rocketLaunchSound);
     }
 
@@ -1432,7 +1444,17 @@ public class SpaceFXView extends StackPane {
     }
 
     private void spawnLevelBossRocket(final double x, final double y) {
-        levelBossRockets.add(new LevelBossRocket(spaceShips, level.getLevelBossRocketImg(), x, y));
+        Map<SpaceShip, Double> shipDistanceMap = new HashMap<>();
+        spaceShips.forEach(spaceShip -> {
+            double dX = spaceShip.x - x;
+            double dY = spaceShip.y - y;
+            shipDistanceMap.put(spaceShip, Math.sqrt(dX * dX + dY * dY));
+        });
+        SpaceShip spaceShipToAttack = shipDistanceMap.entrySet()
+                                                     .stream()
+                                                     .min(Comparator.comparingDouble(Map.Entry::getValue))
+                                                     .map(Map.Entry::getKey).orElse(null);
+        levelBossRockets.add(new LevelBossRocket(spaceShipToAttack, spaceShips, level.getLevelBossRocketImg(), x, y));
         playSound(levelBossRocketSound);
     }
 
@@ -1466,17 +1488,17 @@ public class SpaceFXView extends StackPane {
         });
         pauseBeforeGameOverScreen.play();
 
-        players.forEach(player -> {
-            boolean isInHallOfFame = player.score > hallOfFame.get(2).score;
-            if (isInHallOfFame) {
-                playerToStore = player;
-
-                PauseTransition pauseInGameOverScreen = new PauseTransition(Duration.millis(5000));
-                pauseInGameOverScreen.setOnFinished(e -> {
+        PauseTransition pauseInGameOverScreen = new PauseTransition(Duration.millis(5000));
+        pauseInGameOverScreen.setOnFinished(e -> {
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+            ctx.drawImage(hallOfFameImg, 0, 0, WIDTH, HEIGHT);
+            players.forEach(player -> {
+                boolean isInHallOfFame = player.score > hallOfFame.get(2).score;
+                if (isInHallOfFame) {
                     // Add player to hall of fame
-                    ctx.clearRect(0, 0, WIDTH, HEIGHT);
-                    ctx.drawImage(hallOfFameImg, 0, 0, WIDTH, HEIGHT);
-
+                    playerToStore = player;
+                    digit1.reset();
+                    digit2.reset();
                     hallOfFameScreen = true;
                     Helper.enableNode(hallOfFameBox, true);
                     Helper.enableNode(playerInitialsLabel, true);
@@ -1486,15 +1508,14 @@ public class SpaceFXView extends StackPane {
                     playerInitialsDigits.relocate((WIDTH - digit1.getPrefWidth() - digit2.getPrefWidth()) * 0.5, HEIGHT * 0.8);
                     saveInitialsButton.relocate((WIDTH - saveInitialsButton.getPrefWidth()) * 0.5, HEIGHT - saveInitialsButton.getPrefHeight() - HEIGHT * 0.075);
                     Platform.runLater(() -> playerInitialsDigits.requestFocus());
-                });
-                pauseInGameOverScreen.play();
-            }
+                }
+            });
+            playerToStore = null;
+            // Back to StartScreen
+            PauseTransition pauseInHallOfFameScreen = new PauseTransition(Duration.millis(5000));
+            pauseInHallOfFameScreen.setOnFinished(a -> reInitGame());
+            pauseInHallOfFameScreen.play();
         });
-
-        playerToStore = null;
-        // Back to StartScreen
-        PauseTransition pauseInGameOverScreen = new PauseTransition(Duration.millis(5000));
-        pauseInGameOverScreen.setOnFinished(a -> reInitGame());
         pauseInGameOverScreen.play();
     }
 
@@ -1731,10 +1752,6 @@ public class SpaceFXView extends StackPane {
         Helper.enableNode(playerInitialsLabel, false);
         Helper.enableNode(playerInitialsDigits, false);
         Helper.enableNode(saveInitialsButton, false);
-
-        PauseTransition waitForHallOfFame = new PauseTransition(Duration.millis(3000));
-        waitForHallOfFame.setOnFinished(a -> reInitGame());
-        waitForHallOfFame.play();
     }
 
 
@@ -2755,6 +2772,7 @@ public class SpaceFXView extends StackPane {
 
     private class EnemyBossRocket extends Sprite {
         private final long            rocketLifespan = 2_500_000_000l;
+        private final SpaceShip       spaceShip;
         private final List<SpaceShip> spaceShips;
         private       long            born;
         private       double          dX;
@@ -2763,29 +2781,30 @@ public class SpaceFXView extends StackPane {
         private       double          factor;
 
 
-        public EnemyBossRocket(final List<SpaceShip> spaceShips, final Image image, final double x, final double y) {
+        public EnemyBossRocket(final SpaceShip spaceShip, final List<SpaceShip> spaceShips, final Image image, final double x, final double y) {
             super(image, x - image.getWidth() / 2.0, y, 0, 1);
+            this.spaceShip  = spaceShip;
             this.spaceShips = spaceShips;
             this.born       = System.nanoTime();
         }
 
 
         @Override public void update() {
+            dX     = spaceShip.x - x;
+            dY     = spaceShip.y - y;
+            dist   = Math.sqrt(dX * dX + dY * dY);
+            factor = ENEMY_BOSS_ROCKET_SPEED / dist;
+            if (spaceShip.y > y) {
+                vX = dX * factor;
+                vY = dY * factor;
+            }
+
+            x += vX;
+            y += vY;
+
+            r = Math.toDegrees(Math.atan2(vY, vX)) - 90;
+
             spaceShips.forEach(spaceShip -> {
-                dX     = spaceShip.x - x;
-                dY     = spaceShip.y - y;
-                dist   = Math.sqrt(dX * dX + dY * dY);
-                factor = ENEMY_BOSS_ROCKET_SPEED / dist;
-                if (spaceShip.y > y) {
-                    vX = dX * factor;
-                    vY = dY * factor;
-                }
-
-                x += vX;
-                y += vY;
-
-                r = Math.toDegrees(Math.atan2(vY, vX)) - 90;
-
                 if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
                     boolean hit;
                     if (spaceShip.shield) {
@@ -2811,6 +2830,7 @@ public class SpaceFXView extends StackPane {
                     toBeRemoved = true;
                 }
             });
+
             if (System.nanoTime() - born > rocketLifespan) {
                 enemyRocketExplosions.add(new EnemyRocketExplosion(x - ENEMY_ROCKET_EXPLOSION_FRAME_WIDTH * 0.25, y - ENEMY_ROCKET_EXPLOSION_FRAME_HEIGHT * 0.25, vX, vY, 0.5));
                 toBeRemoved = true;
@@ -3017,6 +3037,7 @@ public class SpaceFXView extends StackPane {
 
     private class LevelBossRocket extends Sprite {
         private final long            rocketLifespan = 3_000_000_000l;
+        private final SpaceShip       spaceShip;
         private final List<SpaceShip> spaceShips;
         private       long            born;
         private       double          dX;
@@ -3025,29 +3046,30 @@ public class SpaceFXView extends StackPane {
         private       double          factor;
 
 
-        public LevelBossRocket(final List<SpaceShip> spaceShips, final Image image, final double x, final double y) {
+        public LevelBossRocket(final SpaceShip spaceShip, final List<SpaceShip> spaceShips, final Image image, final double x, final double y) {
             super(image, x - image.getWidth() / 2.0, y, 0, 1);
+            this.spaceShip  = spaceShip;
             this.spaceShips = spaceShips;
             this.born       = System.nanoTime();
         }
 
 
         @Override public void update() {
+            dX     = spaceShip.x - x;
+            dY     = spaceShip.y - y;
+            dist   = Math.sqrt(dX * dX + dY * dY);
+            factor = ENEMY_BOSS_ROCKET_SPEED / dist;
+            if (spaceShip.y > y) {
+                vX = dX * factor;
+                vY = dY * factor;
+            }
+
+            x += vX;
+            y += vY;
+
+            r = Math.toDegrees(Math.atan2(vY, vX)) - 90;
+
             spaceShips.forEach(spaceShip -> {
-                dX     = spaceShip.x - x;
-                dY     = spaceShip.y - y;
-                dist   = Math.sqrt(dX * dX + dY * dY);
-                factor = ENEMY_BOSS_ROCKET_SPEED / dist;
-                if (spaceShip.y > y) {
-                    vX = dX * factor;
-                    vY = dY * factor;
-                }
-
-                x += vX;
-                y += vY;
-
-                r = Math.toDegrees(Math.atan2(vY, vX)) - 90;
-
                 if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
                     boolean hit;
                     if (spaceShip.shield) {
