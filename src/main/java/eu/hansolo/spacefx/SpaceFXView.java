@@ -21,6 +21,7 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Insets;
@@ -65,6 +66,7 @@ import java.util.stream.Collectors;
 //import static com.gluonhq.attach.util.Platform.isDesktop;
 //import static com.gluonhq.attach.util.Platform.isIOS;
 import static eu.hansolo.spacefx.Config.*;
+import static eu.hansolo.spacefx.Players.PLAYER_1;
 
 
 public class SpaceFXView extends StackPane {
@@ -78,7 +80,7 @@ public class SpaceFXView extends StackPane {
     private              long                       lastScreenToggle;
     private              boolean                    readyToStart;
     private              boolean                    running;
-    private              boolean                    gameOverScreen;
+    private              long                       gameOverStart;
     private              boolean                    hallOfFameScreen;
     private              Properties                 properties;
     private              Label                      playerInitialsLabel;
@@ -89,7 +91,6 @@ public class SpaceFXView extends StackPane {
     private              List<Player>               hallOfFame;
     private              VBox                       hallOfFameBox;
     private              Level                      level;
-    private              Player                     playerToStore;
     private final        Image                      startImg                = new Image(getClass().getResourceAsStream("startscreen.jpg"));
     private final        Image                      gameOverImg             = new Image(getClass().getResourceAsStream("gameover.jpg"));
     private final        Image                      hallOfFameImg           = new Image(getClass().getResourceAsStream("halloffamescreen.jpg"));
@@ -167,7 +168,8 @@ public class SpaceFXView extends StackPane {
     private              GraphicsContext            ctx;
     private              Star[]                     stars;
     private              Asteroid[]                 asteroids;
-    private              SpaceShip                  controlledSpaceShip;
+    private              SpaceShip                  spaceShipPlayer1;
+    private              SpaceShip                  spaceShipPlayer2;
     private              List<Player>               players;
     private              List<SpaceShip>            spaceShips;
     private              List<Wave>                 waves;
@@ -228,22 +230,17 @@ public class SpaceFXView extends StackPane {
         if (SHOW_BUTTONS) {
             canvas.addEventHandler(TouchEvent.TOUCH_PRESSED, touchHandler);
             shipTouchArea.setOnTouchMoved(e -> {
-                if (null == controlledSpaceShip) { return; }
-                controlledSpaceShip.x = e.getTouchPoint().getX();
-                controlledSpaceShip.y = e.getTouchPoint().getY();
+                if (null == spaceShipPlayer1) { return; }
+                spaceShipPlayer1.x = e.getTouchPoint().getX();
+                spaceShipPlayer1.y = e.getTouchPoint().getY();
             });
         } else {
             shipTouchArea.setOnMouseDragged(e -> {
-                if (null == controlledSpaceShip) { return; }
-                controlledSpaceShip.x = e.getX();
-                controlledSpaceShip.y = e.getY();
+                if (null == spaceShipPlayer1) { return; }
+                spaceShipPlayer1.x = e.getX();
+                spaceShipPlayer1.y = e.getY();
             });
         }
-
-        saveInitialsButton.setOnAction(e -> {
-            if (null == playerToStore) { return; }
-            storePlayer();
-        });
 
         setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         getChildren().add(pane);
@@ -260,7 +257,7 @@ public class SpaceFXView extends StackPane {
     public void init() {
         scoreFont        = Fonts.spaceBoy(SCORE_FONT_SIZE);
         running          = false;
-        gameOverScreen   = false;
+        gameOverStart    = -1;
         levelBossActive  = false;
         lastScreenToggle = System.nanoTime();
         hallOfFameScreen = false;
@@ -411,21 +408,21 @@ public class SpaceFXView extends StackPane {
 
         touchHandler = e -> {
             EventType<TouchEvent>  type  = e.getEventType();
-            if (null == controlledSpaceShip) { return; }
+            if (null == spaceShipPlayer1) { return; }
             if (TouchEvent.TOUCH_PRESSED.equals(type)) {
                 if (SHOW_BUTTONS) {
                     double x = e.getTouchPoint().getX();
                     double y = e.getTouchPoint().getY();
                     if (Helper.isInsideCircle(TORPEDO_BUTTON_CX, TORPEDO_BUTTON_CY, TORPEDO_BUTTON_R, x, y)) {
-                        spawnWeapon(controlledSpaceShip);
+                        spawnWeapon(spaceShipPlayer1);
                     } else if (Helper.isInsideCircle(ROCKET_BUTTON_CX, ROCKET_BUTTON_CY, ROCKET_BUTTON_R, x, y)) {
                         if (rockets.size() < MAX_NO_OF_ROCKETS) {
-                            spawnRocket(controlledSpaceShip);
+                            spawnRocket(spaceShipPlayer1);
                         }
                     } else if (Helper.isInsideCircle(SHIELD_BUTTON_CX, SHIELD_BUTTON_CY, SHIELD_BUTTON_R, x, y)) {
-                        if (controlledSpaceShip.noOfShields > 0 && !controlledSpaceShip.shield) {
-                            controlledSpaceShip.lastShieldActivated = System.nanoTime();
-                            controlledSpaceShip.shield = true;
+                        if (spaceShipPlayer1.noOfShields > 0 && !spaceShipPlayer1.shield) {
+                            spaceShipPlayer1.lastShieldActivated = System.nanoTime();
+                            spaceShipPlayer1.shield = true;
                             playSound(deflectorShieldSound);
                         }
                     }
@@ -456,8 +453,6 @@ public class SpaceFXView extends StackPane {
                 level2 = new Level2();
                 level3 = new Level3();
                 level  = level1;
-
-                playerToStore = null;
 
                 // Load images
                 asteroidImages          = new Image[] { new Image(getClass().getResourceAsStream("asteroid1.png"), 140 * SCALING_FACTOR, 140 * SCALING_FACTOR, true, false),
@@ -601,7 +596,7 @@ public class SpaceFXView extends StackPane {
                 if (Helper.isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
                     asteroid.hits--;
                     if (asteroid.hits <= 0) {
-                        asteroidExplosions.add(new AsteroidExplosion(asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
+                        asteroidExplosions.add(new AsteroidExplosion(torpedo.spaceShip.isPlayer1, asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
                         torpedo.spaceShip.score += asteroid.value;
                         torpedo.spaceShip.asteroidsDestroyed++;
                         asteroid.respawn();
@@ -620,7 +615,7 @@ public class SpaceFXView extends StackPane {
                 if (Helper.isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
                     asteroid.hits--;
                     if (asteroid.hits <= 0) {
-                        asteroidExplosions.add(new AsteroidExplosion(asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
+                        asteroidExplosions.add(new AsteroidExplosion(bigTorpedo.spaceShip.isPlayer1, asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
                         bigTorpedo.spaceShip.score += asteroid.value;
                         bigTorpedo.spaceShip.asteroidsDestroyed++;
                         asteroid.respawn();
@@ -659,14 +654,14 @@ public class SpaceFXView extends StackPane {
                     spaceShipExplosions.add(new SpaceShipExplosion(spaceShip,spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH * 0.5, spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT * 0.5, spaceShip.vX, spaceShip.vY));
                     if (spaceShip.shield) {
                         playSound(explosionSound);
-                        asteroidExplosions.add(new AsteroidExplosion(asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
+                        asteroidExplosions.add(new AsteroidExplosion(spaceShip.isPlayer1, asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
                     } else {
                         playSound(spaceShipExplosionSound);
                         spaceShip.hasBeenHit = true;
                         spaceShip.noOfLifes--;
                         if (0 == spaceShip.noOfLifes) {
                             spaceShip.toBeRemoved = true;
-                            players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                            players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
                         }
                     }
                     asteroid.respawn();
@@ -780,7 +775,7 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                         enemyBoss.toBeRemoved = true;
@@ -904,7 +899,7 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                         levelBoss.toBeRemoved = true;
@@ -1071,7 +1066,7 @@ public class SpaceFXView extends StackPane {
         // Draw AsteroidExplosions
         for (AsteroidExplosion asteroidExplosion : asteroidExplosions) {
             asteroidExplosion.update();
-            ctx.drawImage(asteroidExplosionImg, asteroidExplosion.countX * ASTEROID_EXPLOSION_FRAME_WIDTH, asteroidExplosion.countY * ASTEROID_EXPLOSION_FRAME_HEIGHT,
+            ctx.drawImage(asteroidExplosion.player1Explosion ? asteroidExplosionImg :  asteroidExplosion1Img, asteroidExplosion.countX * ASTEROID_EXPLOSION_FRAME_WIDTH, asteroidExplosion.countY * ASTEROID_EXPLOSION_FRAME_HEIGHT,
                           ASTEROID_EXPLOSION_FRAME_WIDTH, ASTEROID_EXPLOSION_FRAME_HEIGHT, asteroidExplosion.x, asteroidExplosion.y,
                           ASTEROID_EXPLOSION_FRAME_WIDTH * asteroidExplosion.scale, ASTEROID_EXPLOSION_FRAME_HEIGHT * asteroidExplosion.scale);
         }
@@ -1138,11 +1133,11 @@ public class SpaceFXView extends StackPane {
                     ctx.save();
                     ctx.setGlobalAlpha(spaceShip.isVulnerable ? 1.0 : 0.5);
                     if (spaceShip.vY < 0) {
-                        ctx.drawImage(spaceShip.controlledLocally ? spaceshipUpImg : spaceshipUp1Img,spaceShip.x - spaceShip.radius, spaceShip.y - spaceShip.radius);
+                        ctx.drawImage(spaceShip.isPlayer1 ? spaceshipUpImg : spaceshipUp1Img, spaceShip.x - spaceShip.radius, spaceShip.y - spaceShip.radius);
                     } else if (spaceShip.vY > 0) {
-                        ctx.drawImage(spaceShip.controlledLocally ? spaceshipDownImg : spaceshipDown1Img,spaceShip.x - spaceShip.radius, spaceShip.y - spaceShip.radius);
+                        ctx.drawImage(spaceShip.isPlayer1 ? spaceshipDownImg : spaceshipDown1Img, spaceShip.x - spaceShip.radius, spaceShip.y - spaceShip.radius);
                     } else {
-                        ctx.drawImage(spaceShip.controlledLocally ? spaceshipImg : spaceship1Img,spaceShip.x - spaceShip.radius, spaceShip.y - spaceShip.radius);
+                        ctx.drawImage(spaceShip.isPlayer1 ? spaceshipImg : spaceship1Img, spaceShip.x - spaceShip.radius, spaceShip.y - spaceShip.radius);
                     }
 
                     ctx.restore();
@@ -1153,14 +1148,23 @@ public class SpaceFXView extends StackPane {
                             spaceShip.shield = false;
                             spaceShip.noOfShields--;
                         } else {
-                            ctx.setStroke(SPACEFX_COLOR_TRANSLUCENT);
-                            ctx.setFill(SPACEFX_COLOR_TRANSLUCENT);
-                            ctx.strokeRect(SHIELD_INDICATOR_X, SHIELD_INDICATOR_Y + mobileOffsetY, SHIELD_INDICATOR_WIDTH, SHIELD_INDICATOR_HEIGHT);
-                            ctx.fillRect(SHIELD_INDICATOR_X, SHIELD_INDICATOR_Y + mobileOffsetY, SHIELD_INDICATOR_WIDTH - SHIELD_INDICATOR_WIDTH * delta / DEFLECTOR_SHIELD_TIME,
-                                         SHIELD_INDICATOR_HEIGHT);
-                            ctx.setGlobalAlpha(RND.nextDouble() * 0.5 + 0.1);
-                            ctx.drawImage(deflectorShieldImg, spaceShip.x - deflectorShieldRadius, spaceShip.y - deflectorShieldRadius);
-                            ctx.setGlobalAlpha(1);
+                            if (spaceShip.isPlayer1) {
+                                ctx.setStroke(SPACEFX_COLOR_TRANSLUCENT);
+                                ctx.setFill(SPACEFX_COLOR_TRANSLUCENT);
+                                ctx.strokeRect(SHIELD_INDICATOR_X, SHIELD_INDICATOR_Y + mobileOffsetY, SHIELD_INDICATOR_WIDTH, SHIELD_INDICATOR_HEIGHT);
+                                ctx.fillRect(SHIELD_INDICATOR_X, SHIELD_INDICATOR_Y + mobileOffsetY, SHIELD_INDICATOR_WIDTH - SHIELD_INDICATOR_WIDTH * delta / DEFLECTOR_SHIELD_TIME, SHIELD_INDICATOR_HEIGHT);
+                                ctx.setGlobalAlpha(RND.nextDouble() * 0.5 + 0.1);
+                                ctx.drawImage(deflectorShieldImg, spaceShip.x - deflectorShieldRadius, spaceShip.y - deflectorShieldRadius);
+                                ctx.setGlobalAlpha(1);
+                            } else {
+                                ctx.setStroke(SPACEFX_COLOR1_TRANSLUCENT);
+                                ctx.setFill(SPACEFX_COLOR1_TRANSLUCENT);
+                                ctx.strokeRect(SHIELD_INDICATOR_X, SECOND_PLAYER_OFFSET_Y + 20 + mobileOffsetY, SHIELD_INDICATOR_WIDTH, SHIELD_INDICATOR_HEIGHT);
+                                ctx.fillRect(SHIELD_INDICATOR_X, SECOND_PLAYER_OFFSET_Y + 20 + mobileOffsetY, SHIELD_INDICATOR_WIDTH - SHIELD_INDICATOR_WIDTH * delta / DEFLECTOR_SHIELD_TIME, SHIELD_INDICATOR_HEIGHT);
+                                ctx.setGlobalAlpha(RND.nextDouble() * 0.5 + 0.1);
+                                ctx.drawImage(deflectorShieldImg, spaceShip.x - deflectorShieldRadius, spaceShip.y - deflectorShieldRadius);
+                                ctx.setGlobalAlpha(1);
+                            }
                         }
                     }
 
@@ -1180,7 +1184,7 @@ public class SpaceFXView extends StackPane {
                 }
 
                 ctx.setFont(scoreFont);
-                if (spaceShip.controlledLocally) {
+                if (spaceShip.isPlayer1) {
                     // Draw score
                     ctx.setFill(SPACEFX_COLOR);
                     ctx.fillText(Long.toString(spaceShip.score), scorePosX, scorePosY + mobileOffsetY);
@@ -1208,19 +1212,19 @@ public class SpaceFXView extends StackPane {
 
                     // Draw lifes
                     for (int i = 0 ; i < spaceShip.noOfLifes ; i++) {
-                        ctx.drawImage(miniSpaceship1Img, i * miniSpaceship1Img.getWidth() + 10, 60 + mobileOffsetY);
+                        ctx.drawImage(miniSpaceship1Img, i * miniSpaceship1Img.getWidth() + 10, 20 + SECOND_PLAYER_OFFSET_Y + mobileOffsetY);
                     }
 
                     // Draw shields
                     for (int i = 0 ; i < spaceShip.noOfShields ; i++) {
-                        ctx.drawImage(miniDeflectorShield1Img, WIDTH - i * (miniDeflectorShield1Img.getWidth() + 5), 60 + mobileOffsetY);
+                        ctx.drawImage(miniDeflectorShield1Img, WIDTH - i * (miniDeflectorShield1Img.getWidth() + 5), 20 + SECOND_PLAYER_OFFSET_Y + mobileOffsetY);
                     }
 
                     // Draw bigTorpedo and starburst icon
                     if (spaceShip.starburstEnabled) {
-                        ctx.drawImage(miniStarburstBonus1Img, 10, 80 + mobileOffsetY);
+                        ctx.drawImage(miniStarburstBonus1Img, 10, 40 + SECOND_PLAYER_OFFSET_Y + mobileOffsetY);
                     } else if (spaceShip.bigTorpedosEnabled) {
-                        ctx.drawImage(miniBigTorpedoBonus1Img, 10, 80 + mobileOffsetY);
+                        ctx.drawImage(miniBigTorpedoBonus1Img, 10, 40 + SECOND_PLAYER_OFFSET_Y + mobileOffsetY);
                     }
                 }
             }
@@ -1259,9 +1263,24 @@ public class SpaceFXView extends StackPane {
         hits.removeIf(sprite -> sprite.toBeRemoved);
         enemyHits.removeIf(sprite -> sprite.toBeRemoved);
 
-        if (!spaceShips.contains(controlledSpaceShip)) { controlledSpaceShip = null; }
+        if (spaceShips.isEmpty()) {
+            if (gameOverStart < 0) {
+                gameOverStart = System.nanoTime();
+                playSound(gameoverSound);
+            }
+            if (System.nanoTime() - gameOverStart < 5_000_000_000l) {
+                ctx.setFont(GAME_OVER_FONT);
+                ctx.setFill(SPACEFX_COLOR);
+                ctx.fillText("GAME", WIDTH * 0.5, HEIGHT * 0.5 - GAME_OVER_FONT.getSize() * 0.75);
+                ctx.fillText("OVER", WIDTH * 0.5, HEIGHT * 0.5 + GAME_OVER_FONT.getSize() * 0.75);
+            } else {
+                gameOverStart = -1;
+                gameOver();
+            }
+        }
 
-        if (spaceShips.isEmpty()) { gameOver(); }
+        if (null != spaceShipPlayer1 && spaceShipPlayer1.toBeRemoved) { spaceShipPlayer1 = null; }
+        if (null != spaceShipPlayer2 && spaceShipPlayer2.toBeRemoved) { spaceShipPlayer2 = null; }
 
         // Remove waves
         wavesToRemove.clear();
@@ -1271,21 +1290,21 @@ public class SpaceFXView extends StackPane {
     // Spawn different objects
     private void spawnSpaceShip() {
         if (spaceShips.size() < 2) {
-            if (spaceShips.stream().filter(sp -> sp.controlledLocally).findFirst().isPresent()) {
-                SpaceShip spaceShip = new SpaceShip(spaceship1Img, spaceshipUp1Img, spaceshipDown1Img);
-                spaceShip.x = WIDTH * 0.5;
-                spaceShip.y = HEIGHT - 2 * spaceShip.height;
-                spaceShips.add(spaceShip);
+            if (spaceShips.stream().filter(sp -> sp.isPlayer1).findFirst().isPresent()) {
+                spaceShipPlayer2 = new SpaceShip(spaceship1Img, spaceshipUp1Img, spaceshipDown1Img);
+                spaceShipPlayer2.x = WIDTH * 0.6;
+                spaceShipPlayer2.y = HEIGHT - 2 * spaceShipPlayer2.height;
+                spaceShips.add(spaceShipPlayer2);
             } else {
-                controlledSpaceShip = new SpaceShip(true, spaceshipImg, spaceshipUpImg, spaceshipDownImg);
-                controlledSpaceShip.x = WIDTH * 0.5;
-                controlledSpaceShip.y = HEIGHT - 2 * controlledSpaceShip.height;
-                shipTouchArea.setCenterX(controlledSpaceShip.x);
-                shipTouchArea.setCenterY(controlledSpaceShip.y);
+                spaceShipPlayer1 = new SpaceShip(true, spaceshipImg, spaceshipUpImg, spaceshipDownImg);
+                spaceShipPlayer1.x = MULTI_PLAYER ? WIDTH * 0.4 : WIDTH * 0.5;
+                spaceShipPlayer1.y = HEIGHT - 2 * spaceShipPlayer1.height;
+                shipTouchArea.setCenterX(spaceShipPlayer1.x);
+                shipTouchArea.setCenterY(spaceShipPlayer1.y);
                 shipTouchArea.setRadius(deflectorShieldRadius);
                 shipTouchArea.setStroke(Color.TRANSPARENT);
                 shipTouchArea.setFill(Color.TRANSPARENT);
-                spaceShips.add(controlledSpaceShip);
+                spaceShips.add(spaceShipPlayer1);
             }
         }
     }
@@ -1294,20 +1313,20 @@ public class SpaceFXView extends StackPane {
         if (spaceShip.starburstEnabled) {
             fireStarburst(spaceShip);
         } else if (spaceShip.bigTorpedosEnabled) {
-            bigTorpedos.add(new BigTorpedo(spaceShip, spaceShip.controlledLocally ? bigTorpedoImg : bigTorpedo1Img, spaceShip.x, spaceShip.y, 0, -BIG_TORPEDO_SPEED * 2.333333, 45));
+            bigTorpedos.add(new BigTorpedo(spaceShip, spaceShip.isPlayer1 ? bigTorpedoImg : bigTorpedo1Img, spaceShip.x, spaceShip.y, 0, -BIG_TORPEDO_SPEED * 2.333333, 45));
         } else {
-            torpedos.add(new Torpedo(spaceShip, spaceShip.controlledLocally ? torpedoImg : torpedo1Img, spaceShip.x, spaceShip.y));
+            torpedos.add(new Torpedo(spaceShip, spaceShip.isPlayer1 ? torpedoImg : torpedo1Img, spaceShip.x, spaceShip.y));
         }
         playSound(laserSound);
     }
 
     private void spawnBigTorpedo(final SpaceShip spaceShip) {
-        bigTorpedos.add(new BigTorpedo(spaceShip, spaceShip.controlledLocally ? bigTorpedoImg : bigTorpedo1Img, spaceShip.x, spaceShip.y, 0, -BIG_TORPEDO_SPEED * 2.333333, 45));
+        bigTorpedos.add(new BigTorpedo(spaceShip, spaceShip.isPlayer1 ? bigTorpedoImg : bigTorpedo1Img, spaceShip.x, spaceShip.y, 0, -BIG_TORPEDO_SPEED * 2.333333, 45));
         playSound(laserSound);
     }
 
     private void spawnRocket(final SpaceShip spaceShip) {
-        rockets.add(new Rocket(spaceShip, spaceShip.controlledLocally ? rocketImg : rocket1Img, spaceShip.x, spaceShip.y));
+        rockets.add(new Rocket(spaceShip, spaceShip.isPlayer1 ? rocketImg : rocket1Img, spaceShip.x, spaceShip.y));
         playSound(rocketLaunchSound);
     }
 
@@ -1468,55 +1487,34 @@ public class SpaceFXView extends StackPane {
     private void gameOver() {
         timer.stop();
         running = false;
-        gameOverScreen = true;
         if (PLAY_MUSIC) {
             gameMediaPlayer.pause();
         }
 
-        PauseTransition pauseBeforeGameOverScreen = new PauseTransition(Duration.millis(1000));
-        pauseBeforeGameOverScreen.setOnFinished(e -> {
-            ctx.clearRect(0, 0, WIDTH, HEIGHT);
-            ctx.drawImage(gameOverImg, 0, 0, WIDTH, HEIGHT);
-            double scoreOffsetY = 0;
-            for (Player player : players) {
-                ctx.setFill(player.playerColor);
-                ctx.setFont(Fonts.spaceBoy(SCORE_FONT_SIZE));
-                ctx.fillText(Long.toString(player.score), scorePosX, HEIGHT * 0.25 + scoreOffsetY);
-                scoreOffsetY += SCORE_FONT_SIZE * 1.5;
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        ctx.drawImage(hallOfFameImg, 0, 0, WIDTH, HEIGHT);
+        players.forEach(player -> {
+            boolean isInHallOfFame = player.score > hallOfFame.get(2).score;
+            if (isInHallOfFame) {
+                // Add player to hall of fame
+                digit1.reset();
+                digit2.reset();
+                hallOfFameScreen = true;
+                Helper.enableNode(hallOfFameBox, true);
+                Helper.enableNode(playerInitialsLabel, true);
+                Helper.enableNode(playerInitialsDigits, true);
+                Helper.enableNode(saveInitialsButton, true);
+                playerInitialsLabel.relocate((WIDTH - playerInitialsLabel.getPrefWidth()) * 0.5, HEIGHT * 0.7);
+                playerInitialsDigits.relocate((WIDTH - digit1.getPrefWidth() - digit2.getPrefWidth()) * 0.5, HEIGHT * 0.8);
+                saveInitialsButton.relocate((WIDTH - saveInitialsButton.getPrefWidth()) * 0.5, HEIGHT - saveInitialsButton.getPrefHeight() - HEIGHT * 0.075);
+                saveInitialsButton.setOnAction(evt -> storePlayer(player));
+                Platform.runLater(() -> playerInitialsDigits.requestFocus());
             }
-            playSound(gameoverSound);
         });
-        pauseBeforeGameOverScreen.play();
 
-        PauseTransition pauseInGameOverScreen = new PauseTransition(Duration.millis(5000));
-        pauseInGameOverScreen.setOnFinished(e -> {
-            ctx.clearRect(0, 0, WIDTH, HEIGHT);
-            ctx.drawImage(hallOfFameImg, 0, 0, WIDTH, HEIGHT);
-            players.forEach(player -> {
-                boolean isInHallOfFame = player.score > hallOfFame.get(2).score;
-                if (isInHallOfFame) {
-                    // Add player to hall of fame
-                    playerToStore = player;
-                    digit1.reset();
-                    digit2.reset();
-                    hallOfFameScreen = true;
-                    Helper.enableNode(hallOfFameBox, true);
-                    Helper.enableNode(playerInitialsLabel, true);
-                    Helper.enableNode(playerInitialsDigits, true);
-                    Helper.enableNode(saveInitialsButton, true);
-                    playerInitialsLabel.relocate((WIDTH - playerInitialsLabel.getPrefWidth()) * 0.5, HEIGHT * 0.7);
-                    playerInitialsDigits.relocate((WIDTH - digit1.getPrefWidth() - digit2.getPrefWidth()) * 0.5, HEIGHT * 0.8);
-                    saveInitialsButton.relocate((WIDTH - saveInitialsButton.getPrefWidth()) * 0.5, HEIGHT - saveInitialsButton.getPrefHeight() - HEIGHT * 0.075);
-                    Platform.runLater(() -> playerInitialsDigits.requestFocus());
-                }
-            });
-            playerToStore = null;
-            // Back to StartScreen
-            PauseTransition pauseInHallOfFameScreen = new PauseTransition(Duration.millis(5000));
-            pauseInHallOfFameScreen.setOnFinished(a -> reInitGame());
-            pauseInHallOfFameScreen.play();
-        });
-        pauseInGameOverScreen.play();
+        PauseTransition pauseInHallOfFameScreen = new PauseTransition(Duration.millis(5000));
+        pauseInHallOfFameScreen.setOnFinished(e -> reInitGame());
+        pauseInHallOfFameScreen.play();
     }
 
 
@@ -1526,7 +1524,6 @@ public class SpaceFXView extends StackPane {
         ctx.drawImage(startImg, 0, 0, WIDTH, HEIGHT);
 
         Helper.enableNode(hallOfFameBox, false);
-        gameOverScreen = false;
         spaceShips.clear();
         spaceShipExplosions.clear();
         enemyBosses.clear();
@@ -1606,9 +1603,83 @@ public class SpaceFXView extends StackPane {
     }
 
 
+    private void increaseSpaceShipVx(final SpaceShip spaceShip) {
+        if (null == spaceShip) { return; }
+        spaceShip.vX = 5;
+    }
+
+    private void decreaseSpaceShipVx(final SpaceShip spaceShip) {
+        if (null == spaceShip) { return; }
+        spaceShip.vX = -5;
+    }
+
+    private void stopSpaceShipVx(final SpaceShip spaceShip) {
+        if (null == spaceShip) { return; }
+        spaceShip.vX = 0;
+    }
+
+    private void increaseSpaceShipVy(final SpaceShip spaceShip) {
+        if (null == spaceShip) { return; }
+        spaceShip.vY = 5;
+    }
+
+    private void decreaseSpaceShipVy(final SpaceShip spaceShip) {
+        if (null == spaceShip) { return; }
+        spaceShip.vY = -5;
+    }
+
+    private void stopSpaceShipVy(final SpaceShip spaceShip) {
+        if (null == spaceShip) { return; }
+        spaceShip.vY = 0;
+    }
+
+    private void activateSpaceShipShield(final SpaceShip spaceShip) {
+        if (null == spaceShip) { return; }
+        if (spaceShip.noOfShields > 0 && !spaceShip.shield) {
+            spaceShip.lastShieldActivated = System.nanoTime();
+            spaceShip.shield = true;
+            playSound(deflectorShieldSound);
+        }
+    }
+
+    private void fireSpaceShipRocket(final SpaceShip spaceShip) {
+        if (null == spaceShip) { return; }
+        if (rockets.size() < MAX_NO_OF_ROCKETS * spaceShips.size()) {
+            spawnRocket(spaceShip);
+        }
+    }
+
+    private void fireSpaceShipWeapon(final SpaceShip spaceShip) {
+        if (null == spaceShip) { return; }
+        if (System.nanoTime() - spaceShip.lastTorpedoFired < MIN_TORPEDO_INTERVAL) { return; }
+        spawnWeapon(spaceShip);
+        spaceShip.lastTorpedoFired = System.nanoTime();
+    }
+
+    private void fireStarburst(final SpaceShip spaceShip) {
+        if (null == spaceShip) { return; }
+        if (!spaceShip.starburstEnabled || (System.nanoTime() - lastStarBlast < MIN_STARBURST_INTERVAL)) { return; }
+        double offset    = Math.toRadians(-135);
+        double angleStep = Math.toRadians(22.5);
+        double angle     = 0;
+        double x         = spaceShip.x;
+        double y         = spaceShip.y;
+        double vX;
+        double vY;
+        for (int i = 0 ; i < 5 ; i++) {
+            vX = BIG_TORPEDO_SPEED * Math.cos(offset + angle);
+            vY = BIG_TORPEDO_SPEED * Math.sin(offset + angle);
+            bigTorpedos.add(new BigTorpedo(spaceShip, spaceShip.isPlayer1 ? bigTorpedoImg : bigTorpedo1Img, x, y, vX * BIG_TORPEDO_SPEED, vY * BIG_TORPEDO_SPEED, Math.toDegrees(angle)));
+            angle += angleStep;
+        }
+        lastStarBlast = System.nanoTime();
+        playSound(laserSound);
+    }
+
+
     // ******************** Public Methods ************************************
     public void startGame() {
-        if (gameOverScreen) { return; }
+        if (running) { return; }
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
         if (SHOW_BACKGROUND) {
             ctx.drawImage(level.getBackgroundImg(), 0, 0);
@@ -1630,98 +1701,109 @@ public class SpaceFXView extends StackPane {
 
     public boolean isHallOfFameScreen() { return hallOfFameScreen; }
 
-    public void increaseSpaceShipVx() {
-        if (null == controlledSpaceShip) { return; }
-        increaseSpaceShipVx(controlledSpaceShip);
+    public void upPressed(final Players player) {
+        switch(player) {
+            case PLAYER_1:
+                increaseSpaceShipVy(spaceShipPlayer1);
+                break;
+            case PLAYER_2:
+                break;
+        }
     }
-    public void increaseSpaceShipVx(final SpaceShip spaceShip) {
-        spaceShip.vX = 5;
-    }
-
-    public void decreaseSpaceShipVx() {
-        if (null == controlledSpaceShip) { return; }
-        decreaseSpaceShipVx(controlledSpaceShip);
-    }
-    public void decreaseSpaceShipVx(final SpaceShip spaceShip) { spaceShip.vX = -5; }
-
-    public void stopSpaceShipVx() {
-        if (null == controlledSpaceShip) { return; }
-        stopSpaceShipVx(controlledSpaceShip);
-    }
-    public void stopSpaceShipVx(final SpaceShip spaceShip) { spaceShip.vX = 0; }
-
-    public void increaseSpaceShipVy() {
-        if (null == controlledSpaceShip) { return; }
-        increaseSpaceShipVy(controlledSpaceShip);
-    }
-    public void increaseSpaceShipVy(final SpaceShip spaceShip) { spaceShip.vY = 5; }
-
-    public void decreaseSpaceShipVy() {
-        if (null == controlledSpaceShip) { return; }
-        decreaseSpaceShipVy(controlledSpaceShip);
-    }
-    public void decreaseSpaceShipVy(final SpaceShip spaceShip) { spaceShip.vY = -5; }
-
-    public void stopSpaceShipVy() {
-        if (null == controlledSpaceShip) { return; }
-        stopSpaceShipVy(controlledSpaceShip);
-    }
-    public void stopSpaceShipVy(final SpaceShip spaceShip) { spaceShip.vY = 0; }
-
-    public void activateSpaceShipShield() {
-        if (null == controlledSpaceShip) { return; }
-        activateSpaceShipShield(controlledSpaceShip);
-    }
-    public void activateSpaceShipShield(final SpaceShip spaceShip) {
-        if (spaceShip.noOfShields > 0 && !spaceShip.shield) {
-            spaceShip.lastShieldActivated = System.nanoTime();
-            spaceShip.shield = true;
-            playSound(deflectorShieldSound);
+    public void upReleased(final Players player) {
+        switch(player) {
+            case PLAYER_1:
+                stopSpaceShipVy(spaceShipPlayer1);
+                break;
+            case PLAYER_2:
+                break;
         }
     }
 
-    public void fireSpaceShipRocket() {
-        if (null == controlledSpaceShip) { return; }
-        fireSpaceShipRocket(controlledSpaceShip);
+    public void rightPressed(final Players player) {
+        switch(player) {
+            case PLAYER_1:
+                increaseSpaceShipVx(spaceShipPlayer1);
+                break;
+            case PLAYER_2:
+                break;
+        }
     }
-    public void fireSpaceShipRocket(final SpaceShip spaceShip) {
-        // Max 5 rockets at the same time
-        if (rockets.size() < MAX_NO_OF_ROCKETS * spaceShips.size()) {
-            spawnRocket(spaceShip);
+    public void rightReleased(final Players player) {
+        switch(player) {
+            case PLAYER_1:
+                stopSpaceShipVx(spaceShipPlayer1);
+                break;
+            case PLAYER_2:
+                break;
         }
     }
 
-    public void fireSpaceShipWeapon() {
-        if (null == controlledSpaceShip) { return; }
-        fireSpaceShipWeapon(controlledSpaceShip);
+    public void downPressed(final Players player) {
+        switch(player) {
+            case PLAYER_1:
+                decreaseSpaceShipVy(spaceShipPlayer1);
+                break;
+            case PLAYER_2:
+                break;
+        }
     }
-    public void fireSpaceShipWeapon(final SpaceShip spaceShip) {
-        if (System.nanoTime() - spaceShip.lastTorpedoFired < MIN_TORPEDO_INTERVAL) { return; }
-        spawnWeapon(spaceShip);
-        spaceShip.lastTorpedoFired = System.nanoTime();
+    public void downReleased(final Players player) {
+        switch(player) {
+            case PLAYER_1:
+                stopSpaceShipVy(spaceShipPlayer1);
+                break;
+            case PLAYER_2:
+                break;
+        }
     }
 
-    public void fireStarburst() {
-        if (null == controlledSpaceShip) { return; }
-        fireStarburst(controlledSpaceShip);
-    }
-    public void fireStarburst(final SpaceShip spaceShip) {
-        if (!spaceShip.starburstEnabled || (System.nanoTime() - lastStarBlast < MIN_STARBURST_INTERVAL)) { return; }
-        double offset    = Math.toRadians(-135);
-        double angleStep = Math.toRadians(22.5);
-        double angle     = 0;
-        double x         = spaceShip.x;
-        double y         = spaceShip.y;
-        double vX;
-        double vY;
-        for (int i = 0 ; i < 5 ; i++) {
-            vX = BIG_TORPEDO_SPEED * Math.cos(offset + angle);
-            vY = BIG_TORPEDO_SPEED * Math.sin(offset + angle);
-            bigTorpedos.add(new BigTorpedo(spaceShip, spaceShip.controlledLocally ? bigTorpedoImg : bigTorpedo1Img, x, y, vX * BIG_TORPEDO_SPEED, vY * BIG_TORPEDO_SPEED, Math.toDegrees(angle)));
-            angle += angleStep;
+    public void leftPressed(final Players player) {
+        switch(player) {
+            case PLAYER_1:
+                decreaseSpaceShipVx(spaceShipPlayer1);
+                break;
+            case PLAYER_2:
+                break;
         }
-        lastStarBlast = System.nanoTime();
-        playSound(laserSound);
+    }
+    public void leftReleased(final Players player) {
+        switch(player) {
+            case PLAYER_1:
+                stopSpaceShipVx(spaceShipPlayer1);
+                break;
+            case PLAYER_2:
+                break;
+        }
+    }
+
+    public void fireWeaponPressed(final Players player) {
+        switch(player) {
+            case PLAYER_1:
+                fireSpaceShipWeapon(spaceShipPlayer1);
+                break;
+            case PLAYER_2:
+                break;
+            case NONE:
+                saveInitialsButton.fireEvent(new ActionEvent(saveInitialsButton, null));
+                break;
+        }
+    }
+
+    public void fireRocketPressed(final Players player) {
+        if (PLAYER_1 == player) {
+            fireSpaceShipRocket(spaceShipPlayer1);
+        } else {
+
+        }
+    }
+
+    public void deflectorShieldPressed(final Players player) {
+        if (PLAYER_1 == player) {
+            activateSpaceShipShield(spaceShipPlayer1);
+        } else {
+            
+        }
     }
 
     public InitialDigit getDigit1() { return digit1; }
@@ -1731,9 +1813,9 @@ public class SpaceFXView extends StackPane {
         spawnSpaceShip();
     }
 
-    public void storePlayer() {
-        playerToStore.name = (digit1.getCharacter() + digit2.getCharacter());
-        hallOfFame.add(playerToStore);
+    public void storePlayer(final Player player) {
+        player.name = (digit1.getCharacter() + digit2.getCharacter());
+        hallOfFame.add(player);
         Collections.sort(hallOfFame);
         hallOfFame = hallOfFame.stream().limit(3).collect(Collectors.toList());
 
@@ -2087,7 +2169,7 @@ public class SpaceFXView extends StackPane {
                                     spaceShip.noOfLifes--;
                                     if (0 == spaceShip.noOfLifes) {
                                         spaceShip.toBeRemoved = true;
-                                        players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                        players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
                                     }
                                 }
                                 enemy.toBeRemoved = true;
@@ -2121,7 +2203,7 @@ public class SpaceFXView extends StackPane {
         private static final long      INVULNERABLE_TIME = 3_000_000_000l;
         private        final Image     imageUp;
         private        final Image     imageDown;
-        public         final boolean   controlledLocally;
+        public         final boolean   isPlayer1;
         private              long      born;
         private              boolean   shield;
         public               boolean   isVulnerable;
@@ -2151,18 +2233,18 @@ public class SpaceFXView extends StackPane {
         public SpaceShip(final Image image, final Image imageUp, final Image imageDown) {
             this(false, image, imageUp, imageDown);
         }
-        public SpaceShip(final boolean controlledLocally, final Image image, final Image imageUp, final Image imageDown) {
+        public SpaceShip(final boolean isPlayer1, final Image image, final Image imageUp, final Image imageDown) {
             super(image);
-            this.controlledLocally = controlledLocally;
-            this.imageUp           = imageUp;
-            this.imageDown         = imageDown;
+            this.isPlayer1 = isPlayer1;
+            this.imageUp   = imageUp;
+            this.imageDown = imageDown;
             init();
         }
 
 
         @Override protected void init() {
             this.born                 = System.nanoTime();
-            this.x                    = WIDTH * 0.5;
+            this.x                    = MULTI_PLAYER ? isPlayer1 ? WIDTH * 0.4 : WIDTH * 0.6 : WIDTH * 0.5;
             this.y                    = HEIGHT - 2 * image.getHeight();
             this.width                = image.getWidth();
             this.height               = image.getHeight();
@@ -2192,11 +2274,11 @@ public class SpaceFXView extends StackPane {
             this.shieldsCollected     = 0;
             this.lifesCollected       = 0;
             this.bigTorpedosCollected = 0;
-            this.starburstsCollected = 0;
+            this.starburstsCollected  = 0;
         }
 
         @Override public void respawn() {
-            this.x            = WIDTH * 0.5;
+            this.x            = MULTI_PLAYER ? isPlayer1 ? WIDTH * 0.4 : WIDTH * 0.6 : WIDTH * 0.5;
             this.y            = HEIGHT - 2 * this.height;
             this.vX           = 0;
             this.vY           = 0;
@@ -2224,8 +2306,10 @@ public class SpaceFXView extends StackPane {
             if (y - height * 0.5 < 0) {
                 y = height * 0.5;
             }
-            shipTouchArea.setCenterX(x);
-            shipTouchArea.setCenterY(y);
+            if (isPlayer1) {
+                shipTouchArea.setCenterX(x);
+                shipTouchArea.setCenterY(y);
+            }
         }
     }
 
@@ -2549,7 +2633,7 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -2592,7 +2676,7 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -2759,7 +2843,7 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -2822,7 +2906,7 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -3024,7 +3108,7 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -3087,7 +3171,7 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -3133,7 +3217,7 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved  = true;
-                                players.add(new Player(spaceShip.score, spaceShip.controlledLocally ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
                             }
                         }
                     }
@@ -3172,9 +3256,11 @@ public class SpaceFXView extends StackPane {
     }
 
     private class AsteroidExplosion extends AnimatedSprite {
+        public boolean player1Explosion;
 
-        public AsteroidExplosion(final double x, final double y, final double vX, final double vY, final double scale) {
+        public AsteroidExplosion(final boolean player1Explosion, final double x, final double y, final double vX, final double vY, final double scale) {
             super(x, y, vX, vY, 8, 7, scale);
+            this.player1Explosion = player1Explosion;
         }
 
 

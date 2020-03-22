@@ -20,6 +20,7 @@ import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Screen;
 
 //import static com.gluonhq.attach.util.Platform.isDesktop;
@@ -182,5 +183,7 @@ public class Config {
     public static final double      LEVEL_BOSS_EXPLOSION_FRAME_HEIGHT   = 256 * SCALING_FACTOR;
     public static final double      LEVEL_BOSS_EXPLOSION_FRAME_CENTER   = 256 * SCALING_FACTOR * 0.5;
     public static final double      SCORE_FONT_SIZE                     = 60 * (IS_PORTRAIT_MODE ? SCALING_FACTOR / 2 : SCALING_FACTOR);
+    public static final Font        GAME_OVER_FONT                      = Fonts.spaceBoy(HEIGHT * 0.08);
     public static final boolean     MULTI_PLAYER                        = true;
+    public static final double      SECOND_PLAYER_OFFSET_Y              = SHIELD_INDICATOR_Y + SHIELD_INDICATOR_HEIGHT;
 }

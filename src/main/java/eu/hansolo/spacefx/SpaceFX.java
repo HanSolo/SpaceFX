@@ -54,32 +54,32 @@ public class SpaceFX extends Application {
                 if (view.isRunning()) {
                     switch (e.getCode()) {
                         case UP:
-                            view.decreaseSpaceShipVy();
+                            view.upPressed(Players.PLAYER_1);
                             break;
                         case RIGHT:
-                            view.increaseSpaceShipVx();
+                            view.rightPressed(Players.PLAYER_1);
                             break;
                         case DOWN:
-                            view.increaseSpaceShipVy();
+                            view.downPressed(Players.PLAYER_1);
                             break;
                         case LEFT:
-                            view.decreaseSpaceShipVx();
+                            view.leftPressed(Players.PLAYER_1);
                             break;
                         case S:
                             if (shieldArmed) {
-                                view.activateSpaceShipShield();
+                                view.deflectorShieldPressed(Players.PLAYER_1);
                                 shieldArmed = false;
                             }
                             break;
                         case R:
                             if (rocketArmed) {
-                                view.fireSpaceShipRocket();
+                                view.fireRocketPressed(Players.PLAYER_1);
                                 rocketArmed = false;
                             }
                             break;
                         case SPACE:
                             if (torpedoArmed) {
-                                view.fireSpaceShipWeapon();
+                                view.fireWeaponPressed(Players.PLAYER_1);
                                 torpedoArmed = false;
                             }
                             break;
@@ -109,7 +109,7 @@ public class SpaceFX extends Application {
                             }
                             break;
                         case SPACE:
-                            view.storePlayer();
+                            view.fireWeaponPressed(Players.NONE);
                             break;
                     }
                 } else if (e.getCode() == KeyCode.P && view.isReadyToStart()) {
@@ -120,16 +120,16 @@ public class SpaceFX extends Application {
                 if (view.isRunning()) {
                     switch (e.getCode()) {
                         case UP:
-                            view.stopSpaceShipVy();
+                            view.upReleased(Players.PLAYER_1);
                             break;
                         case RIGHT:
-                            view.stopSpaceShipVx();
+                            view.rightReleased(Players.PLAYER_1);
                             break;
                         case DOWN:
-                            view.stopSpaceShipVy();
+                            view.downReleased(Players.PLAYER_1);
                             break;
                         case LEFT:
-                            view.stopSpaceShipVx();
+                            view.leftReleased(Players.PLAYER_1);
                             break;
                         case S:
                             shieldArmed = true;
