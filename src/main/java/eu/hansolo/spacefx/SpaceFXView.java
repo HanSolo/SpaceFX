@@ -1620,12 +1620,12 @@ public class SpaceFXView extends StackPane {
 
     private void increaseSpaceShipVy(final SpaceShip spaceShip) {
         if (null == spaceShip) { return; }
-        spaceShip.vY = 5;
+        spaceShip.vY = -5;
     }
 
     private void decreaseSpaceShipVy(final SpaceShip spaceShip) {
         if (null == spaceShip) { return; }
-        spaceShip.vY = -5;
+        spaceShip.vY = 5;
     }
 
     private void stopSpaceShipVy(final SpaceShip spaceShip) {
@@ -1707,6 +1707,7 @@ public class SpaceFXView extends StackPane {
                 increaseSpaceShipVy(spaceShipPlayer1);
                 break;
             case PLAYER_2:
+                increaseSpaceShipVy(spaceShipPlayer2);
                 break;
         }
     }
@@ -1716,6 +1717,7 @@ public class SpaceFXView extends StackPane {
                 stopSpaceShipVy(spaceShipPlayer1);
                 break;
             case PLAYER_2:
+                stopSpaceShipVy(spaceShipPlayer2);
                 break;
         }
     }
@@ -1726,6 +1728,7 @@ public class SpaceFXView extends StackPane {
                 increaseSpaceShipVx(spaceShipPlayer1);
                 break;
             case PLAYER_2:
+                increaseSpaceShipVx(spaceShipPlayer2);
                 break;
         }
     }
@@ -1735,6 +1738,7 @@ public class SpaceFXView extends StackPane {
                 stopSpaceShipVx(spaceShipPlayer1);
                 break;
             case PLAYER_2:
+                stopSpaceShipVx(spaceShipPlayer2);
                 break;
         }
     }
@@ -1745,6 +1749,7 @@ public class SpaceFXView extends StackPane {
                 decreaseSpaceShipVy(spaceShipPlayer1);
                 break;
             case PLAYER_2:
+                decreaseSpaceShipVy(spaceShipPlayer2);
                 break;
         }
     }
@@ -1754,6 +1759,7 @@ public class SpaceFXView extends StackPane {
                 stopSpaceShipVy(spaceShipPlayer1);
                 break;
             case PLAYER_2:
+                stopSpaceShipVy(spaceShipPlayer2);
                 break;
         }
     }
@@ -1764,6 +1770,7 @@ public class SpaceFXView extends StackPane {
                 decreaseSpaceShipVx(spaceShipPlayer1);
                 break;
             case PLAYER_2:
+                decreaseSpaceShipVx(spaceShipPlayer2);
                 break;
         }
     }
@@ -1773,6 +1780,7 @@ public class SpaceFXView extends StackPane {
                 stopSpaceShipVx(spaceShipPlayer1);
                 break;
             case PLAYER_2:
+                stopSpaceShipVx(spaceShipPlayer2);
                 break;
         }
     }
@@ -1783,6 +1791,7 @@ public class SpaceFXView extends StackPane {
                 fireSpaceShipWeapon(spaceShipPlayer1);
                 break;
             case PLAYER_2:
+                fireSpaceShipWeapon(spaceShipPlayer2);
                 break;
             case NONE:
                 saveInitialsButton.fireEvent(new ActionEvent(saveInitialsButton, null));
@@ -1791,18 +1800,24 @@ public class SpaceFXView extends StackPane {
     }
 
     public void fireRocketPressed(final Players player) {
-        if (PLAYER_1 == player) {
-            fireSpaceShipRocket(spaceShipPlayer1);
-        } else {
-
+        switch(player) {
+            case PLAYER_1:
+                fireSpaceShipRocket(spaceShipPlayer1);
+                break;
+            case PLAYER_2:
+                fireSpaceShipRocket(spaceShipPlayer2);
+                break;
         }
     }
 
     public void deflectorShieldPressed(final Players player) {
-        if (PLAYER_1 == player) {
-            activateSpaceShipShield(spaceShipPlayer1);
-        } else {
-            
+        switch(player) {
+            case PLAYER_1:
+                activateSpaceShipShield(spaceShipPlayer1);
+                break;
+            case PLAYER_2:
+                activateSpaceShipShield(spaceShipPlayer2);
+                break;
         }
     }
 
@@ -2292,8 +2307,11 @@ public class SpaceFXView extends StackPane {
             if (!isVulnerable && System.nanoTime() - born > INVULNERABLE_TIME) {
                 isVulnerable = true;
             }
+            double oldX = x;
+            double oldY = y;
             x += vX;
             y += vY;
+
             if (x + width * 0.5 > WIDTH) {
                 x = WIDTH - width * 0.5;
             }
@@ -2306,6 +2324,7 @@ public class SpaceFXView extends StackPane {
             if (y - height * 0.5 < 0) {
                 y = height * 0.5;
             }
+
             if (isPlayer1) {
                 shipTouchArea.setCenterX(x);
                 shipTouchArea.setCenterY(y);
