@@ -594,7 +594,7 @@ public class SpaceFXView extends StackPane {
             // Check for torpedo hits
             for (Torpedo torpedo : torpedos) {
                 if (Helper.isHitCircleCircle(torpedo.x, torpedo.y, torpedo.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
-                    asteroid.hits--;
+                    asteroid.hits -= TORPEDO_DAMAGE;
                     if (asteroid.hits <= 0) {
                         asteroidExplosions.add(new AsteroidExplosion(torpedo.spaceShip.isPlayer1, asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
                         torpedo.spaceShip.score += asteroid.value;
@@ -613,7 +613,7 @@ public class SpaceFXView extends StackPane {
             // Check for bigTorpedo hits
             for (BigTorpedo bigTorpedo : bigTorpedos) {
                 if (Helper.isHitCircleCircle(bigTorpedo.x, bigTorpedo.y, bigTorpedo.radius, asteroid.cX, asteroid.cY, asteroid.radius)) {
-                    asteroid.hits--;
+                    asteroid.hits -= BIG_TORPEDO_DAMAGE;
                     if (asteroid.hits <= 0) {
                         asteroidExplosions.add(new AsteroidExplosion(bigTorpedo.spaceShip.isPlayer1, asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
                         bigTorpedo.spaceShip.score += asteroid.value;
@@ -644,29 +644,29 @@ public class SpaceFXView extends StackPane {
             // Check for space ship hit
             spaceShips.forEach(spaceShip -> {
                 if (spaceShip.isVulnerable && !spaceShip.hasBeenHit) {
-                boolean hit;
-                if (spaceShip.shield) {
-                    hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, asteroid.cX, asteroid.cY, asteroid.radius);
-                } else {
-                    hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, asteroid.cX, asteroid.cY, asteroid.radius);
-                }
-                if (hit) {
-                    spaceShipExplosions.add(new SpaceShipExplosion(spaceShip,spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH * 0.5, spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT * 0.5, spaceShip.vX, spaceShip.vY));
+                    boolean hit;
                     if (spaceShip.shield) {
-                        playSound(explosionSound);
-                        asteroidExplosions.add(new AsteroidExplosion(spaceShip.isPlayer1, asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
+                        hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, deflectorShieldRadius, asteroid.cX, asteroid.cY, asteroid.radius);
                     } else {
-                        playSound(spaceShipExplosionSound);
-                        spaceShip.hasBeenHit = true;
-                        spaceShip.noOfLifes--;
-                        if (0 == spaceShip.noOfLifes) {
-                            spaceShip.toBeRemoved = true;
-                            players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
-                        }
+                        hit = Helper.isHitCircleCircle(spaceShip.x, spaceShip.y, spaceShip.radius, asteroid.cX, asteroid.cY, asteroid.radius);
                     }
-                    asteroid.respawn();
+                    if (hit) {
+                        spaceShipExplosions.add(new SpaceShipExplosion(spaceShip,spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH * 0.5, spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT * 0.5, spaceShip.vX, spaceShip.vY));
+                        if (spaceShip.shield) {
+                            playSound(explosionSound);
+                            asteroidExplosions.add(new AsteroidExplosion(spaceShip.isPlayer1, asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
+                        } else {
+                            playSound(spaceShipExplosionSound);
+                            spaceShip.hasBeenHit = true;
+                            spaceShip.noOfLifes--;
+                            if (0 == spaceShip.noOfLifes) {
+                                spaceShip.toBeRemoved = true;
+                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                            }
+                        }
+                        asteroid.respawn();
+                    }
                 }
-            }
             });
         }
 
@@ -1853,7 +1853,7 @@ public class SpaceFXView extends StackPane {
 
 
     // ******************** Space Object Classes ******************************
-    private abstract class Sprite {
+    public abstract class Sprite {
         protected final Random rnd;
         public          Image   image;
         public          double  x;
@@ -1866,6 +1866,7 @@ public class SpaceFXView extends StackPane {
         public          double  height;
         public          double  size;
         public          double  radius;
+        public          double  m;
         public          boolean toBeRemoved;
 
 
@@ -1897,6 +1898,7 @@ public class SpaceFXView extends StackPane {
             this.height      = null == image ? 0 : image.getHeight();
             this.size        = this.width > this.height ? this.width : this.height;
             this.radius      = this.size * 0.5;
+            this.m           = this.radius;
             this.toBeRemoved = false;
         }
 
