@@ -20,7 +20,7 @@ jobs:
       run: .\.github\workflows\create-distribution-SNAPSHOT-windows-x64.bat "SNAPSHOT-$(([datetime]::now).tostring("yyyy-MM-dd_HH-mm-ss"))"   
     - uses: AButler/upload-release-assets@v2.0
       with:
-          files: './github/workflows/SpaceFX-SNAPSHOT-*-windows-x64.msi'
+          files: './.github/workflows/SpaceFX-SNAPSHOT-*-windows-x64.msi'
           release-tag: SNAPSHOT 
           repo-token: ${{ secrets.GITHUB_TOKEN }}   
  

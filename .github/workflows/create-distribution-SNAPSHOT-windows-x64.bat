@@ -54,17 +54,6 @@ REM (JAVA_HOME is expected to be set correctly)
         --compress=2 ^
         --output runtime
 )
-cd .tmp-runtime
-    "%JAVA_HOME%\bin\jlink" -p "%JAVA_HOME%\jmods" ^
-        --add-modules java.desktop ^
-        --strip-debug ^
-        --no-header-files ^
-        --no-man-pages ^
-        --strip-native-commands ^
-        --vm=server ^
-        --compress=2 ^
-        --output runtime
-
 
 REM Change to distribution directory (script location) where
 REM we will create the final application package
@@ -86,3 +75,6 @@ set JPKG_EXECUTABLE=%JPKG_HOME%\bin\jpackage
 
 REM Rename the application MSI
 move SpaceFX-0.0.0.msi SpaceFX-%APP_VERSION%-windows-x64.msi
+
+REM Show final MSI package
+dir *.msi

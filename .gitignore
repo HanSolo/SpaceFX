@@ -18,4 +18,6 @@ spacefx.iml
 /.project
 /.settings
 /.github/workflows/.tmp-runtime/
+/.github/workflows/*.msi
 /bin/
+
