@@ -17,7 +17,7 @@ jobs:
     - name: Build with Gradle
       run: .\gradlew.bat assemble 
     - name: Create Distribution   
-      run: .\github\workflows\create-distribution-SNAPSHOT-windows-x64.bat "SNAPSHOT-$(([datetime]::now).tostring("yyyy-MM-dd_HH-mm-ss"))"   
+      run: .\.github\workflows\create-distribution-SNAPSHOT-windows-x64.bat "SNAPSHOT-$(([datetime]::now).tostring("yyyy-MM-dd_HH-mm-ss"))"   
     - uses: AButler/upload-release-assets@v2.0
       with:
           files: './github/workflows/SpaceFX-SNAPSHOT-*-windows-x64.msi'
