@@ -49,7 +49,10 @@ dependencies {
 mainClassName = "$moduleName/eu.hansolo.spacefx.SpaceFX"
 
 // To run SpaceFX in the browser with jPro use:
-//mainClassName = "eu.hansolo.spacefx.SpaceFX"
+task web() {
+    mainClassName = "eu.hansolo.spacefx.SpaceFX"
+    dependsOn jproRun
+}
 
 jar {
     from {
