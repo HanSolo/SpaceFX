@@ -181,4 +181,11 @@ public class Config {
     public static final double      LEVEL_BOSS_EXPLOSION_FRAME_HEIGHT   = 256 * SCALING_FACTOR;
     public static final double      LEVEL_BOSS_EXPLOSION_FRAME_CENTER   = 256 * SCALING_FACTOR * 0.5;
     public static final double      SCORE_FONT_SIZE                     = 60 * (IS_PORTRAIT_MODE ? SCALING_FACTOR / 2 : SCALING_FACTOR);
+    public static final long        ADB_GET_TIMEOUT                     = 15;
+    public static final long        ADB_POST_TIMEOUT                    = 15;
+    public static final String      ADB_TOP_TEN_URL                     = "adbGetTopTenUrl";
+    public static final String      ADB_POST_SCORE_URL                  = "adbPostScoreUrl";
+    public static final String      HALL_OF_FAME_1                      = "hallOfFame1";
+    public static final String      HALL_OF_FAME_2                      = "hallOfFame2";
+    public static final String      HALL_OF_FAME_3                      = "hallOfFame3";
 }

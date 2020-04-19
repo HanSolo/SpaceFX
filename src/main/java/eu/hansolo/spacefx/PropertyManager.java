@@ -24,6 +24,11 @@ import java.io.OutputStream;
 import java.util.Properties;
 import java.util.UUID;
 
+import static eu.hansolo.spacefx.Config.ADB_POST_SCORE_URL;
+import static eu.hansolo.spacefx.Config.ADB_TOP_TEN_URL;
+import static eu.hansolo.spacefx.Config.HALL_OF_FAME_1;
+import static eu.hansolo.spacefx.Config.HALL_OF_FAME_2;
+import static eu.hansolo.spacefx.Config.HALL_OF_FAME_3;
 import static eu.hansolo.spacefx.Config.PROPERTIES_FILE_NAME;
 
 
@@ -79,9 +84,14 @@ public enum PropertyManager {
     private void createProperties(final Properties properties) {
         final String propFilePath = new StringBuilder(System.getProperty("user.home")).append(File.separator).append(PROPERTIES_FILE_NAME).toString();
         try (OutputStream output = new FileOutputStream(propFilePath)) {
-            properties.setProperty("hallOfFame1", UUID.randomUUID().toString() + ",AA,0");
-            properties.setProperty("hallOfFame2", UUID.randomUUID().toString() + ",BB,0");
-            properties.setProperty("hallOfFame3", UUID.randomUUID().toString() + ",CC,0");
+            properties.setProperty(HALL_OF_FAME_1, UUID.randomUUID().toString() + ",AA,0");
+            properties.setProperty(HALL_OF_FAME_2, UUID.randomUUID().toString() + ",BB,0");
+            properties.setProperty(HALL_OF_FAME_3, UUID.randomUUID().toString() + ",CC,0");
+
+            // ADB related properties
+            properties.setProperty(ADB_TOP_TEN_URL, "https://nglqexb3yfmaqv5-devdemos.adb.us-phoenix-1.oraclecloudapps.com/ords/leaderboard/scores/other");
+            properties.setProperty(ADB_POST_SCORE_URL, "https://nglqexb3yfmaqv5-devdemos.adb.us-phoenix-1.oraclecloudapps.com/ords/leaderboard/scores/spacefx2");
+
             properties.store(output, null);
         } catch (IOException ex) {
             System.out.println("Error creating properties file. " + ex);

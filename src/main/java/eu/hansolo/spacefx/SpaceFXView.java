@@ -78,6 +78,8 @@ public class SpaceFXView extends StackPane {
     private              boolean                    gameOverScreen;
     private              boolean                    hallOfFameScreen;
     private              Properties                 properties;
+    private              String                     adbGetTopTenUrl;
+    private              String                     adbPostScoreUrl;
     private              Label                      playerInitialsLabel;
     private              InitialDigit               digit1;
     private              InitialDigit               digit2;
@@ -269,9 +271,12 @@ public class SpaceFXView extends StackPane {
         // PreFill hall of fame
         properties = PropertyManager.INSTANCE.getProperties();
 
-        Player p1 = new Player(properties.getProperty("hallOfFame1"));
-        Player p2 = new Player(properties.getProperty("hallOfFame2"));
-        Player p3 = new Player(properties.getProperty("hallOfFame3"));
+        Player p1 = new Player(properties.getProperty(HALL_OF_FAME_1));
+        Player p2 = new Player(properties.getProperty(HALL_OF_FAME_2));
+        Player p3 = new Player(properties.getProperty(HALL_OF_FAME_3));
+
+        adbGetTopTenUrl = properties.getProperty(ADB_TOP_TEN_URL);
+        adbPostScoreUrl = properties.getProperty(ADB_POST_SCORE_URL);
 
         hallOfFame = new ArrayList<>(3);
         hallOfFame.add(p1);
