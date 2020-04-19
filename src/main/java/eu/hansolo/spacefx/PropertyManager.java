@@ -72,6 +72,8 @@ public enum PropertyManager {
 
     public long getLong(final String key) { return Long.parseLong(properties.getOrDefault(key, "0").toString()); }
 
+    public boolean getBoolean(final String key) { return Boolean.parseBoolean(properties.getOrDefault(key, "false").toString()); }
+
 
     // ******************** Properties ****************************************
     private void createProperties(final Properties properties) {
