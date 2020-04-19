@@ -30,6 +30,7 @@ public class RestTest {
         PropertyManager propertyManager = PropertyManager.INSTANCE;
         RestManager     restManager     = RestManager.INSTANCE;
 
+        // Get Top-Ten
         String adbGetUrl  = propertyManager.getString(ADB_TOP_TEN_URL);
         try {
             String response = restManager.getFromAdb(adbGetUrl);
@@ -38,6 +39,7 @@ public class RestTest {
             System.out.println("Error getting top-ten from adb: " + e.getMessage());
         }
 
+        // Post a score
         String adbPostUrl = propertyManager.getString(ADB_POST_SCORE_URL);
         StringBuilder json = new StringBuilder().append("{")
                                                 .append("\"username\":").append("\"hansolo\"").append(",")
@@ -63,7 +65,7 @@ public class RestTest {
         try {
             int response = restManager.postToAdb(adbPostUrl, json.toString());
             System.out.println("Post status code: " + response);
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException | TimeoutException | ExecutionException e) {
             System.out.println("Error posting to adb: " + e.getMessage());
         }
     }

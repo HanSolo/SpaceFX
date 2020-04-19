@@ -21,6 +21,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -29,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static eu.hansolo.spacefx.Config.ADB_GET_TIMEOUT;
+import static eu.hansolo.spacefx.Config.ADB_POST_TIMEOUT;
 
 
 public enum RestManager {
@@ -48,6 +51,7 @@ public enum RestManager {
         HttpRequest request = HttpRequest.newBuilder()
                                          .GET()
                                          .uri(URI.create(url))
+                                         .timeout(Duration.ofSeconds(ADB_GET_TIMEOUT))
                                          .setHeader("User-Agent", "SpaceFX")
                                          .build();
 
@@ -56,16 +60,17 @@ public enum RestManager {
         return response.thenApply(HttpResponse::body).get(ADB_GET_TIMEOUT, TimeUnit.SECONDS);
     }
 
-    public int postToAdb(final String url, final String json) throws IOException, InterruptedException {
+    public int postToAdb(final String url, final String json) throws InterruptedException, TimeoutException, ExecutionException {
         HttpRequest request = HttpRequest.newBuilder()
                                          .uri(URI.create(url))
+                                         .timeout(Duration.ofSeconds(ADB_POST_TIMEOUT))
                                          .setHeader("User-Agent", "SpaceFX")
                                          .header("Content-Type", "application/json")
                                          .POST(HttpRequest.BodyPublishers.ofString(json))
                                          .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        CompletableFuture<HttpResponse<String>> response = httpClient.sendAsync(request, BodyHandlers.ofString());
 
-        return response.statusCode();
+        return response.thenApply(HttpResponse::statusCode).get(ADB_POST_TIMEOUT, TimeUnit.SECONDS);
     }
 }
