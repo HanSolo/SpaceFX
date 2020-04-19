@@ -89,7 +89,7 @@ public enum PropertyManager {
             properties.setProperty(HALL_OF_FAME_3, UUID.randomUUID().toString() + ",CC,0");
 
             // ADB related properties
-            properties.setProperty(ADB_TOP_TEN_URL, "https://nglqexb3yfmaqv5-devdemos.adb.us-phoenix-1.oraclecloudapps.com/ords/leaderboard/scores/other");
+            properties.setProperty(ADB_TOP_TEN_URL, "https://nglqexb3yfmaqv5-devdemos.adb.us-phoenix-1.oraclecloudapps.com/ords/leaderboard/scores/spacefx/topten");
             properties.setProperty(ADB_POST_SCORE_URL, "https://nglqexb3yfmaqv5-devdemos.adb.us-phoenix-1.oraclecloudapps.com/ords/leaderboard/scores/spacefx2");
 
             properties.store(output, null);

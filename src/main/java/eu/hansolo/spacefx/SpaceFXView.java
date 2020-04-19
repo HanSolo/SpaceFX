@@ -50,13 +50,25 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 //import static com.gluonhq.attach.util.Platform.isDesktop;
@@ -277,6 +289,8 @@ public class SpaceFXView extends StackPane {
 
         adbGetTopTenUrl = properties.getProperty(ADB_TOP_TEN_URL);
         adbPostScoreUrl = properties.getProperty(ADB_POST_SCORE_URL);
+
+        getTopTenAdb();
 
         hallOfFame = new ArrayList<>(3);
         hallOfFame.add(p1);
@@ -1492,6 +1506,46 @@ public class SpaceFXView extends StackPane {
     }
 
 
+    // ADB related methods
+    private void getTopTenAdb() {
+        try {
+            System.out.println("Get Top-Ten from ADB: ");
+            String     response = RestManager.INSTANCE.getFromAdb(adbGetTopTenUrl);
+            Object     obj      = JSONValue.parse(response);
+            JSONObject jsonObj  = (JSONObject) obj;
+            JSONArray  items    = (JSONArray) jsonObj.get("items");
+
+            for (int i = 1 ; i < items.size() ; i++) {
+                JSONObject    item      = (JSONObject) items.get(i);
+                int           id        = Integer.parseInt(item.getOrDefault("id", -1).toString());
+                String        userName  = item.getOrDefault("username", "--").toString();
+                long          score     = Long.parseLong(item.getOrDefault("score", 0).toString());
+                ZonedDateTime startTime = ZonedDateTime.parse(item.getOrDefault("start_time", ZonedDateTime.now()).toString());
+                ZonedDateTime endTime   = ZonedDateTime.parse(item.getOrDefault("end_time", ZonedDateTime.now()).toString());
+                long          duration  = (endTime.toEpochSecond() - startTime.toEpochSecond());
+
+                String        user = new StringBuilder().append("id      : ").append(id).append("\n")
+                                                        .append("name    : ").append(userName).append("\n")
+                                                        .append("score   : ").append(score).append("\n")
+                                                        .append("duration: ").append(duration).append(" sec\n")
+                                                        .toString();
+                System.out.println(user);
+            }
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.out.println("Error getting top-ten from adb: " + e.getMessage());
+        }
+    }
+
+    private void postScoreToAdb(final Player player) {
+        try {
+            int response = RestManager.INSTANCE.postToAdb(adbPostScoreUrl, player.toString());
+            System.out.println("Post status code: " + response);
+        } catch (InterruptedException | TimeoutException | ExecutionException e) {
+            System.out.println("Error posting to adb: " + e.getMessage());
+        }
+    }
+
+
     // ******************** Public Methods ************************************
     public void startGame() {
         if (gameOverScreen) { return; }
@@ -1754,11 +1808,16 @@ public class SpaceFXView extends StackPane {
     }
 
     private class Player implements Comparable<Player> {
-        private final String id;
-        private       String name;
-        private       Long   score;
+        private final String        id;
+        private       String        name;
+        private       Long          score;
+        public        ZonedDateTime startTime;
+        public        ZonedDateTime endTime;
 
 
+        public Player(final JSONObject jsonObj) {
+            this(jsonObj.get("id").toString(), jsonObj.get("username").toString(), Long.parseLong(jsonObj.getOrDefault("score", 0).toString()));
+        }
         public Player(final String propertyString) {
             this(propertyString.split(",")[0], propertyString.split(",")[1], Long.valueOf(propertyString.split(",")[2]));
         }
@@ -1766,9 +1825,11 @@ public class SpaceFXView extends StackPane {
             this(UUID.randomUUID().toString(), name, score);
         }
         public Player(final String id, final String name, final Long score) {
-            this.id    = id;
-            this.name  = name;
-            this.score = score;
+            this.id        = id;
+            this.name      = name;
+            this.score     = score;
+            this.startTime = ZonedDateTime.now();
+            this.endTime   = ZonedDateTime.now();
         }
 
 
@@ -1782,10 +1843,13 @@ public class SpaceFXView extends StackPane {
 
         @Override public String toString() {
             return new StringBuilder().append("{ ")
-                                      .append("\"id\"").append(":").append(id).append(",")
-                                      .append("\"name\"").append(":").append(name).append(",")
-                                      .append("\"score\"").append(":").append(score)
-                                      .append(" }")
+                                      .append("\"id\":").append(id).append(",")
+                                      .append("\"game\":").append("spacefx").append(",")
+                                      .append("\"username\":").append(name).append(",")
+                                      .append("\"score\":").append(score)
+                                      .append("\"start_time\":").append(startTime.toString()).append(",")
+                                      .append("\"end_time\":").append(endTime.toString())
+                                      .append("}")
                                       .toString();
         }
     }

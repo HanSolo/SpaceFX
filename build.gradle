@@ -44,6 +44,9 @@ dependencies {
     implementation "org.openjfx:javafx-controls:11:$platform"
     implementation "org.openjfx:javafx-media:11:$platform"
     implementation "com.sandec.jpro:jpro-webapi:2019.2.2"
+    implementation ('com.googlecode.json-simple:json-simple:1.1.1') {
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
 }
 
 mainClassName = "$moduleName/eu.hansolo.spacefx.SpaceFX"

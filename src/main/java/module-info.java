@@ -4,6 +4,9 @@ module spacefx {
     requires java.base;
     requires java.net.http;
 
+    // 3rd party
+    requires json.simple;
+
     // Java-FX
     requires javafx.base;
     requires javafx.graphics;
