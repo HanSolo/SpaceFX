@@ -56,6 +56,10 @@ task web() {
     mainClassName = "eu.hansolo.spacefx.SpaceFX"
     dependsOn jproRun
 }
+<<<<<<< HEAD
+
+=======
+>>>>>>> 45078c06bb9e66e4129a0647461041b80646b802
 
 jar {
     from {

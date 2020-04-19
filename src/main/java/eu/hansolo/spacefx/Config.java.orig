@@ -100,6 +100,8 @@ public class Config {
     public static final long        FPS_2                               = 0_500_000_000l;
     public static final Color       SPACEFX_COLOR                       = Color.rgb(51, 210, 206);
     public static final Color       SPACEFX_COLOR_TRANSLUCENT           = Color.rgb(51, 210, 206, 0.5);
+    public static final Color       SPACEFX_COLOR1                      = Color.rgb(210, 51, 206);
+    public static final Color       SPACEFX_COLOR1_TRANSLUCENT          = Color.rgb(210, 51, 206, 0.5);
     public static final WaveType[]  WAVE_TYPES_SLOW                     = { WaveType.TYPE_1_SLOW,
                                                                             WaveType.TYPE_2_SLOW,
                                                                             WaveType.TYPE_3_SLOW,
@@ -182,9 +184,7 @@ public class Config {
     public static final double      LEVEL_BOSS_EXPLOSION_FRAME_HEIGHT   = 256 * SCALING_FACTOR;
     public static final double      LEVEL_BOSS_EXPLOSION_FRAME_CENTER   = 256 * SCALING_FACTOR * 0.5;
     public static final double      SCORE_FONT_SIZE                     = 60 * (IS_PORTRAIT_MODE ? SCALING_FACTOR / 2 : SCALING_FACTOR);
-    public static final Font        GAME_OVER_FONT                      = Fonts.spaceBoy(HEIGHT * 0.08);
-    public static final boolean     MULTI_PLAYER                        = true;
-    public static final double      SECOND_PLAYER_OFFSET_Y              = SHIELD_INDICATOR_Y + SHIELD_INDICATOR_HEIGHT;
+<<<<<<< HEAD
     public static final long        ADB_GET_TIMEOUT                     = 15;
     public static final long        ADB_POST_TIMEOUT                    = 15;
     public static final String      ADB_TOP_TEN_URL                     = "adbGetTopTenUrl";
@@ -192,4 +192,9 @@ public class Config {
     public static final String      HALL_OF_FAME_1                      = "hallOfFame1";
     public static final String      HALL_OF_FAME_2                      = "hallOfFame2";
     public static final String      HALL_OF_FAME_3                      = "hallOfFame3";
+=======
+    public static final Font        GAME_OVER_FONT                      = Fonts.spaceBoy(HEIGHT * 0.08);
+    public static final boolean     MULTI_PLAYER                        = true;
+    public static final double      SECOND_PLAYER_OFFSET_Y              = SHIELD_INDICATOR_Y + SHIELD_INDICATOR_HEIGHT;
+>>>>>>> 45078c06bb9e66e4129a0647461041b80646b802
 }
