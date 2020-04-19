@@ -100,6 +100,8 @@ public class Config {
     public static final long        FPS_2                               = 0_500_000_000l;
     public static final Color       SPACEFX_COLOR                       = Color.rgb(51, 210, 206);
     public static final Color       SPACEFX_COLOR_TRANSLUCENT           = Color.rgb(51, 210, 206, 0.5);
+    public static final Color       SPACEFX_COLOR1                      = Color.rgb(210, 51, 206);
+    public static final Color       SPACEFX_COLOR1_TRANSLUCENT          = Color.rgb(210, 51, 206, 0.5);
     public static final WaveType[]  WAVE_TYPES_SLOW                     = { WaveType.TYPE_1_SLOW,
                                                                             WaveType.TYPE_2_SLOW,
                                                                             WaveType.TYPE_3_SLOW,

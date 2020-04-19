@@ -55,10 +55,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import java.net.URI;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,16 +65,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 //import static com.gluonhq.attach.util.Platform.isDesktop;
 //import static com.gluonhq.attach.util.Platform.isIOS;
 import static eu.hansolo.spacefx.Config.*;
-import static eu.hansolo.spacefx.Players.PLAYER_1;
 
 
 public class SpaceFXView extends StackPane {
@@ -91,6 +84,8 @@ public class SpaceFXView extends StackPane {
     private              Level3                     level3;
     private              long                       lastScreenToggle;
     private              boolean                    readyToStart;
+    private              ZonedDateTime              startTimePlayer1;
+    private              ZonedDateTime              startTimePlayer2;
     private              boolean                    running;
     private              long                       gameOverStart;
     private              boolean                    hallOfFameScreen;
@@ -680,7 +675,10 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                Player player    = new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1);
+                                player.startTime = spaceShip.isPlayer1 ? startTimePlayer1 : startTimePlayer2;
+                                player.endTime   = ZonedDateTime.now();
+                                players.add(player);
                         }
                     }
                     asteroid.respawn();
@@ -794,7 +792,10 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                Player player    = new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1);
+                                player.startTime = spaceShip.isPlayer1 ? startTimePlayer1 : startTimePlayer2;
+                                player.endTime   = ZonedDateTime.now();
+                                players.add(player);
                         }
                     }
                     enemyBoss.toBeRemoved = true;
@@ -918,7 +919,10 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                Player player    = new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1);
+                                player.startTime = spaceShip.isPlayer1 ? startTimePlayer1 : startTimePlayer2;
+                                player.endTime   = ZonedDateTime.now();
+                                players.add(player);
                         }
                     }
                     levelBoss.toBeRemoved = true;
@@ -1314,6 +1318,7 @@ public class SpaceFXView extends StackPane {
                 spaceShipPlayer2.x = WIDTH * 0.6;
                 spaceShipPlayer2.y = HEIGHT - 2 * spaceShipPlayer2.height;
                 spaceShips.add(spaceShipPlayer2);
+                startTimePlayer2 = ZonedDateTime.now();
         } else {
                 spaceShipPlayer1 = new SpaceShip(true, spaceshipImg, spaceshipUpImg, spaceshipDownImg);
                 spaceShipPlayer1.x = MULTI_PLAYER ? WIDTH * 0.4 : WIDTH * 0.5;
@@ -1324,6 +1329,7 @@ public class SpaceFXView extends StackPane {
                 shipTouchArea.setStroke(Color.TRANSPARENT);
                 shipTouchArea.setFill(Color.TRANSPARENT);
                 spaceShips.add(spaceShipPlayer1);
+                startTimePlayer1 = ZonedDateTime.now();
             }
         }
     }
@@ -1510,10 +1516,11 @@ public class SpaceFXView extends StackPane {
             gameMediaPlayer.pause();
         }
 
-            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
         ctx.drawImage(hallOfFameImg, 0, 0, WIDTH, HEIGHT);
         players.forEach(player -> {
             boolean isInHallOfFame = player.score > hallOfFame.get(2).score;
+            //TODO: Store player in ADB
         if (isInHallOfFame) {
                 // Add player to hall of fame
                 digit1.reset();
@@ -2073,15 +2080,15 @@ public class SpaceFXView extends StackPane {
 
     private class Player implements Comparable<Player> {
         private final String        id;
-        public        String name;
-        public        Long   score;
-        public        Color  playerColor;
+        public        String        name;
+        public        Long          score;
+        public        Color         playerColor;
         public        ZonedDateTime startTime;
         public        ZonedDateTime endTime;
 
 
         public Player(final JSONObject jsonObj) {
-            this(jsonObj.get("id").toString(), jsonObj.get("username").toString(), Long.parseLong(jsonObj.getOrDefault("score", 0).toString()));
+            this(jsonObj.get("id").toString(), jsonObj.get("username").toString(), Long.parseLong(jsonObj.getOrDefault("score", 0).toString()), SPACEFX_COLOR);
         }
         public Player(final String propertyString) {
             this(propertyString.split(",")[0], propertyString.split(",")[1], Long.parseLong(propertyString.split(",")[2]), SPACEFX_COLOR);
@@ -2253,7 +2260,10 @@ public class SpaceFXView extends StackPane {
                                     spaceShip.noOfLifes--;
                                     if (0 == spaceShip.noOfLifes) {
                                         spaceShip.toBeRemoved = true;
-                                        players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                        Player player    = new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1);
+                                        player.startTime = spaceShip.isPlayer1 ? startTimePlayer1 : startTimePlayer2;
+                                        player.endTime   = ZonedDateTime.now();
+                                        players.add(player);
                                 }
                             }
                             enemy.toBeRemoved = true;
@@ -2721,7 +2731,10 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                Player player    = new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1);
+                                player.startTime = spaceShip.isPlayer1 ? startTimePlayer1 : startTimePlayer2;
+                                player.endTime   = ZonedDateTime.now();
+                                players.add(player);
                         }
                     }
                 }
@@ -2764,7 +2777,10 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                Player player    = new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1);
+                                player.startTime = spaceShip.isPlayer1 ? startTimePlayer1 : startTimePlayer2;
+                                player.endTime   = ZonedDateTime.now();
+                                players.add(player);
                         }
                     }
                 }
@@ -2931,7 +2947,10 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                Player player    = new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1);
+                                player.startTime = spaceShip.isPlayer1 ? startTimePlayer1 : startTimePlayer2;
+                                player.endTime   = ZonedDateTime.now();
+                                players.add(player);
                         }
                     }
                 }
@@ -2994,7 +3013,10 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                Player player    = new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1);
+                                player.startTime = spaceShip.isPlayer1 ? startTimePlayer1 : startTimePlayer2;
+                                player.endTime   = ZonedDateTime.now();
+                                players.add(player);
                         }
                     }
                 }
@@ -3196,7 +3218,10 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                Player player    = new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1);
+                                player.startTime = spaceShip.isPlayer1 ? startTimePlayer1 : startTimePlayer2;
+                                player.endTime   = ZonedDateTime.now();
+                                players.add(player);
                         }
                     }
                 }
@@ -3259,7 +3284,10 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved = true;
-                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                Player player    = new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1);
+                                player.startTime = spaceShip.isPlayer1 ? startTimePlayer1 : startTimePlayer2;
+                                player.endTime   = ZonedDateTime.now();
+                                players.add(player);
                         }
                     }
                 }
@@ -3305,7 +3333,10 @@ public class SpaceFXView extends StackPane {
                             spaceShip.noOfLifes--;
                             if (0 == spaceShip.noOfLifes) {
                                 spaceShip.toBeRemoved  = true;
-                                players.add(new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1));
+                                Player player    = new Player(spaceShip.score, spaceShip.isPlayer1 ? SPACEFX_COLOR : SPACEFX_COLOR1);
+                                player.startTime = spaceShip.isPlayer1 ? startTimePlayer1 : startTimePlayer2;
+                                player.endTime   = ZonedDateTime.now();
+                                players.add(player);
                         }
                     }
                 }
