@@ -27,8 +27,9 @@ import javafx.stage.Screen;
 
 public class Config {
     public static final String      PROPERTIES_FILE_NAME                = "spacefx.properties";
+    public static final boolean     FULL_SCREEN                         = false;
     //public static final Rectangle2D VISUAL_BOUNDS                       = isDesktop() ? new Rectangle2D(0, 0, 700, 900) : Screen.getPrimary().getVisualBounds();
-    public static final Rectangle2D VISUAL_BOUNDS                       = new Rectangle2D(0, 0, 700, 900);
+    public static final Rectangle2D VISUAL_BOUNDS                       = FULL_SCREEN ? Screen.getPrimary().getVisualBounds() : new Rectangle2D(0, 0, 700, 900);
     public static final boolean     IS_PORTRAIT_MODE                    = VISUAL_BOUNDS.getHeight() > VISUAL_BOUNDS.getWidth();
     public static final double      BKG_SCALING_FACTOR                  = IS_PORTRAIT_MODE ? (VISUAL_BOUNDS.getHeight() / 900) : (VISUAL_BOUNDS.getWidth() / 700);
     //public static final double      SCALING_FACTOR                      = isDesktop() ? 1.0 : 0.7;
