@@ -39,10 +39,10 @@ public class SpaceFX extends Application {
         torpedoArmed = true;
         rocketArmed  = true;
         shieldArmed  = true;
-        view         = new SpaceFXView();
     }
 
     @Override public void start(Stage stage) {
+        view = new SpaceFXView(stage);
         Scene scene = new Scene(view, WIDTH, HEIGHT);
         //scene.getStylesheets().add(SpaceFX.class.getResource(isDesktop() ? "spacefx.css" : "spacefx-mobile.css").toExternalForm());
         scene.getStylesheets().add(SpaceFX.class.getResource("spacefx.css").toExternalForm());
