@@ -12,3 +12,12 @@
 /tmp
 *.class
 spacefx.iml
+
+/.vscode
+/.classpath
+/.project
+/.settings
+/.github/workflows/.tmp-runtime/
+/.github/workflows/*.msi
+/bin/
+

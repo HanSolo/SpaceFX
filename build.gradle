@@ -12,7 +12,7 @@ buildscript {
         classpath 'com.google.gradle:osdetector-gradle-plugin:1.6.2'
         classpath 'org.javamodularity:moduleplugin:1.6.0'
         classpath 'org.beryx:badass-jlink-plugin:2.16.4'
-        classpath 'com.sandec.jpro:jpro-plugin-gradle:2019.2.2'
+        classpath 'com.sandec.jpro:jpro-plugin-gradle:2019.2.3'
     }
 }
 
@@ -43,13 +43,17 @@ dependencies {
     implementation "org.openjfx:javafx-graphics:11:$platform"
     implementation "org.openjfx:javafx-controls:11:$platform"
     implementation "org.openjfx:javafx-media:11:$platform"
-    implementation "com.sandec.jpro:jpro-webapi:2019.2.2"
+    implementation "com.sandec.jpro:jpro-webapi:2019.2.3"
 }
 
 mainClassName = "$moduleName/eu.hansolo.spacefx.SpaceFX"
 
 // To run SpaceFX in the browser with jPro use:
-//mainClassName = "eu.hansolo.spacefx.SpaceFX"
+task web() {
+    mainClassName = "eu.hansolo.spacefx.SpaceFX"
+    dependsOn jproRun
+}
+
 
 jar {
     from {
@@ -79,6 +83,6 @@ jpro {
     JVMArgs << '-Xmx1000m'
     visible          = false // Debug mode can also be used to create images via canvas and snapshot
     noRenderJobs     = true // false to enable snapshot support
-    jproVersion      = "2019.2.2"
+    jproVersion      = "2019.2.3"
     openURLOnStartup = false
 }
