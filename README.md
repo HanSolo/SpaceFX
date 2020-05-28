@@ -62,7 +62,7 @@ and the bundle created by the jpackage tool from JDK14 in
 ```
 
 ### mobile branch
-This branch uses maven for the build and it needs at least JDK 11. In principle you simply have to follow the instructions
+This branch uses maven for the build, and it needs at least JDK 11. In principle, you simply have to follow the instructions
 over at [github](https://github.com/gluonhq/client-samples) from Gluon to make it run on iOS and Android.
 If you have the setup your system as mentioned on the github page with the Gluon examples you can build/deploy SpaceFX to your
 device as follows. To build/run it on iOS you need to run it on a Mac and to build/run it on Android you need to run it on Linux.
@@ -100,6 +100,10 @@ The OSX spacefx binary can be found at
 /PATH/TO/SpaceFX/target/client/x86_64-darwin
 ```
 
+or you can run it as well with:
+```
+mvn client:run
+```
 
 Android:
 Make sure your Android phone is a developer phone and is plugged into your Linux machine.
@@ -110,12 +114,12 @@ cd /PATH/TO/SpaceFX
 
 mvn clean -Pandroid client:build
 
-mvn -Pandroid client:run
+mvn -Pandroid client:package client:install client:run
 ```
 
 The Android spacefx.apk file can be found at
 ```
-/PATH/TO/SpaceFX/target/client/aarch64-android/gvm/apk/bin
+/PATH/TO/SpaceFX/target/client/aarch64-android/gvm/
 ```
 
 
@@ -131,6 +135,30 @@ mvn clean client:build
 The Linux binary can be found at
 ```
 /PATH/TO/SpaceFX/target/x86_64-linux
+```
+
+or you can run it as well with:
+```
+mvn client:run
+```
+
+Windows:
+```
+set JAVA_HOME=%GRAALVM_HOME%
+
+cd \PATH\TO\SpaceFX
+
+mvn clean client:build
+```
+
+The Windows binary can be found at
+```
+\PATH\TO/SpaceFX\target\x86_64-windows
+```
+
+or you can run it as well with:
+```
+mvn client:run
 ```
 
 Keep in mind that at the moment there is no support for sound when using the GraalVM/Substrate combo.
