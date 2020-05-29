@@ -14,7 +14,7 @@
         <maven.compiler.release>11</maven.compiler.release>
         <javafx.version>14.0.1</javafx.version>
         <attach.version>4.0.7</attach.version>
-        <client.plugin.version>0.1.26-SNAPSHOT</client.plugin.version>
+        <client.plugin.version>0.1.26</client.plugin.version>
         <mainClassName>eu.hansolo.spacefx.SpaceFX</mainClassName>
     </properties>
 
