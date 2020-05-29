@@ -216,8 +216,16 @@ public class SpaceFXView extends StackPane {
         init(stage);
         initOnBackground(stage);
 
+        stage.showingProperty().addListener((p,o,value) -> {
+            if(!value) {
+                screenTimer.stop();
+                timer.stop();
+                mediaPlayer.stop();
+            }
+        });
+
         Pane pane = new Pane(canvas, shipTouchArea, hallOfFameBox, playerInitialsLabel, playerInitialsDigits, saveInitialsButton);
-        pane.setPrefSize(WIDTH, HEIGHT);
+        //pane.setPrefSize(WIDTH, HEIGHT);
         pane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
         if (SHOW_BUTTONS) {

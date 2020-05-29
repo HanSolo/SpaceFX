@@ -45,6 +45,16 @@ dependencies {
     implementation "org.openjfx:javafx-media:11:$platform"
     implementation "com.sandec.jpro:jpro-webapi:2019.2.3"
     implementation "one.jpro:one.jpro.sound:0.1.0"
+
+    testCompile 'junit:junit:4.12'
+    testCompile "de.sandec:JMemoryBuddy:0.2.4"
+    testCompile("org.testfx:openjfx-monocle:jdk-11+26") {
+        exclude group: 'org.openjfx'
+    }
+}
+
+test {
+    jvmArgs = ['-Dglass.platform=Monocle', '-Dmonocle.platform=Headless']
 }
 
 mainClassName = "$moduleName/eu.hansolo.spacefx.SpaceFX"

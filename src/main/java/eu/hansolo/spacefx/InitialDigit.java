@@ -111,6 +111,9 @@ public class InitialDigit extends Region implements Toggle {
                     toggle ^= true;
                     draw();
                     lastTimerCalled = now;
+                    if(getScene() != null && getScene().getWindow() != null && !getScene().getWindow().isShowing()) {
+                        timer.stop();
+                    }
                 }
             }
         };
