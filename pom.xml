@@ -13,8 +13,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>11</maven.compiler.release>
         <javafx.version>14.0.1</javafx.version>
-        <attach.version>4.0.7</attach.version>
-        <client.plugin.version>0.1.26</client.plugin.version>
+        <attach.version>4.0.8-SNAPSHOT</attach.version>
+        <client.plugin.version>0.1.27</client.plugin.version>
         <mainClassName>eu.hansolo.spacefx.SpaceFX</mainClassName>
     </properties>
 
@@ -54,6 +54,10 @@
         <repository>
             <id>gluon-snapshots</id>
             <url>https://nexus.gluonhq.com/nexus/content/repositories/public-snapshots</url>
+        </repository>
+        <repository>
+            <id>oss-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </repository>
     </repositories>
 
@@ -103,6 +107,36 @@
                 <clientTarget>android</clientTarget>
             </properties>
         </profile>
+        <profile>
+            <id>pi</id>
+            <properties>
+                <clientTarget>linux-aarch64</clientTarget>
+            </properties>
+            <dependencies>
+                <!-- Attach for javafx:run -->
+                <dependency>
+                    <groupId>com.gluonhq.attach</groupId>
+                    <artifactId>display</artifactId>
+                    <version>${attach.version}</version>
+                    <classifier>desktop</classifier>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.gluonhq.attach</groupId>
+                    <artifactId>lifecycle</artifactId>
+                    <version>${attach.version}</version>
+                    <classifier>desktop</classifier>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.gluonhq.attach</groupId>
+                    <artifactId>storage</artifactId>
+                    <version>${attach.version}</version>
+                    <classifier>desktop</classifier>
+                    <scope>runtime</scope>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 
     <build>
@@ -133,7 +167,7 @@
                         <list>lifetyme</list>
                         <list>storage</list>
                     </attachList>
-<!--                    <verbose>true</verbose>-->
+                    <!--                    <verbose>true</verbose>-->
                     <mainClass>${mainClassName}</mainClass>
                 </configuration>
             </plugin>
