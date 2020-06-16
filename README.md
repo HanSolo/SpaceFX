@@ -6,6 +6,10 @@ embedded devices etc.
 The "master" branch now contains some more fun things like enemies attacking in waves, a level boss that needs more hits to kill, enemies that drop bombs and an
 enemy boss that also fires rockets.
 
+
+If you want to see/play it in a browser you can check it out at the [jpro demo page](https://demos.jpro.one/spacefx.html)
+
+
 Donations are welcome at [Paypal](https://paypal.me/hans0l0)
 
 ### Desktop and Mobile
