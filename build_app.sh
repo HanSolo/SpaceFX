@@ -93,8 +93,4 @@ do
   --runtime-image build/java-runtime \
   --icon src/main/resources/eu/hansolo/spacefx/icon.icns \
   --app-version ${APP_VERSION} \
-  #--vendor "Alliance" \
-  #--copyright "Copyright © 2019 Alliance Inc." \
-  #--mac-package-identifier eu.hansolo.spacefx \
-  #--mac-package-name Alliance
 done

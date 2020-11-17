@@ -41,7 +41,7 @@ public enum WaveType {
     private static final double        ENEMY_SIZE = 50;
     public  final int                  waveSegments;
     public  final double               totalFrames;
-    //public record WaveCoordinate1(double x, double y, double r) {}
+    public record WaveCoordinate(double x, double y, double r) {}
     public  final List<WaveCoordinate> coordinates;
 
 

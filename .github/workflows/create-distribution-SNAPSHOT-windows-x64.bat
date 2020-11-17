@@ -10,7 +10,7 @@ REM   is used locally to build the application package
 SET APP_NAME="SpaceFX"
 SET APP_JAR="SpaceFX-1.0-SNAPSHOT.jar"
 SET APP_TYPE="msi"
-SET JPACKAGE_JVM="https://download.java.net/java/GA/jdk14/076bab302c7b4508975440c56f6cc26a/36/GPL/openjdk-14_windows-x64_bin.zip"
+SET JPACKAGE_JVM="https://download.java.net/java/GA/jdk15/779bf45e88a44cbd9ea6621d33e33db1/36/GPL/openjdk-15_windows-x64_bin.zip"
 REM App version is passed as argument by github action workflow
 SET APP_VERSION=%1
 
@@ -31,17 +31,17 @@ if not defined FOUNDCURL (
 )
 
 REM Do not create the local JDK if it already exists
-if exist ".tmp-runtime\jdk-14\" (
-    echo "> jdk 14 for package generation already downloaded"
+if exist ".tmp-runtime\jdk-15\" (
+    echo "> jdk 15 for package generation already downloaded"
 ) else (
 REM If it doesn't exist, however, download and unpack the local JDK
 REM and create runtime image with the runtime JDK
 REM (JAVA_HOME is expected to be set correctly)    
     mkdir .tmp-runtime\
     cd .tmp-runtime
-    echo "> downloading jdk 14"
-    curl -o jdk14.zip %JPACKAGE_JVM%
-    echo "> unpacking jdk 14"
+    echo "> downloading jdk 15"
+    curl -o jdk15.zip %JPACKAGE_JVM%
+    echo "> unpacking jdk 15"
     7z x jdk14.zip
     echo "> creating runtime image"
     "%JAVA_HOME%\bin\jlink" -p "%JAVA_HOME%\jmods" ^
@@ -61,7 +61,7 @@ cd %DIR%
 
 REM Finally, invoke the jpackage CLI program from the local JDK that
 REM has been downloaded earlier.
-set JPKG_HOME=.tmp-runtime\jdk-14\
+set JPKG_HOME=.tmp-runtime\jdk-15\
 set JPKG_EXECUTABLE=%JPKG_HOME%\bin\jpackage
 %JPKG_EXECUTABLE% --input ..\..\build\libs\ ^
     --name %APP_NAME% ^

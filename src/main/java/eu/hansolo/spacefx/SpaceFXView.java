@@ -2202,9 +2202,9 @@ public class SpaceFXView extends StackPane {
 
 
         @Override protected void init() {
-            x    = waveType.coordinates.get(0).x;
-            y    = waveType.coordinates.get(0).y;
-            r    = waveType.coordinates.get(0).r;
+            x    = waveType.coordinates.get(0).x();
+            y    = waveType.coordinates.get(0).y();
+            r    = waveType.coordinates.get(0).r();
             oldX = x;
             oldY = y;
 
@@ -2240,9 +2240,9 @@ public class SpaceFXView extends StackPane {
                 y += vY;
                 r = Math.toDegrees(Math.atan2(vY, vX)) - 90;
             } else {
-                x  = waveType.coordinates.get(frameCounter).x;
-                y  = waveType.coordinates.get(frameCounter).y;
-                r  = waveType.coordinates.get(frameCounter).r;
+                x  = waveType.coordinates.get(frameCounter).x();
+                y  = waveType.coordinates.get(frameCounter).y();
+                r  = waveType.coordinates.get(frameCounter).r();
                 vX = x - oldX;
                 vY = y - oldY;
             }
