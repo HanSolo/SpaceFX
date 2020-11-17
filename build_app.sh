@@ -9,8 +9,9 @@
 # PROJECT_VERSION: version used in pom.xml, e.g. 1.0-SNAPSHOT
 # APP_VERSION: the application version, e.g. 1.0.0, shown in "about" dialog
 
-JAVA_VERSION=13
+JAVA_VERSION=15
 MAIN_JAR="SpaceFX-1.0-SNAPSHOT.jar"
+APP_VERSION=1.0.0
 
 echo "java home: $JAVA_HOME"
 echo "jpackage home: $JPACKAGE_HOME"
@@ -90,7 +91,12 @@ do
   --main-class eu.hansolo.spacefx.Launcher \
   --main-jar ${MAIN_JAR} \
   --java-options -Xmx2048m \
+  --java-options '--enable-preview' \
   --runtime-image build/java-runtime \
   --icon src/main/resources/eu/hansolo/spacefx/icon.icns \
   --app-version ${APP_VERSION} \
+  #--vendor "Alliance" \
+  #--copyright "Copyright © 2019 Alliance Inc." \
+  #--mac-package-identifier eu.hansolo.spacefx \
+  #--mac-package-name Alliance
 done
