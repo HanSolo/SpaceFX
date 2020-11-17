@@ -9,7 +9,7 @@ rem
 rem PROJECT_VERSION: version used in pom.xml, e.g. 1.0-SNAPSHOT
 rem APP_VERSION: the application version, e.g. 1.0.0, shown in "about" dialog
 
-set JAVA_VERSION=13
+set JAVA_VERSION=15
 set MAIN_JAR=SpaceFX-1.0-SNAPSHOT.jar
 
 rem ------ SETUP DIRECTORIES AND FILES ----------------------------------------
@@ -77,6 +77,7 @@ for %%s in ("app-image" "msi" "exe") do call "%JPACKAGE_HOME%\bin\jpackage" ^
   --main-class eu.hansolo.spacefx.Launcher ^
   --main-jar %MAIN_JAR% ^
   --java-options -Xmx2048m ^
+  --java-options '--enable-preview' ^
   --runtime-image target/java-runtime ^
   --icon src\main\resources\eu\hansolo\spacefx\icon.ico ^
   --app-version %APP_VERSION% ^
