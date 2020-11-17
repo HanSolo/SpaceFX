@@ -42,7 +42,7 @@ REM (JAVA_HOME is expected to be set correctly)
     echo "> downloading jdk 15"
     curl -o jdk15.zip %JPACKAGE_JVM%
     echo "> unpacking jdk 15"
-    7z x jdk14.zip
+    7z x jdk15.zip
     echo "> creating runtime image"
     "%JAVA_HOME%\bin\jlink" -p "%JAVA_HOME%\jmods" ^
         --add-modules java.desktop ^
