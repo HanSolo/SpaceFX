@@ -14,7 +14,6 @@ MAIN_JAR="SpaceFX-1.0-SNAPSHOT.jar"
 APP_VERSION=1.0.0
 
 echo "java home: $JAVA_HOME"
-echo "jpackage home: $JPACKAGE_HOME"
 echo "project version: $PROJECT_VERSION"
 echo "app version: $APP_VERSION"
 echo "main JAR file: $MAIN_JAR"
@@ -83,7 +82,7 @@ for type in "app-image" "dmg" "pkg"
 do
   echo "Creating installer of type ... $type"
 
-  $JPACKAGE_HOME/bin/jpackage \
+  $JAVA_HOME/bin/jpackage \
   --type $type \
   --dest build/installer \
   --input build/installer/input/libs \
