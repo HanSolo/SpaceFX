@@ -40,7 +40,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
       - name: Create Distribution
-        run: ./build_app.sh
+        run: sudo ./build_app.sh
       - uses: actions/upload-artifact@v2
         with:
           name: SpaceFX
