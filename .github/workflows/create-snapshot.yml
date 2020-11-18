@@ -47,4 +47,3 @@ jobs:
         with:
           name: SpaceFX
           path: /build/installer/SpaceFX-1.0.0.dmg
-          
