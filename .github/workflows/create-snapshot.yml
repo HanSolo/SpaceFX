@@ -35,8 +35,6 @@ jobs:
         with:
           java-version: 15
           architecture: x64
-      - name: Build with Gradle
-        run: .\gradlew.bat assemble
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
