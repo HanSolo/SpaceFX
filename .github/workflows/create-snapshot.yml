@@ -39,9 +39,10 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build
+      - name: Grant execute permission for build.sh
+        run: chmod +x ./build_app.sh
       - name: Create Distribution
-        run: |
-          sudo ./build_app.sh
+        run: ./build_app.sh
       - uses: actions/upload-artifact@v2
         with:
           name: SpaceFX
