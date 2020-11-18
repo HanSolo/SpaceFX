@@ -46,4 +46,4 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: SpaceFX
-          path: /build/installer/SpaceFX-1.0.0.dmg
+          path: ./build/installer/SpaceFX-1.0.0.dmg
