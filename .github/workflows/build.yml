@@ -1,0 +1,38 @@
+name: build
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Reason'
+        required: false
+        default: 'Because...'
+
+jobs:
+  build:
+    name: "Build (JDK-${{ matrix.java }}, ${{ matrix.os }})"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macOS-latest, windows-latest ]
+        java: [ 16-ea ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: 'Check out repository'
+        uses: actions/checkout@v2
+      - name: 'Set up JDK'
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+      - name: 'Build with Bach'
+        uses: sormuras/bach-build@main
+      - name: 'Upload SpaceFX module'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.event.repository.name }}-${{ matrix.os }}-${{ github.sha }}
+          path: |
+            .bach/workspace/modules
+            .bach/workspace/logbook.md
