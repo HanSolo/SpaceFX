@@ -1,11 +1,12 @@
+import com.github.sormuras.bach.project.Feature;
 import com.github.sormuras.bach.project.ProjectInfo;
 import com.github.sormuras.bach.project.ProjectInfo.ExternalModules;
 import com.github.sormuras.bach.project.ProjectInfo.ExternalModules.Link;
 
 @ProjectInfo(
     version = "1.0",
-    // features = Feature.GENERATE_CUSTOM_RUNTIME_IMAGE,
-    // launchCustomRuntimeImageWithModule = "spacefx/eu.hansolo.Launcher",
+    features = Feature.GENERATE_CUSTOM_RUNTIME_IMAGE,
+    launchCustomRuntimeImageWithModule = "spacefx/eu.hansolo.spacefx.Launcher",
     externalModules =
         @ExternalModules(
             links = {

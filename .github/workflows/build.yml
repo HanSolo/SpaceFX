@@ -29,10 +29,10 @@ jobs:
           java-version: ${{ matrix.java }}
       - name: 'Build with Bach'
         uses: sormuras/bach-build@main
-      - name: 'Upload SpaceFX module'
+      - name: 'Upload SpaceFX Game Image'
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.event.repository.name }}-${{ matrix.os }}-${{ github.sha }}
           path: |
-            .bach/workspace/modules
+            .bach/workspace/image
             .bach/workspace/logbook.md
