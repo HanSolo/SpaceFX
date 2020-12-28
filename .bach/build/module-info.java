@@ -9,5 +9,5 @@ import com.github.sormuras.bach.project.ProjectInfo;
 module build {
   requires com.github.sormuras.bach;
 
-  provides com.github.sormuras.bach.project.ModuleLookup with build.ModulesOfJavaFX_16_ea;
+  provides com.github.sormuras.bach.BuildProgram with build.Program;
 }
