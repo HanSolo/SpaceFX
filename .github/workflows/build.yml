@@ -30,7 +30,7 @@ jobs:
       - name: 'Build with Bach'
         uses: sormuras/bach-build@v1
         with:
-          java-version: 16
+          bach-version: 16
       - name: 'Upload SpaceFX Game Image'
         uses: actions/upload-artifact@v2
         with:
