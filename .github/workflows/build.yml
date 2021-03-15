@@ -27,8 +27,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+      - name: 'Initialize Bach'
+        run: jshell https://bit.ly/bach-init
       - name: 'Build with Bach'
-        run: java --module-path .bach/cache --module com.github.sormuras.bach build
+        run: .bach/bin/bach build
       - name: 'Upload SpaceFX Game Image'
         uses: actions/upload-artifact@v2
         with:

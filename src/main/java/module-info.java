@@ -1,4 +1,4 @@
-module spacefx {
+module eu.hansolo.spacefx {
 
     // Java
     requires java.base;
