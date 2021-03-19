@@ -10,18 +10,18 @@ This fork uses [Bach](https://github.com/sormuras/bach) as its build tool.
 ### Build
 
 - Install JDK 16 or later
-- `java --module-path .bach/cache --module com.github.sormuras.bach build`
+- `java --module-path .bach/bin --module com.github.sormuras.bach build`
 
 ### Run via Custom Runtime Image
 
 - Linux and Mac OS
 
 ```shell script
-.bach/workspace/images/bin/bach-hansolos-spacefx
+.bach/workspace/images/bin/spacefx
 ```
 
 - Windows
 
 ```shell script
-.bach\workspace\image\bin\bach-hansolos-spacefx[.bat]
+.bach\workspace\image\bin\spacefx[.bat]
 ```
