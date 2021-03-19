@@ -1,4 +1,4 @@
-module spacefx {
+module eu.hansolo.spacefx {
 
     // Java
     requires java.base;
@@ -8,8 +8,6 @@ module spacefx {
     requires javafx.graphics;
     requires javafx.controls;
     requires javafx.media;
-    requires jpro.webapi;
-    requires one.jpro.sound;
 
     exports eu.hansolo.spacefx;
 }
