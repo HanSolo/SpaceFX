@@ -4,30 +4,30 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
-        maven {
-            url "https://sandec.jfrog.io/artifactory/repo"
-        }
+        //maven {
+        //    url "https://sandec.jfrog.io/artifactory/repo"
+        //}
     }
     dependencies {
-        classpath 'com.google.gradle:osdetector-gradle-plugin:1.6.2'
+        classpath 'com.google.gradle:osdetector-gradle-plugin:1.7.0'
         classpath 'org.javamodularity:moduleplugin:1.7.0'
         classpath 'org.beryx:badass-jlink-plugin:2.23.2'
-        classpath 'com.sandec.jpro:jpro-plugin-gradle:2021.1.1'
+        //classpath 'com.sandec.jpro:jpro-plugin-gradle:2021.1.1'
     }
 }
 
 plugins {
     id 'java-library'
     id 'application'
-    id 'com.google.osdetector' version '1.6.2'
+    id 'com.google.osdetector' version '1.7.0'
     id 'org.javamodularity.moduleplugin' version '1.7.0'
     id 'org.beryx.jlink' version '2.23.2'
 }
 
-apply plugin: 'com.sandec.jpro'
+//apply plugin: 'com.sandec.jpro'
 
 group 'eu.hansolo.spacefx'
-version '1.0-SNAPSHOT'
+version '1.0.0'
 
 ext.platform = osdetector.os == 'osx' ? 'mac' : osdetector.os == 'windows' ? 'win' : osdetector.os
 
@@ -43,28 +43,32 @@ dependencies {
     implementation "org.openjfx:javafx-graphics:16:$platform"
     implementation "org.openjfx:javafx-controls:16:$platform"
     implementation "org.openjfx:javafx-media:16:$platform"
-    implementation "com.sandec.jpro:jpro-webapi:2021.1.1"
-    implementation "one.jpro:one.jpro.sound:0.1.0"
+    //implementation "com.sandec.jpro:jpro-webapi:2021.1.1"
+    //implementation "one.jpro:one.jpro.sound:0.1.0"
 
+    /*
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.2'
     testImplementation "de.sandec:JMemoryBuddy:0.2.4"
     testImplementation("org.testfx:openjfx-monocle:jdk-11+26") {
         exclude group: 'org.openjfx'
     }
+    */
 }
 
+/*
 test {
     jvmArgs = ['-Dglass.platform=Monocle', '-Dmonocle.platform=Headless']
 }
+*/
 
 mainClassName = "$moduleName/eu.hansolo.spacefx.SpaceFX"
 
-// To run SpaceFX in the browser with jPro use:
+/* To run SpaceFX in the browser with jPro use:
 task web() {
     mainClassName = "eu.hansolo.spacefx.SpaceFX"
     dependsOn jproRun
 }
-
+*/
 
 jar {
     from {
@@ -77,7 +81,7 @@ jar {
     }
     manifest {
         attributes ('Implementation-Title': 'SpaceFX',
-                    'Class-Path': 'SpaceFX-1.0-SNAPSHOT.jar ',
+                    'Class-Path': 'SpaceFX-1.0.0.jar ',
                     'Main-Class': 'eu.hansolo.spacefx.Launcher')
     }
 }
@@ -99,6 +103,7 @@ tasks.withType(JavaExec) {
     jvmArgs += "--enable-preview"
 }
 
+/*
 jpro {
     port             = 8080
     JVMArgs << '-Xmx1000m'
@@ -107,3 +112,4 @@ jpro {
     jproVersion      = "2021.1.1"
     openURLOnStartup = false
 }
+*/

@@ -9,8 +9,9 @@
 # PROJECT_VERSION: version used in pom.xml, e.g. 1.0-SNAPSHOT
 # APP_VERSION: the application version, e.g. 1.0.0, shown in "about" dialog
 
-JAVA_VERSION=13
-MAIN_JAR="SpaceFX-1.0-SNAPSHOT.jar"
+JAVA_VERSION=16
+MAIN_JAR="SpaceFX-1.0.0.jar"
+APP_VERSION=1.0.0
 
 echo "java home: $JAVA_HOME"
 echo "jpackage home: $JPACKAGE_HOME"
