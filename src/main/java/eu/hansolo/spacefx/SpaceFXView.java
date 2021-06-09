@@ -16,7 +16,7 @@
 
 package eu.hansolo.spacefx;
 
-import com.jpro.webapi.WebAPI;
+//import com.jpro.webapi.WebAPI;
 import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -67,7 +67,7 @@ import static eu.hansolo.spacefx.Config.*;
 public class SpaceFXView extends StackPane {
     private static final long                       SCREEN_TOGGLE_INTERVAL  = 10_000_000_000l;
     private static final Random                     RND                     = new Random();
-    private static final boolean                    IS_BROWSER              = WebAPI.isBrowser();
+    private static final boolean                    IS_BROWSER              = false; //WebAPI.isBrowser();
     private              Task<Boolean>              initTask;
     private              Level1                     level1;
     private              Level2                     level2;

@@ -1,33 +1,34 @@
 buildscript {
     repositories {
+        //jcenter()
         mavenCentral()
         maven {
             url "https://plugins.gradle.org/m2/"
         }
-        maven {
-            url "https://sandec.bintray.com/repo"
-        }
+        //maven {
+        //    url "https://sandec.jfrog.io/artifactory/repo"
+        //}
     }
     dependencies {
-        classpath 'com.google.gradle:osdetector-gradle-plugin:1.6.2'
-        classpath 'org.javamodularity:moduleplugin:1.6.0'
-        classpath 'org.beryx:badass-jlink-plugin:2.17.2'
-        classpath 'com.sandec.jpro:jpro-plugin-gradle:2019.2.2'
+        classpath 'com.google.gradle:osdetector-gradle-plugin:1.7.0'
+        classpath 'org.javamodularity:moduleplugin:1.8.3'
+        classpath 'org.beryx:badass-jlink-plugin:2.23.7'
+        //classpath 'com.sandec.jpro:jpro-plugin-gradle:2021.1.1'
     }
 }
 
 plugins {
     id 'java-library'
     id 'application'
-    id 'com.google.osdetector' version '1.6.2'
-    id 'org.javamodularity.moduleplugin' version '1.6.0'
-    id 'org.beryx.jlink' version '2.17.2'
+    id 'com.google.osdetector' version '1.7.0'
+    id 'org.javamodularity.moduleplugin' version '1.8.3'
+    id 'org.beryx.jlink' version '2.23.7'
 }
 
-apply plugin: 'com.sandec.jpro'
+//apply plugin: 'com.sandec.jpro'
 
 group 'eu.hansolo.spacefx'
-version '1.0-SNAPSHOT'
+version '1.0'
 
 ext.platform = osdetector.os == 'osx' ? 'mac' : osdetector.os == 'windows' ? 'win' : osdetector.os
 
@@ -43,7 +44,7 @@ dependencies {
     implementation "org.openjfx:javafx-graphics:11:$platform"
     implementation "org.openjfx:javafx-controls:11:$platform"
     implementation "org.openjfx:javafx-media:11:$platform"
-    implementation "com.sandec.jpro:jpro-webapi:2019.2.2"
+    //implementation "com.sandec.jpro:jpro-webapi:2021.1.1"
 }
 
 mainClassName = "$moduleName/eu.hansolo.spacefx.SpaceFX"
@@ -62,7 +63,7 @@ jar {
     }
     manifest {
         attributes ('Implementation-Title': 'SpaceFX',
-                    'Class-Path': 'SpaceFX-1.0-SNAPSHOT.jar ',
+                    'Class-Path': 'SpaceFX-1.0.jar ',
                     'Main-Class': 'eu.hansolo.spacefx.Launcher')
     }
 }
@@ -74,11 +75,13 @@ jlink {
     }
 }
 
+/*
 jpro {
     port             = 8080
     JVMArgs << '-Xmx1000m'
     visible          = false // Debug mode can also be used to create images via canvas and snapshot
-    noRenderJobs     = true // false to enable snapshot support
-    jproVersion      = "2019.2.2"
+    //noRenderJobs     = true // false to enable snapshot support
+    jproVersion      = "2021.1.1"
     openURLOnStartup = false
 }
+*/

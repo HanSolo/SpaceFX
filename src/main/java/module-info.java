@@ -8,7 +8,7 @@ module spacefx {
     requires javafx.graphics;
     requires javafx.controls;
     requires javafx.media;
-    requires jpro.webapi;
+    //requires jpro.webapi;
 
     exports eu.hansolo.spacefx;
 }
