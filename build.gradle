@@ -5,14 +5,14 @@ buildscript {
             url "https://plugins.gradle.org/m2/"
         }
         maven {
-            url "https://sandec.bintray.com/repo"
+            url "https://sandec.jfrog.io/artifactory/repo"
         }
     }
     dependencies {
         classpath 'com.google.gradle:osdetector-gradle-plugin:1.6.2'
-        classpath 'org.javamodularity:moduleplugin:1.6.0'
-        classpath 'org.beryx:badass-jlink-plugin:2.16.4'
-        classpath 'com.sandec.jpro:jpro-plugin-gradle:2019.2.4'
+        classpath 'org.javamodularity:moduleplugin:1.7.0'
+        classpath 'org.beryx:badass-jlink-plugin:2.23.2'
+        classpath 'com.sandec.jpro:jpro-plugin-gradle:2021.1.1'
     }
 }
 
@@ -20,8 +20,8 @@ plugins {
     id 'java-library'
     id 'application'
     id 'com.google.osdetector' version '1.6.2'
-    id 'org.javamodularity.moduleplugin' version '1.6.0'
-    id 'org.beryx.jlink' version '2.16.4'
+    id 'org.javamodularity.moduleplugin' version '1.7.0'
+    id 'org.beryx.jlink' version '2.23.2'
 }
 
 apply plugin: 'com.sandec.jpro'
@@ -35,20 +35,20 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = 16
+targetCompatibility = 16
 
 dependencies {
-    implementation "org.openjfx:javafx-base:11:$platform"
-    implementation "org.openjfx:javafx-graphics:11:$platform"
-    implementation "org.openjfx:javafx-controls:11:$platform"
-    implementation "org.openjfx:javafx-media:11:$platform"
-    implementation "com.sandec.jpro:jpro-webapi:2019.2.3"
+    implementation "org.openjfx:javafx-base:16:$platform"
+    implementation "org.openjfx:javafx-graphics:16:$platform"
+    implementation "org.openjfx:javafx-controls:16:$platform"
+    implementation "org.openjfx:javafx-media:16:$platform"
+    implementation "com.sandec.jpro:jpro-webapi:2021.1.1"
     implementation "one.jpro:one.jpro.sound:0.1.0"
 
-    testCompile 'junit:junit:4.12'
-    testCompile "de.sandec:JMemoryBuddy:0.2.4"
-    testCompile("org.testfx:openjfx-monocle:jdk-11+26") {
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.2'
+    testImplementation "de.sandec:JMemoryBuddy:0.2.4"
+    testImplementation("org.testfx:openjfx-monocle:jdk-11+26") {
         exclude group: 'org.openjfx'
     }
 }
@@ -89,11 +89,21 @@ jlink {
     }
 }
 
+tasks.withType(JavaCompile) {
+    options.compilerArgs += "--enable-preview"
+}
+tasks.withType(Test) {
+    jvmArgs += "--enable-preview"
+}
+tasks.withType(JavaExec) {
+    jvmArgs += "--enable-preview"
+}
+
 jpro {
     port             = 8080
     JVMArgs << '-Xmx1000m'
     visible          = false // Debug mode can also be used to create images via canvas and snapshot
-    noRenderJobs     = true // false to enable snapshot support
-    jproVersion      = "2019.2.4"
+    //noRenderJobs     = true // false to enable snapshot support
+    jproVersion      = "2021.1.1"
     openURLOnStartup = false
 }
