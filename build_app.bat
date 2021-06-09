@@ -9,8 +9,9 @@ rem
 rem PROJECT_VERSION: version used in pom.xml, e.g. 1.0-SNAPSHOT
 rem APP_VERSION: the application version, e.g. 1.0.0, shown in "about" dialog
 
-set JAVA_VERSION=13
-set MAIN_JAR=SpaceFX-1.0-SNAPSHOT.jar
+set JAVA_VERSION=16
+set MAIN_JAR=SpaceFX-1.0.0.jar
+set APP_VERSION=1.0.0
 
 rem ------ SETUP DIRECTORIES AND FILES ----------------------------------------
 rem Remove previously generated java runtime and installers. Copy all required
@@ -69,16 +70,15 @@ rem ------ PACKAGING ----------------------------------------------------------
 rem A loop iterates over the various packaging types supported by jpackage. In
 rem the end we will find all packages inside the target/installer directory.
 
-for %%s in ("app-image" "msi" "exe") do call "%JPACKAGE_HOME%\bin\jpackage" ^
+for %%s in ("app-image" "msi" "exe") do call "%JAVA_HOME%\bin\jpackage" ^
   --type %%s ^
-  --dest build/installer ^
-  --input build/installer/input/libs ^
+  --dest build\installer ^
+  --input build\installer\input\libs ^
   --name SpaceFX ^
   --main-class eu.hansolo.spacefx.Launcher ^
   --main-jar %MAIN_JAR% ^
   --java-options -Xmx2048m ^
-  --runtime-image target/java-runtime ^
+  --java-options '--enable-preview' ^
+  --runtime-image build\java-runtime ^
   --icon src\main\resources\eu\hansolo\spacefx\icon.ico ^
   --app-version %APP_VERSION% ^
-  --vendor "Alliance" ^
-  --copyright "Copyright © 2019 Alliance"

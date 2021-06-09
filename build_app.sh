@@ -91,6 +91,7 @@ do
   --main-class eu.hansolo.spacefx.Launcher \
   --main-jar ${MAIN_JAR} \
   --java-options -Xmx2048m \
+  --java-options '--enable-preview' \
   --runtime-image build/java-runtime \
   --icon src/main/resources/eu/hansolo/spacefx/icon.icns \
   --app-version ${APP_VERSION} \

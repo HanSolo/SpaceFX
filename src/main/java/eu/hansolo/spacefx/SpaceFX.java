@@ -16,7 +16,6 @@
 
 package eu.hansolo.spacefx;
 
-import com.jpro.webapi.WebAPI;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -29,7 +28,7 @@ import static eu.hansolo.spacefx.Config.WIDTH;
 
 
 public class SpaceFX extends Application {
-    private static final boolean IS_BROWSER = WebAPI.isBrowser();
+    private static final boolean IS_BROWSER = false;
     private              boolean torpedoArmed;
     private              boolean rocketArmed;
     private              boolean shieldArmed;

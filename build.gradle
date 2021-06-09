@@ -4,15 +4,11 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
-        //maven {
-        //    url "https://sandec.jfrog.io/artifactory/repo"
-        //}
     }
     dependencies {
         classpath 'com.google.gradle:osdetector-gradle-plugin:1.7.0'
         classpath 'org.javamodularity:moduleplugin:1.7.0'
         classpath 'org.beryx:badass-jlink-plugin:2.23.2'
-        //classpath 'com.sandec.jpro:jpro-plugin-gradle:2021.1.1'
     }
 }
 
@@ -23,8 +19,6 @@ plugins {
     id 'org.javamodularity.moduleplugin' version '1.7.0'
     id 'org.beryx.jlink' version '2.23.2'
 }
-
-//apply plugin: 'com.sandec.jpro'
 
 group 'eu.hansolo.spacefx'
 version '1.0.0'
@@ -43,32 +37,9 @@ dependencies {
     implementation "org.openjfx:javafx-graphics:16:$platform"
     implementation "org.openjfx:javafx-controls:16:$platform"
     implementation "org.openjfx:javafx-media:16:$platform"
-    //implementation "com.sandec.jpro:jpro-webapi:2021.1.1"
-    //implementation "one.jpro:one.jpro.sound:0.1.0"
-
-    /*
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.7.2'
-    testImplementation "de.sandec:JMemoryBuddy:0.2.4"
-    testImplementation("org.testfx:openjfx-monocle:jdk-11+26") {
-        exclude group: 'org.openjfx'
-    }
-    */
 }
-
-/*
-test {
-    jvmArgs = ['-Dglass.platform=Monocle', '-Dmonocle.platform=Headless']
-}
-*/
 
 mainClassName = "$moduleName/eu.hansolo.spacefx.SpaceFX"
-
-/* To run SpaceFX in the browser with jPro use:
-task web() {
-    mainClassName = "eu.hansolo.spacefx.SpaceFX"
-    dependsOn jproRun
-}
-*/
 
 jar {
     from {
@@ -93,6 +64,12 @@ jlink {
     }
 }
 
+// start the from gradle
+task Main(type: JavaExec) {
+    main = "eu.hansolo.spacefx.Launcher"
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 tasks.withType(JavaCompile) {
     options.compilerArgs += "--enable-preview"
 }
@@ -102,14 +79,3 @@ tasks.withType(Test) {
 tasks.withType(JavaExec) {
     jvmArgs += "--enable-preview"
 }
-
-/*
-jpro {
-    port             = 8080
-    JVMArgs << '-Xmx1000m'
-    visible          = false // Debug mode can also be used to create images via canvas and snapshot
-    //noRenderJobs     = true // false to enable snapshot support
-    jproVersion      = "2021.1.1"
-    openURLOnStartup = false
-}
-*/

@@ -16,7 +16,6 @@
 
 package eu.hansolo.spacefx;
 
-import com.jpro.webapi.WebAPI;
 import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -47,9 +46,6 @@ import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
-//import one.jpro.sound.AudioClip;
-//import one.jpro.sound.Media;
-//import one.jpro.sound.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
@@ -72,7 +68,7 @@ import static eu.hansolo.spacefx.Config.*;
 public class SpaceFXView extends StackPane {
     private static final long                       SCREEN_TOGGLE_INTERVAL  = 10_000_000_000l;
     private static final Random                     RND                     = new Random();
-    private static final boolean                    IS_BROWSER              = WebAPI.isBrowser();
+    private static final boolean                    IS_BROWSER              = false;
     private              Task<Boolean>              initTask;
     private              Level1                     level1;
     private              Level2                     level2;
@@ -211,10 +207,10 @@ public class SpaceFXView extends StackPane {
 
     // ******************** Constructor ***************************************
     public SpaceFXView(Stage stage) {
-        gameSoundTheme          = Media.getMedia(getClass().getResource("RaceToMars.mp3").toExternalForm(), stage);
-        soundTheme              = Media.getMedia(getClass().getResource("CityStomper.mp3").toExternalForm(), stage);
-        gameMediaPlayer         = MediaPlayer.getMediaPlayer(gameSoundTheme);
-        mediaPlayer             = MediaPlayer.getMediaPlayer(soundTheme);
+        gameSoundTheme          = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
+        soundTheme              = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
+        gameMediaPlayer         = new MediaPlayer(gameSoundTheme);
+        mediaPlayer             = new MediaPlayer(soundTheme);
 
         init(stage);
         initOnBackground(stage);
@@ -308,36 +304,36 @@ public class SpaceFXView extends StackPane {
         Helper.enableNode(hallOfFameBox, false);
 
         // Mediaplayer for background music
-        mediaPlayer.setLoop(true);
+        mediaPlayer.setCycleCount(-1);
         mediaPlayer.setVolume(0.2);
 
         // Mediaplayer for game background music
-        gameMediaPlayer.setLoop(true);
+        gameMediaPlayer.setCycleCount(-1);
         gameMediaPlayer.setVolume(0.5);
 
         // Load sounds
-        laserSound              = AudioClip.getAudioClip(getClass().getResource("laserSound.wav").toExternalForm(), stage);
-        rocketLaunchSound       = AudioClip.getAudioClip(getClass().getResource("rocketLaunch.wav").toExternalForm(), stage);
-        rocketExplosionSound    = AudioClip.getAudioClip(getClass().getResource("rocketExplosion.wav").toExternalForm(), stage);
-        enemyLaserSound         = AudioClip.getAudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm(), stage);
-        enemyBombSound          = AudioClip.getAudioClip(getClass().getResource("enemyBomb.wav").toExternalForm(), stage);
-        explosionSound          = AudioClip.getAudioClip(getClass().getResource("explosionSound.wav").toExternalForm(), stage);
-        asteroidExplosionSound  = AudioClip.getAudioClip(getClass().getResource("asteroidExplosion.wav").toExternalForm(), stage);
-        torpedoHitSound         = AudioClip.getAudioClip(getClass().getResource("hit.wav").toExternalForm(), stage);
-        spaceShipExplosionSound = AudioClip.getAudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm(), stage);
-        enemyBossExplosionSound = AudioClip.getAudioClip(getClass().getResource("enemyBossExplosion.wav").toExternalForm(), stage);
-        gameoverSound           = AudioClip.getAudioClip(getClass().getResource("gameover.wav").toExternalForm(), stage);
-        shieldHitSound          = AudioClip.getAudioClip(getClass().getResource("shieldhit.wav").toExternalForm(), stage);
-        enemyHitSound           = AudioClip.getAudioClip(getClass().getResource("enemyBossShieldHit.wav").toExternalForm(), stage);
-        deflectorShieldSound    = AudioClip.getAudioClip(getClass().getResource("deflectorshieldSound.wav").toExternalForm(), stage);
-        levelBossTorpedoSound   = AudioClip.getAudioClip(getClass().getResource("levelBossTorpedo.wav").toExternalForm(), stage);
-        levelBossRocketSound    = AudioClip.getAudioClip(getClass().getResource("levelBossRocket.wav").toExternalForm(), stage);
-        levelBossBombSound      = AudioClip.getAudioClip(getClass().getResource("levelBossBomb.wav").toExternalForm(), stage);
-        levelBossExplosionSound = AudioClip.getAudioClip(getClass().getResource("explosionSound1.wav").toExternalForm(), stage);
-        shieldUpSound           = AudioClip.getAudioClip(getClass().getResource("shieldUp.wav").toExternalForm(), stage);
-        lifeUpSound             = AudioClip.getAudioClip(getClass().getResource("lifeUp.wav").toExternalForm(), stage);
-        levelUpSound            = AudioClip.getAudioClip(getClass().getResource("levelUp.wav").toExternalForm(), stage);
-        bonusSound              = AudioClip.getAudioClip(getClass().getResource("bonus.wav").toExternalForm(), stage);
+        laserSound              = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
+        rocketLaunchSound       = new AudioClip(getClass().getResource("rocketLaunch.wav").toExternalForm());
+        rocketExplosionSound    = new AudioClip(getClass().getResource("rocketExplosion.wav").toExternalForm());
+        enemyLaserSound         = new AudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm());
+        enemyBombSound          = new AudioClip(getClass().getResource("enemyBomb.wav").toExternalForm());
+        explosionSound          = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
+        asteroidExplosionSound  = new AudioClip(getClass().getResource("asteroidExplosion.wav").toExternalForm());
+        torpedoHitSound         = new AudioClip(getClass().getResource("hit.wav").toExternalForm());
+        spaceShipExplosionSound = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
+        enemyBossExplosionSound = new AudioClip(getClass().getResource("enemyBossExplosion.wav").toExternalForm());
+        gameoverSound           = new AudioClip(getClass().getResource("gameover.wav").toExternalForm());
+        shieldHitSound          = new AudioClip(getClass().getResource("shieldhit.wav").toExternalForm());
+        enemyHitSound           = new AudioClip(getClass().getResource("enemyBossShieldHit.wav").toExternalForm());
+        deflectorShieldSound    = new AudioClip(getClass().getResource("deflectorshieldSound.wav").toExternalForm());
+        levelBossTorpedoSound   = new AudioClip(getClass().getResource("levelBossTorpedo.wav").toExternalForm());
+        levelBossRocketSound    = new AudioClip(getClass().getResource("levelBossRocket.wav").toExternalForm());
+        levelBossBombSound      = new AudioClip(getClass().getResource("levelBossBomb.wav").toExternalForm());
+        levelBossExplosionSound = new AudioClip(getClass().getResource("explosionSound1.wav").toExternalForm());
+        shieldUpSound           = new AudioClip(getClass().getResource("shieldUp.wav").toExternalForm());
+        lifeUpSound             = new AudioClip(getClass().getResource("lifeUp.wav").toExternalForm());
+        levelUpSound            = new AudioClip(getClass().getResource("levelUp.wav").toExternalForm());
+        bonusSound              = new AudioClip(getClass().getResource("bonus.wav").toExternalForm());
 
         // Variable initialization
         backgroundViewportY           = SWITCH_POINT;
