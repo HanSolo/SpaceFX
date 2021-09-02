@@ -1,4 +1,5 @@
-## SpaceFX
+## SpaceFX <img align="right" src="https://github.com/foojay2020/badges/raw/main/works_with_openjdk/Works-with-OpenJDK.png" width="100">
+<br>
 A simple tiny space game written in JavaFX.
 
 The "dev" branch contains new developments that might come to the game later on. The "simpleversion" branch is like the name says more simple and should also run on
