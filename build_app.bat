@@ -9,9 +9,9 @@ rem
 rem PROJECT_VERSION: version used in pom.xml, e.g. 1.0-SNAPSHOT
 rem APP_VERSION: the application version, e.g. 1.0.0, shown in "about" dialog
 
-set JAVA_VERSION=16
-set MAIN_JAR=SpaceFX-1.0.0.jar
-set APP_VERSION=1.0.0
+set JAVA_VERSION=17
+set MAIN_JAR=SpaceFX-17.0.0.jar
+set APP_VERSION=17.0.0
 
 rem ------ SETUP DIRECTORIES AND FILES ----------------------------------------
 rem Remove previously generated java runtime and installers. Copy all required
@@ -82,3 +82,5 @@ for %%s in ("app-image" "msi" "exe") do call "%JAVA_HOME%\bin\jpackage" ^
   --runtime-image build\java-runtime ^
   --icon src\main\resources\eu\hansolo\spacefx\icon.ico ^
   --app-version %APP_VERSION% ^
+  --win-menu-group "SpaceFX" ^
+

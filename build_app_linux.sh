@@ -1,5 +1,21 @@
 #!/bin/bash
 
+#
+# Copyright (c) 2021 by Gerrit Grunwald
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 # ------ ENVIRONMENT --------------------------------------------------------
 # The script depends on various environment variables to exist in order to
 # run properly. The java version we want to use, the location of the java
@@ -78,7 +94,7 @@ $JAVA_HOME/bin/jlink \
 # A loop iterates over the various packaging types supported by jpackage. In
 # the end we will find all packages inside the build/installer directory.
 
-for type in "app-image" "dmg" "pkg"
+for type in "app-image" "deb" "rpm"
 do
   echo "Creating installer of type ... $type"
 
@@ -92,7 +108,8 @@ do
   --java-options -Xmx2048m \
   --java-options '--enable-preview' \
   --runtime-image build/java-runtime \
-  --icon src/main/resources/eu/hansolo/spacefx/icon.icns \
+  --icon src/main/resources/eu/hansolo/spacefx/icon128x128.png \
   --app-version ${APP_VERSION} \
-  --mac-package-name SpaceFX
+  --linux-shortcut \
+  --linux-menu-group "SpaceFX"
 done

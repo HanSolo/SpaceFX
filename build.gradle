@@ -7,8 +7,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.gradle:osdetector-gradle-plugin:1.7.0'
-        classpath 'org.javamodularity:moduleplugin:1.7.0'
-        classpath 'org.beryx:badass-jlink-plugin:2.23.2'
+        classpath 'org.javamodularity:moduleplugin:1.8.7'
+        classpath 'org.beryx:badass-jlink-plugin:2.23.7'
     }
 }
 
@@ -16,12 +16,9 @@ plugins {
     id 'java-library'
     id 'application'
     id 'com.google.osdetector' version '1.7.0'
-    id 'org.javamodularity.moduleplugin' version '1.7.0'
-    id 'org.beryx.jlink' version '2.23.2'
+    id 'org.javamodularity.moduleplugin' version '1.8.7'
+    id 'org.beryx.jlink' version '2.23.7'
 }
-
-group 'eu.hansolo.spacefx'
-version '1.0.0'
 
 ext.platform = osdetector.os == 'osx' ? 'mac' : osdetector.os == 'windows' ? 'win' : osdetector.os
 
@@ -29,14 +26,12 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 16
-targetCompatibility = 16
 
 dependencies {
-    implementation "org.openjfx:javafx-base:16:$platform"
-    implementation "org.openjfx:javafx-graphics:16:$platform"
-    implementation "org.openjfx:javafx-controls:16:$platform"
-    implementation "org.openjfx:javafx-media:16:$platform"
+    implementation "org.openjfx:javafx-base:${javafxVersion}:${platform}"
+    implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
+    implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"
+    implementation "org.openjfx:javafx-media:${javafxVersion}:${platform}"
 }
 
 mainClassName = "$moduleName/eu.hansolo.spacefx.SpaceFX"
@@ -52,7 +47,7 @@ jar {
     }
     manifest {
         attributes ('Implementation-Title': 'SpaceFX',
-                    'Class-Path': 'SpaceFX-1.0.0.jar ',
+                    'Class-Path': 'SpaceFX-17.0.0.jar ',
                     'Main-Class': 'eu.hansolo.spacefx.Launcher')
     }
 }
