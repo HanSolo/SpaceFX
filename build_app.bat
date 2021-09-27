@@ -74,7 +74,7 @@ for %%s in ("msi" "exe") do call "%JAVA_HOME%\bin\jpackage" ^
   --type %%s ^
   --dest build\installer ^
   --input build\installer\input\libs ^
-  --name DiscoDashboard ^
+  --name SpaceFX ^
   --main-class eu.hansolo.spacefx.Launcher ^
   --main-jar %MAIN_JAR% ^
   --java-options -Xmx2048m ^
