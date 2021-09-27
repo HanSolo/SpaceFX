@@ -10,7 +10,7 @@ rem PROJECT_VERSION: version used in pom.xml, e.g. 1.0-SNAPSHOT
 rem APP_VERSION: the application version, e.g. 1.0.0, shown in "about" dialog
 
 set JAVA_VERSION=17
-set MAIN_JAR=SpaceFX-17.0.0.jar
+set MAIN_JAR=discodashboard-17.0.0.jar
 set APP_VERSION=17.0.0
 
 rem ------ SETUP DIRECTORIES AND FILES ----------------------------------------
@@ -63,24 +63,25 @@ call "%JAVA_HOME%\bin\jlink" ^
   --compress=2 ^
   --strip-debug ^
   --add-modules %detected_modules%,%manual_modules% ^
-  --output build/java-runtime
+  --output build\java-runtime
 
 
 rem ------ PACKAGING ----------------------------------------------------------
 rem A loop iterates over the various packaging types supported by jpackage. In
 rem the end we will find all packages inside the target/installer directory.
 
-for %%s in ("app-image" "msi" "exe") do call "%JAVA_HOME%\bin\jpackage" ^
+for %%s in ("msi" "exe") do call "%JAVA_HOME%\bin\jpackage" ^
   --type %%s ^
   --dest build\installer ^
   --input build\installer\input\libs ^
-  --name SpaceFX ^
+  --name DiscoDashboard ^
   --main-class eu.hansolo.spacefx.Launcher ^
   --main-jar %MAIN_JAR% ^
   --java-options -Xmx2048m ^
   --java-options '--enable-preview' ^
   --runtime-image build\java-runtime ^
   --icon src\main\resources\eu\hansolo\spacefx\icon.ico ^
-  --app-version %APP_VERSION% ^
+  --win-shortcut ^
+  --win-menu ^
   --win-menu-group "SpaceFX" ^
-
+  --app-version %APP_VERSION% ^
