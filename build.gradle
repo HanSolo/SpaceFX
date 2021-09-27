@@ -7,8 +7,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.gradle:osdetector-gradle-plugin:1.7.0'
-        classpath 'org.javamodularity:moduleplugin:1.8.7'
-        classpath 'org.beryx:badass-jlink-plugin:2.23.7'
+        classpath 'org.javamodularity:moduleplugin:1.8.8'
+        classpath 'org.beryx:badass-jlink-plugin:2.24.2'
     }
 }
 
@@ -16,18 +16,24 @@ plugins {
     id 'java-library'
     id 'application'
     id 'com.google.osdetector' version '1.7.0'
-    id 'org.javamodularity.moduleplugin' version '1.8.7'
-    id 'org.beryx.jlink' version '2.23.7'
+    id 'org.javamodularity.moduleplugin' version '1.8.8'
+    id 'org.beryx.jlink' version '2.24.2'
 }
 
 ext.platform = osdetector.os == 'osx' ? 'mac' : osdetector.os == 'windows' ? 'win' : osdetector.os
+
+normalization {
+    runtimeClasspath {
+        ignore('/META-INF/MANIFEST.MF')
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
-
 dependencies {
+    implementation 'com.google.gradle:osdetector-gradle-plugin:1.7.0'
     implementation "org.openjfx:javafx-base:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"
@@ -35,7 +41,7 @@ dependencies {
 }
 
 ext.moduleName = 'eu.hansolo.spacefx'
-mainClassName = '$moduleName/eu.hansolo.spacefx.Launcher'
+mainClassName = 'eu.hansolo.spacefx.Launcher'
 
 jar {
     from {
@@ -54,7 +60,6 @@ jar {
         )
     }
 }
-
 
 jlink {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
@@ -79,11 +84,10 @@ task Main(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+// Fix problems with loading resources
 sourceSets {
     main {
-        //output.setResourcesDir(java.outputDir)
-        output.resourcesDir = file('build/classes/java/main')
-        java.destinationDirectory.set(file('build/classes/java/main'))
+        output.setResourcesDir(java.outputDir)
     }
 }
 
