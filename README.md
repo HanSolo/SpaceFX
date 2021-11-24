@@ -34,8 +34,8 @@ jpackage tool. Please find more info [here](https://github.com/dlemmermann/JPack
 
 
 ### master branch
-These branches are using gradle for the build and they need JDK 13 with OpenJFX13 (and JDK 14 if you want native bundles).
-On my machines I use [AdoptOpenJDK](https://adoptopenjdk.net/?variant=openjdk12&jvmVariant=hotspot) for the JDK13 installation and
+This branch is using gradle for the build and it needs JDK 17 with OpenJFX 17.0.0.1.
+On my machines I use [Zulu](https://cdn.azul.com/zulu/bin/) for the JDK 17 installation and
 [OpenJFX](https://openjfx.io/) for the JavaFX installation.
 You should be able to fork the branch and open the build.gradle file in your favourite IDE as a project to run it from the code.
 To compile it you need to make sure you are on JDK13 and OpenJFX is installed, then execute the following on the command line.
@@ -44,25 +44,35 @@ OS X:
 ```
 cd /PATH/TO/SpaceFX
 
-./gradlew clean build jar
+./gradlew clean build
 
-./build_app.sh
+bash ./build_app.sh
 ```
 
 Windows:
 ```
 cd \PATH\TO\SpaceFX
 
-.\gradlew clean build jar
+.\gradlew.bat clean build
 
 .\build_app.bat
 ```
+
+Linux:
+```
+cd /PATH/TO/SpaceFX
+
+./gradlew clean build
+
+bash ./build_app_linux.sh
+```
+
 
 After that you will find the runnable jar file in
 ```
 /PATH/TO/SpaceFX/build/libs
 ```
-and the bundle created by the jpackage tool from JDK14 in
+and the bundle created by the jpackage tool from JDK17 in
 ```
 /PATH/TO/SpaceFX/build/installer
 ```
