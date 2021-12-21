@@ -383,8 +383,8 @@ public class SpaceFXView extends StackPane {
         lastStarBlast                 = System.nanoTime();
         lastBigTorpedoBonus           = System.nanoTime();
         lastStarburstBonus            = System.nanoTime();
-        //long deltaTime                = FPS_60;
-        long deltaTime                = IS_BROWSER ? FPS_30 : FPS_60;
+        long deltaTime                = FPS_60;
+        //long deltaTime                = IS_BROWSER ? FPS_30 : FPS_60;
         timer = new AnimationTimer() {
             @Override public void handle(final long now) {
                 if (now > lastTimerCall) {
