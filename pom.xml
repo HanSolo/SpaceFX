@@ -1,10 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>eu.hansolo.spacefx</groupId>
     <artifactId>spacefx</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>17.0.0</version>
     <packaging>jar</packaging>
 
     <name>spacefx</name>
@@ -12,10 +14,12 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>11</maven.compiler.release>
-        <javafx.version>14.0.1</javafx.version>
-        <attach.version>4.0.8-SNAPSHOT</attach.version>
-        <client.plugin.version>0.1.27</client.plugin.version>
-        <mainClassName>eu.hansolo.spacefx.SpaceFX</mainClassName>
+        <javafx.version>17.0.2</javafx.version>
+        <javafx.plugin.version>0.0.8</javafx.plugin.version>
+        <gluonfx.plugin.version>1.0.12</gluonfx.plugin.version>
+        <charm.version>6.1.0</charm.version>
+        <attach.version>4.0.13</attach.version>
+        <main.class>eu.hansolo.spacefx.SpaceFX</main.class>
     </properties>
 
     <dependencies>
@@ -49,15 +53,7 @@
     <repositories>
         <repository>
             <id>gluon-releases</id>
-            <url>https://nexus.gluonhq.com/nexus/content/repositories/releases</url>
-        </repository>
-        <repository>
-            <id>gluon-snapshots</id>
-            <url>https://nexus.gluonhq.com/nexus/content/repositories/public-snapshots</url>
-        </repository>
-        <repository>
-            <id>oss-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <url>https://nexus.gluonhq.com/nexus/content/repositories/releases/</url>
         </repository>
     </repositories>
 
@@ -96,15 +92,15 @@
             </dependencies>
         </profile>
         <profile>
-            <id>ios</id>
+            <id>android</id>
             <properties>
-                <clientTarget>ios</clientTarget>
+                <gluonfx.target>android</gluonfx.target>
             </properties>
         </profile>
         <profile>
-            <id>android</id>
+            <id>ios</id>
             <properties>
-                <clientTarget>android</clientTarget>
+                <gluonfx.target>ios</gluonfx.target>
             </properties>
         </profile>
         <profile>
@@ -149,36 +145,25 @@
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.4</version>
-                <extensions>true</extensions>
+                <version>${javafx.plugin.version}</version>
                 <configuration>
-                    <mainClass>${mainClassName}</mainClass>
+                    <mainClass>${main.class}</mainClass>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>com.gluonhq</groupId>
-                <artifactId>client-maven-plugin</artifactId>
-                <version>${client.plugin.version}</version>
+                <artifactId>gluonfx-maven-plugin</artifactId>
+                <version>${gluonfx.plugin.version}</version>
                 <configuration>
-                    <target>${clientTarget}</target>
+                    <target>${gluonfx.target}</target>
+                    <mainClass>${main.class}</mainClass>
                     <attachList>
                         <list>display</list>
                         <list>lifecycle</list>
                         <list>storage</list>
                     </attachList>
-<!--                    <verbose>true</verbose>-->
-                    <mainClass>${mainClassName}</mainClass>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </pluginRepository>
-    </pluginRepositories>
 </project>
