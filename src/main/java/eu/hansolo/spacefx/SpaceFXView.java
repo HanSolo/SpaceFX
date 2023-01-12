@@ -77,7 +77,7 @@ public class SpaceFXView extends StackPane {
     private              boolean                    running;
     private              boolean                    gameOverScreen;
     private              boolean                    hallOfFameScreen;
-    private              Properties                 properties;
+    //private              Properties                 properties;
     private              Label                      playerInitialsLabel;
     private              InitialDigit               digit1;
     private              InitialDigit               digit2;
@@ -269,11 +269,15 @@ public class SpaceFXView extends StackPane {
         Helper.enableNode(saveInitialsButton, false);
 
         // PreFill hall of fame
-        properties = PropertyManager.INSTANCE.getProperties();
+        //properties = PropertyManager.INSTANCE.getProperties();
 
-        Player p1 = new Player(properties.getProperty("hallOfFame1"));
-        Player p2 = new Player(properties.getProperty("hallOfFame2"));
-        Player p3 = new Player(properties.getProperty("hallOfFame3"));
+        //Player p1 = new Player(properties.getProperty("hallOfFame1"));
+        //Player p2 = new Player(properties.getProperty("hallOfFame2"));
+        //Player p3 = new Player(properties.getProperty("hallOfFame3"));
+
+        Player p1 = new Player(UUID.randomUUID() + ",AA,0");
+        Player p2 = new Player(UUID.randomUUID() + ",BB,0");
+        Player p3 = new Player(UUID.randomUUID() + ",CC,0");
 
         hallOfFame = new ArrayList<>(3);
         hallOfFame.add(p1);
@@ -1567,14 +1571,14 @@ public class SpaceFXView extends StackPane {
         hallOfFame = hallOfFame.stream().limit(3).collect(Collectors.toList());
 
         // Store hall of fame in properties
-        properties.setProperty("hallOfFame1", hallOfFame.get(0).toPropertyString());
-        properties.setProperty("hallOfFame2", hallOfFame.get(1).toPropertyString());
-        properties.setProperty("hallOfFame3", hallOfFame.get(2).toPropertyString());
-        PropertyManager.INSTANCE.storeProperties();
+        //properties.setProperty("hallOfFame1", hallOfFame.get(0).toPropertyString());
+        //properties.setProperty("hallOfFame2", hallOfFame.get(1).toPropertyString());
+        //properties.setProperty("hallOfFame3", hallOfFame.get(2).toPropertyString());
+        //PropertyManager.INSTANCE.storeProperties();
 
-        HBox p1Entry = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame1")));
-        HBox p2Entry = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame2")));
-        HBox p3Entry = createHallOfFameEntry(new Player(properties.getProperty("hallOfFame3")));
+        HBox p1Entry = createHallOfFameEntry(new Player(UUID.randomUUID() + ",AA,0"));
+        HBox p2Entry = createHallOfFameEntry(new Player(UUID.randomUUID() + ",BB,0"));
+        HBox p3Entry = createHallOfFameEntry(new Player(UUID.randomUUID() + ",CC,0"));
         hallOfFameBox.getChildren().setAll(p1Entry, p2Entry, p3Entry);
         hallOfFameBox.relocate((WIDTH - hallOfFameBox.getPrefWidth()) * 0.5, (HEIGHT - hallOfFameBox.getPrefHeight()) * 0.5);
 

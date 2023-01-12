@@ -16,6 +16,7 @@
 
 package eu.hansolo.spacefx;
 
+import com.gluonhq.attach.util.Services;
 import com.gluonhq.attach.storage.StorageService;
 
 import java.io.File;
@@ -40,10 +41,14 @@ public enum PropertyManager {
     PropertyManager() {
         properties = new Properties();
         // Load properties
+        File root = Services.get(StorageService.class)
+                            .flatMap(StorageService::getPrivateStorage)
+                            .orElseThrow(() -> new RuntimeException("Error: Storage Service is required"));
+        /*
         File root = StorageService.create()
                                   .flatMap(StorageService::getPrivateStorage)
                                   .orElseThrow(() -> new RuntimeException("Error: Storage Service is required"));
-
+        */
         propFile = new File(root, PROPERTIES_FILE_NAME);
         if (propFile.exists()) {
             try (FileInputStream isPropFile = new FileInputStream(propFile)) {
@@ -84,9 +89,9 @@ public enum PropertyManager {
     // ******************** Properties ****************************************
     private void createProperties(final Properties properties) {
         try (OutputStream output = new FileOutputStream(propFile)) {
-            properties.setProperty("hallOfFame1", UUID.randomUUID().toString() + ",AA,0");
-            properties.setProperty("hallOfFame2", UUID.randomUUID().toString() + ",BB,0");
-            properties.setProperty("hallOfFame3", UUID.randomUUID().toString() + ",CC,0");
+            properties.setProperty("hallOfFame1", UUID.randomUUID() + ",AA,0");
+            properties.setProperty("hallOfFame2", UUID.randomUUID() + ",BB,0");
+            properties.setProperty("hallOfFame3", UUID.randomUUID() + ",CC,0");
             properties.store(output, null);
         } catch (IOException ex) {
             System.out.println("Error creating properties file. " + ex);
