@@ -19,8 +19,8 @@ I've recorded a little [video](https://youtu.be/Kc0lv3R5VG0) that shows the game
 
 
 ### Requirements for building a native package
-If you would like to build a native package you should have at least JDK 13 installed
-on your machine. Make sure you run on Java13 and do a `gradle clean build jar` on the 
+If you would like to build a native package you should have at least JDK 17 installed
+on your machine. Make sure you run on Java17 and do a `gradle clean build jar` on the 
 command line and execute the build app script e.g. `bash build_app.sh`. If everything 
 worked ok you will find the native app in the folder `/build/installer`.
 To build a native package you will need the early access release of the 
@@ -28,11 +28,11 @@ jpackage tool. Please find more info [here](https://github.com/dlemmermann/JPack
 
 
 ### master branch
-These branches are using gradle for the build and they need JDK 13 with OpenJFX13 (and JDK 14 if you want native bundles).
-On my machines I use [AdoptOpenJDK](https://adoptopenjdk.net/?variant=openjdk12&jvmVariant=hotspot) for the JDK13 installation and
+These branches are using gradle for the build and they need JDK 17 with OpenJFX17.
+On my machines I use [Zulu](https://azul.com) for the JDK17 installation and
 [OpenJFX](https://openjfx.io/) for the JavaFX installation.
 You should be able to fork the branch and open the build.gradle file in your favourite IDE as a project to run it from the code.
-To compile it you need to make sure you are on JDK13 and OpenJFX is installed, then execute the following on the command line.
+To compile it you need to make sure you are on JDK17 and OpenJFX is installed, then execute the following on the command line.
 
 OS X:
 ```
