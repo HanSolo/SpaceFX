@@ -14,11 +14,11 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>11</maven.compiler.release>
-        <javafx.version>17.0.2</javafx.version>
+             <javafx.version>       17.0.6</javafx.version>
         <javafx.plugin.version>0.0.8</javafx.plugin.version>
         <gluonfx.plugin.version>1.0.16</gluonfx.plugin.version>
         <charm.version>6.2.2</charm.version>
-        <attach.version>4.0.16</attach.version>
+        <attach.version>4.0.17-SNAPSHOT</attach.version>
         <main.class>eu.hansolo.spacefx.SpaceFX</main.class>
     </properties>
 
@@ -43,11 +43,6 @@
         <dependency>
             <groupId>com.gluonhq.attach</groupId>
             <artifactId>runtime-args</artifactId>
-            <version>${attach.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.gluonhq.attach</groupId>
-            <artifactId>audio</artifactId>
             <version>${attach.version}</version>
         </dependency>
         <dependency>
@@ -90,6 +85,11 @@
             <artifactId>storage</artifactId>
             <version>${attach.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.gluonhq.attach</groupId>
+            <artifactId>audio</artifactId>
+            <version>${attach.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -115,6 +115,10 @@
                 <configuration>
                     <target>${gluonfx.target}</target>
                     <mainClass>${main.class}</mainClass>
+                                <resourcesList>
+                                      <list>                .*\\.wav$              </list>
+                                      <list>                .*\\.mp3$              </list>
+                                </resourcesList>
                     <attachList>
                         <list>runtime-args</list>
                         <list>audio</list>
@@ -124,22 +128,10 @@
                         <list>local-notifications</list>
                         <list>settings</list>
                         <list>statusbar</list>
+                                  <list>                storage              </list>
                     </attachList>
                     <graalvmHome>/Library/Java/JavaVirtualMachines/gluon-graalvm/Contents/Home</graalvmHome>
-                    <!--
-                    <javaStaticSdkVersion>17.0.5</javaStaticSdkVersion>
-                    <javafxStaticSdkVersion>17.0.2</javafxStaticSdkVersion>
-                    -->
-                    <!--
-                    <releaseConfiguration>
-                        <bundleVersion>1.0</bundleVersion>
-                        <bundleShortVersion>1.0</bundleShortVersion>
-                        <providedSigningIdentity>iPhone Distribution: Gerrit Grunwald (L4A7549EHC)</providedSigningIdentity>
-                        <providedProvisioningProfile>5a6c01db-62aa-4248-99ea-a16dde9675f8.mobileprovision</providedProvisioningProfile>
-                        <skipSigning>false</skipSigning>
-                    </releaseConfiguration>
-                -->
-                </configuration>
+                    </configuration>
             </plugin>
         </plugins>
     </build>

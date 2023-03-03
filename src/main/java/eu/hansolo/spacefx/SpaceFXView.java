@@ -54,6 +54,7 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
@@ -61,6 +62,8 @@ import java.util.stream.Collectors;
 
 import static com.gluonhq.attach.util.Platform.isDesktop;
 import static com.gluonhq.attach.util.Platform.isIOS;
+import com.gluonhq.attach.audio.Audio;
+import com.gluonhq.attach.audio.AudioService;
 import static eu.hansolo.spacefx.Config.*;
 
 
@@ -116,34 +119,34 @@ public class SpaceFXView extends StackPane {
     private              Image                      upExplosionImg;
     private              Image                      rocketExplosionImg;
     private              Image                      rocketImg;
-    /*
-    private              AudioClip                  laserSound;
-    private              AudioClip                  rocketLaunchSound;
-    private              AudioClip                  rocketExplosionSound;
-    private              AudioClip                  enemyLaserSound;
-    private              AudioClip                  enemyBombSound;
-    private              AudioClip                  explosionSound;
-    private              AudioClip                  asteroidExplosionSound;
-    private              AudioClip                  torpedoHitSound;
-    private              AudioClip                  spaceShipExplosionSound;
-    private              AudioClip                  enemyBossExplosionSound;
-    private              AudioClip                  gameoverSound;
-    private              AudioClip                  shieldHitSound;
-    private              AudioClip                  enemyHitSound;
-    private              AudioClip                  deflectorShieldSound;
-    private              AudioClip                  levelBossTorpedoSound;
-    private              AudioClip                  levelBossRocketSound;
-    private              AudioClip                  levelBossBombSound;
-    private              AudioClip                  levelBossExplosionSound;
-    private              AudioClip                  shieldUpSound;
-    private              AudioClip                  lifeUpSound;
-    private              AudioClip                  levelUpSound;
-    private              AudioClip                  bonusSound;
-    private final        Media                      gameSoundTheme          = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
-    private final        Media                      soundTheme              = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
-    private final        MediaPlayer                gameMediaPlayer         = new MediaPlayer(gameSoundTheme);
-    private final        MediaPlayer                mediaPlayer             = new MediaPlayer(soundTheme);
-    */
+
+    private              Optional<Audio>            laserSound;
+    private              Optional<Audio>            rocketLaunchSound;
+    private              Optional<Audio>            rocketExplosionSound;
+    private              Optional<Audio>            enemyLaserSound;
+    private              Optional<Audio>            enemyBombSound;
+    private              Optional<Audio>            explosionSound;
+    private              Optional<Audio>            asteroidExplosionSound;
+    private              Optional<Audio>            torpedoHitSound;
+    private              Optional<Audio>            spaceShipExplosionSound;
+    private              Optional<Audio>            enemyBossExplosionSound;
+    private              Optional<Audio>            gameoverSound;
+    private              Optional<Audio>            shieldHitSound;
+    private              Optional<Audio>            enemyHitSound;
+    private              Optional<Audio>            deflectorShieldSound;
+    private              Optional<Audio>            levelBossTorpedoSound;
+    private              Optional<Audio>            levelBossRocketSound;
+    private              Optional<Audio>            levelBossBombSound;
+    private              Optional<Audio>            levelBossExplosionSound;
+    private              Optional<Audio>            shieldUpSound;
+    private              Optional<Audio>            lifeUpSound;
+    private              Optional<Audio>            levelUpSound;
+    private              Optional<Audio>            bonusSound;
+    //private final        Media                      gameSoundTheme          = new Media(getClass().getResource("RaceToMars.mp3").toExternalForm());
+    //private final        Media                      soundTheme              = new Media(getClass().getResource("CityStomper.mp3").toExternalForm());
+    //private final        MediaPlayer                gameMediaPlayer         = new MediaPlayer(gameSoundTheme);
+    //private final        MediaPlayer                mediaPlayer             = new MediaPlayer(soundTheme);
+
     private              double                     deflectorShieldRadius;
     private              boolean                    levelBossActive;
     private              Font                       scoreFont;
@@ -420,7 +423,7 @@ public class SpaceFXView extends StackPane {
                         if (noOfShields > 0 && !spaceShip.shield) {
                             lastShieldActivated = System.nanoTime();
                             spaceShip.shield = true;
-                            //playSound(deflectorShieldSound);
+                            playSound(deflectorShieldSound);
                         }
                     }
                 }
@@ -485,30 +488,30 @@ public class SpaceFXView extends StackPane {
                 upExplosionImg          = new Image(getClass().getResourceAsStream("upExplosion.png"), 400 * SCALING_FACTOR, 700 * SCALING_FACTOR, true, false);
                 rocketExplosionImg      = new Image(getClass().getResourceAsStream("rocketExplosion.png"), 960 * SCALING_FACTOR, 768 * SCALING_FACTOR, true, false);
                 rocketImg               = new Image(getClass().getResourceAsStream("rocket.png"), 17 * SCALING_FACTOR, 50 * SCALING_FACTOR, true, false);
-                /* Load sounds
-                laserSound              = new AudioClip(getClass().getResource("laserSound.wav").toExternalForm());
-                rocketLaunchSound       = new AudioClip(getClass().getResource("rocketLaunch.wav").toExternalForm());
-                rocketExplosionSound    = new AudioClip(getClass().getResource("rocketExplosion.wav").toExternalForm());
-                enemyLaserSound         = new AudioClip(getClass().getResource("enemyLaserSound.wav").toExternalForm());
-                enemyBombSound          = new AudioClip(getClass().getResource("enemyBomb.wav").toExternalForm());
-                explosionSound          = new AudioClip(getClass().getResource("explosionSound.wav").toExternalForm());
-                asteroidExplosionSound  = new AudioClip(getClass().getResource("asteroidExplosion.wav").toExternalForm());
-                torpedoHitSound         = new AudioClip(getClass().getResource("hit.wav").toExternalForm());
-                spaceShipExplosionSound = new AudioClip(getClass().getResource("spaceShipExplosionSound.wav").toExternalForm());
-                enemyBossExplosionSound = new AudioClip(getClass().getResource("enemyBossExplosion.wav").toExternalForm());
-                gameoverSound           = new AudioClip(getClass().getResource("gameover.wav").toExternalForm());
-                shieldHitSound          = new AudioClip(getClass().getResource("shieldhit.wav").toExternalForm());
-                enemyHitSound           = new AudioClip(getClass().getResource("enemyBossShieldHit.wav").toExternalForm());
-                deflectorShieldSound    = new AudioClip(getClass().getResource("deflectorshieldSound.wav").toExternalForm());
-                levelBossTorpedoSound   = new AudioClip(getClass().getResource("levelBossTorpedo.wav").toExternalForm());
-                levelBossRocketSound    = new AudioClip(getClass().getResource("levelBossRocket.wav").toExternalForm());
-                levelBossBombSound      = new AudioClip(getClass().getResource("levelBossBomb.wav").toExternalForm());
-                levelBossExplosionSound = new AudioClip(getClass().getResource("explosionSound1.wav").toExternalForm());
-                shieldUpSound           = new AudioClip(getClass().getResource("shieldUp.wav").toExternalForm());
-                lifeUpSound             = new AudioClip(getClass().getResource("lifeUp.wav").toExternalForm());
-                levelUpSound            = new AudioClip(getClass().getResource("levelUp.wav").toExternalForm());
-                bonusSound              = new AudioClip(getClass().getResource("bonus.wav").toExternalForm());
-                */
+                // Load sounds
+                laserSound              = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("laserSound.mp3")).orElse(null));
+                rocketLaunchSound       = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("rocketLaunch.mp3")).orElse(null));
+                rocketExplosionSound    = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("rocketExplosion.mp3")).orElse(null));
+                enemyLaserSound         = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("enemyLaserSound.mp3")).orElse(null));
+                enemyBombSound          = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("enemyBomb.mp3")).orElse(null));
+                explosionSound          = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("explosionSound.mp3")).orElse(null));
+                asteroidExplosionSound  = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("asteroidExplosion.mp3")).orElse(null));
+                torpedoHitSound         = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("hit.mp3")).orElse(null));
+                spaceShipExplosionSound = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("spaceShipExplosionSound.mp3")).orElse(null));
+                enemyBossExplosionSound = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("enemyBossExplosion.mp3")).orElse(null));
+                gameoverSound           = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("gameover.mp3")).orElse(null));
+                shieldHitSound          = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("shieldhit.mp3")).orElse(null));
+                enemyHitSound           = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("enemyBossShieldHit.mp3")).orElse(null));
+                deflectorShieldSound    = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("deflectorshieldSound.mp3")).orElse(null));
+                levelBossTorpedoSound   = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("levelBossTorpedo.mp3")).orElse(null));
+                levelBossRocketSound    = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("levelBossRocket.mp3")).orElse(null));
+                levelBossBombSound      = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("levelBossBomb.mp3")).orElse(null));
+                levelBossExplosionSound = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("explosionSound1.mp3")).orElse(null));
+                shieldUpSound           = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("shieldUp.mp3")).orElse(null));
+                lifeUpSound             = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("lifeUp.mp3")).orElse(null));
+                levelUpSound            = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("levelUp.mp3")).orElse(null));
+                bonusSound              = AudioService.create().map(audio -> audio.loadSound(getClass().getResource("bonus.mp3")).orElse(null));
+
                 deflectorShieldRadius   = deflectorShieldImg.getRequestedWidth() * 0.5;
                 spaceShip               = new SpaceShip(spaceshipImg, spaceshipUpImg, spaceshipDownImg);
 
@@ -592,11 +595,11 @@ public class SpaceFXView extends StackPane {
                         score += asteroid.value;
                         asteroid.respawn();
                         torpedo.toBeRemoved = true;
-                        //playSound(asteroidExplosionSound);
+                        playSound(asteroidExplosionSound);
                     } else {
                         hits.add(new Hit(torpedo.x - HIT_FRAME_CENTER, torpedo.y - HIT_FRAME_HEIGHT, asteroid.vX, asteroid.vY));
                         torpedo.toBeRemoved = true;
-                        //playSound(torpedoHitSound);
+                        playSound(torpedoHitSound);
                     }
                 }
             }
@@ -610,11 +613,11 @@ public class SpaceFXView extends StackPane {
                         score += asteroid.value;
                         asteroid.respawn();
                         bigTorpedo.toBeRemoved = true;
-                        //playSound(asteroidExplosionSound);
+                        playSound(asteroidExplosionSound);
                     } else {
                         hits.add(new Hit(bigTorpedo.x - HIT_FRAME_CENTER, bigTorpedo.y - HIT_FRAME_HEIGHT, asteroid.vX, asteroid.vY));
                         bigTorpedo.toBeRemoved = true;
-                        //playSound(torpedoHitSound);
+                        playSound(torpedoHitSound);
                     }
                 }
             }
@@ -626,7 +629,7 @@ public class SpaceFXView extends StackPane {
                     score += asteroid.value;
                     asteroid.respawn();
                     rocket.toBeRemoved = true;
-                    //playSound(rocketExplosionSound);
+                    playSound(rocketExplosionSound);
                 }
             }
 
@@ -644,10 +647,10 @@ public class SpaceFXView extends StackPane {
                     spaceShipExplosion.x      = spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH;
                     spaceShipExplosion.y      = spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT;
                     if (spaceShip.shield) {
-                        //playSound(explosionSound);
+                        playSound(explosionSound);
                         asteroidExplosions.add(new AsteroidExplosion(asteroid.cX - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.cY - ASTEROID_EXPLOSION_FRAME_CENTER * asteroid.scale, asteroid.vX, asteroid.vY, asteroid.scale));
                     } else {
-                        //playSound(spaceShipExplosionSound);
+                        playSound(spaceShipExplosionSound);
                         hasBeenHit = true;
                         noOfLifes--;
                         if (0 == noOfLifes) {
@@ -695,11 +698,11 @@ public class SpaceFXView extends StackPane {
                         levelKills++;
                         enemyBoss.toBeRemoved = true;
                         torpedo.toBeRemoved = true;
-                        //playSound(enemyBossExplosionSound);
+                        playSound(enemyBossExplosionSound);
                     } else {
                         enemyHits.add(new EnemyHit(torpedo.x - HIT_FRAME_CENTER, torpedo.y - HIT_FRAME_HEIGHT, enemyBoss.vX, enemyBoss.vY));
                         torpedo.toBeRemoved = true;
-                        //playSound(enemyHitSound);
+                        playSound(enemyHitSound);
                     }
                 }
             }
@@ -717,11 +720,11 @@ public class SpaceFXView extends StackPane {
                         levelKills++;
                         enemyBoss.toBeRemoved = true;
                         bigTorpedo.toBeRemoved = true;
-                        //playSound(enemyBossExplosionSound);
+                        playSound(enemyBossExplosionSound);
                     } else {
                         enemyHits.add(new EnemyHit(bigTorpedo.x - HIT_FRAME_CENTER, bigTorpedo.y - HIT_FRAME_HEIGHT, enemyBoss.vX, enemyBoss.vY));
                         bigTorpedo.toBeRemoved = true;
-                        //playSound(enemyHitSound);
+                        playSound(enemyHitSound);
                     }
                 }
             }
@@ -736,7 +739,7 @@ public class SpaceFXView extends StackPane {
                     levelKills++;
                     enemyBoss.toBeRemoved = true;
                     rocket.toBeRemoved = true;
-                    //playSound(enemyBossExplosionSound);
+                    playSound(enemyBossExplosionSound);
                 }
             }
 
@@ -752,13 +755,13 @@ public class SpaceFXView extends StackPane {
                 if (hit) {
                     if (spaceShip.shield) {
                         enemyBossExplosions.add(new EnemyBossExplosion(enemyBoss.x - ENEMY_BOSS_EXPLOSION_FRAME_WIDTH * 0.125, enemyBoss.y - ENEMY_BOSS_EXPLOSION_FRAME_HEIGHT * 0.125, enemyBoss.vX, enemyBoss.vY, 0.5));
-                        //playSound(enemyBossExplosionSound);
+                        playSound(enemyBossExplosionSound);
                     } else {
                         spaceShipExplosion.countX = 0;
                         spaceShipExplosion.countY = 0;
                         spaceShipExplosion.x = spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH;
                         spaceShipExplosion.y = spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT;
-                        //playSound(spaceShipExplosionSound);
+                        playSound(spaceShipExplosionSound);
                         hasBeenHit = true;
                         noOfLifes--;
                         if (0 == noOfLifes) {
@@ -796,11 +799,11 @@ public class SpaceFXView extends StackPane {
                         levelKills = 0;
                         nextLevel();
                         torpedo.toBeRemoved = true;
-                        //playSound(levelBossExplosionSound);
+                        playSound(levelBossExplosionSound);
                     } else {
                         enemyHits.add(new EnemyHit(torpedo.x - HIT_FRAME_CENTER, torpedo.y - HIT_FRAME_HEIGHT, levelBoss.vX, levelBoss.vY));
                         torpedo.toBeRemoved = true;
-                        //playSound(enemyHitSound);
+                        playSound(enemyHitSound);
                     }
                 }
             }
@@ -818,11 +821,11 @@ public class SpaceFXView extends StackPane {
                         levelKills = 0;
                         nextLevel();
                         bigTorpedo.toBeRemoved = true;
-                        //playSound(levelBossExplosionSound);
+                        playSound(levelBossExplosionSound);
                     } else {
                         enemyHits.add(new EnemyHit(bigTorpedo.x - HIT_FRAME_CENTER, bigTorpedo.y - HIT_FRAME_HEIGHT, levelBoss.vX, levelBoss.vY));
                         bigTorpedo.toBeRemoved = true;
-                        //playSound(enemyHitSound);
+                        playSound(enemyHitSound);
                     }
                 }
             }
@@ -841,11 +844,11 @@ public class SpaceFXView extends StackPane {
                         levelKills = 0;
                         nextLevel();
                         rocket.toBeRemoved = true;
-                        //playSound(levelBossExplosionSound);
+                        playSound(levelBossExplosionSound);
                     } else {
                         enemyHits.add(new EnemyHit(rocket.x - HIT_FRAME_CENTER, rocket.y - HIT_FRAME_HEIGHT, levelBoss.vX, levelBoss.vY));
                         rocket.toBeRemoved = true;
-                        //playSound(enemyHitSound);
+                        playSound(enemyHitSound);
                     }
                 }
             }
@@ -871,14 +874,14 @@ public class SpaceFXView extends StackPane {
                             levelBossActive = false;
                             levelKills = 0;
                             nextLevel();
-                            //playSound(levelBossExplosionSound);
+                            playSound(levelBossExplosionSound);
                         }
                     } else {
                         spaceShipExplosion.countX = 0;
                         spaceShipExplosion.countY = 0;
                         spaceShipExplosion.x = spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH;
                         spaceShipExplosion.y = spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT;
-                        //playSound(spaceShipExplosionSound);
+                        playSound(spaceShipExplosionSound);
                         hasBeenHit = true;
                         noOfLifes--;
                         if (0 == noOfLifes) {
@@ -913,16 +916,16 @@ public class SpaceFXView extends StackPane {
             if (hit) {
                 if (bonus instanceof LifeUp) {
                     if (noOfLifes <= NO_OF_LIFES - 1) { noOfLifes++; }
-                    //playSound(lifeUpSound);
+                    playSound(lifeUpSound);
                 } else if (bonus instanceof ShieldUp) {
                 if (noOfShields <= NO_OF_SHIELDS - 1) { noOfShields++; }
-                    //playSound(shieldUpSound);
+                    playSound(shieldUpSound);
                 } else if (bonus instanceof BigTorpedoBonus) {
                     bigTorpedosEnabled = true;
-                    //playSound(bonusSound);
+                    playSound(bonusSound);
                 } else if (bonus instanceof StarburstBonus) {
                     starburstEnabled = true;
-                    //playSound(bonusSound);
+                    playSound(bonusSound);
             }
                 upExplosions.add(new UpExplosion(bonus.cX - UP_EXPLOSION_FRAME_CENTER, bonus.cY - UP_EXPLOSION_FRAME_CENTER, bonus.vX, bonus.vY, 1.0));
                 bonus.toBeRemoved = true;
@@ -1210,28 +1213,28 @@ public class SpaceFXView extends StackPane {
         } else {
             torpedos.add(new Torpedo(torpedoImg, x, y));
         }
-        //playSound(laserSound);
+        playSound(laserSound);
     }
 
     private void spawnBigTorpedo(final double x, final double y) {
         bigTorpedos.add(new BigTorpedo(bigTorpedoImg, x, y, 0, -BIG_TORPEDO_SPEED * 2.333333, 45));
-        //playSound(laserSound);
+        playSound(laserSound);
     }
 
     private void spawnRocket(final double x, final double y) {
         rockets.add(new Rocket(rocketImg, x, y));
-        //playSound(rocketLaunchSound);
+        playSound(rocketLaunchSound);
     }
 
     private void spawnEnemyTorpedo(final double x, final double y, final double vX, final double vY) {
         double vFactor = ENEMY_TORPEDO_SPEED / Math.abs(vY); // make sure the speed is always the defined one
         enemyTorpedos.add(new EnemyTorpedo(level.getEnemyTorpedoImg(), x, y, vFactor * vX, vFactor * vY));
-        //playSound(enemyLaserSound);
+        playSound(enemyLaserSound);
     }
 
     private void spawnEnemyBomb(final double x, final double y) {
         enemyBombs.add(new EnemyBomb(level.getEnemyBombImg(), x, y, 0, ENEMY_BOMB_SPEED));
-        //playSound(enemyBombSound);
+        playSound(enemyBombSound);
     }
 
     private void spawnEnemyBoss(final SpaceShip spaceShip) {
@@ -1331,28 +1334,28 @@ public class SpaceFXView extends StackPane {
     private void spawnEnemyBossTorpedo(final double x, final double y, final double vX, final double vY) {
         double factor = ENEMY_BOSS_TORPEDO_SPEED / Math.abs(vY); // make sure the speed is always the defined one
         enemyBossTorpedos.add(new EnemyBossTorpedo(level.getEnemyBossTorpedoImg(), x, y, factor * vX, factor * vY));
-        //playSound(enemyLaserSound);
+        playSound(enemyLaserSound);
     }
 
     private void spawnEnemyBossRocket(final double x, final double y) {
         enemyBossRockets.add(new EnemyBossRocket(spaceShip, level.getEnemyBossRocketImg(), x, y));
-        //playSound(rocketLaunchSound);
+        playSound(rocketLaunchSound);
     }
 
     private void spawnLevelBossTorpedo(final double x, final double y, final double vX, final double vY, final double r) {
         double factor = LEVEL_BOSS_TORPEDO_SPEED / Math.abs(vY); // make sure the speed is always the defined one
         levelBossTorpedos.add(new LevelBossTorpedo(level.getLevelBossTorpedoImg(), x, y, factor * vX, factor * vY, r));
-        //playSound(levelBossTorpedoSound);
+        playSound(levelBossTorpedoSound);
     }
 
     private void spawnLevelBossRocket(final double x, final double y) {
         levelBossRockets.add(new LevelBossRocket(spaceShip, level.getLevelBossRocketImg(), x, y));
-        //playSound(levelBossRocketSound);
+        playSound(levelBossRocketSound);
     }
 
     private void spawnLevelBossBomb(final double x, final double y) {
         levelBossBombs.add(new LevelBossBomb(level.getLevelBossBombImg(), x, y, 0, LEVEL_BOSS_BOMB_SPEED));
-        //playSound(levelBossBombSound);
+        playSound(levelBossBombSound);
     }
 
     
@@ -1376,7 +1379,7 @@ public class SpaceFXView extends StackPane {
             ctx.setFill(SPACEFX_COLOR);
             ctx.setFont(Fonts.spaceBoy(SCORE_FONT_SIZE));
             ctx.fillText(Long.toString(score), scorePosX, HEIGHT * 0.25);
-            //playSound(gameoverSound);
+            playSound(gameoverSound);
         });
         pauseBeforeGameOverScreen.play();
 
@@ -1465,17 +1468,15 @@ public class SpaceFXView extends StackPane {
     }
 
 
-    /* Play audio clips
-    private void playSound(final AudioClip audioClip) {
-        if (PLAY_SOUND) {
-            audioClip.play();
-        }
+    // Play audio clips
+    private void playSound(final Optional<Audio> audioClip) {
+        if (null == audioClip || audioClip.isEmpty()) { return; }
+        audioClip.get().play();
     }
-    */
 
     // Iterate through levels
     private void nextLevel() {
-        //playSound(levelUpSound);
+        playSound(levelUpSound);
         if (level3.equals(level)) {
             level = level1;
             return;
@@ -1526,7 +1527,7 @@ public class SpaceFXView extends StackPane {
         if (noOfShields > 0 && !spaceShip.shield) {
             lastShieldActivated = System.nanoTime();
             spaceShip.shield = true;
-            //playSound(deflectorShieldSound);
+            playSound(deflectorShieldSound);
         }
     }
 
@@ -1559,7 +1560,7 @@ public class SpaceFXView extends StackPane {
             angle += angleStep;
         }
         lastStarBlast = System.nanoTime();
-        //playSound(laserSound);
+        playSound(laserSound);
     }
 
     public InitialDigit getDigit1() { return digit1; }
@@ -1869,7 +1870,7 @@ public class SpaceFXView extends StackPane {
                             levelKills++;
                             enemy.toBeRemoved = true;
                             torpedo.toBeRemoved = true;
-                            //playSound(spaceShipExplosionSound);
+                            playSound(spaceShipExplosionSound);
                         }
         }
 
@@ -1882,7 +1883,7 @@ public class SpaceFXView extends StackPane {
                             levelKills++;
                             enemy.toBeRemoved = true;
                             bigTorpedo.toBeRemoved = true;
-                            //playSound(spaceShipExplosionSound);
+                            playSound(spaceShipExplosionSound);
                         }
                     }
 
@@ -1895,7 +1896,7 @@ public class SpaceFXView extends StackPane {
                             levelKills++;
                             enemy.toBeRemoved = true;
                             rocket.toBeRemoved = true;
-                            //playSound(rocketExplosionSound);
+                            playSound(rocketExplosionSound);
                         }
                     }
 
@@ -1910,13 +1911,13 @@ public class SpaceFXView extends StackPane {
                         if (hit) {
                             if (spaceShip.shield) {
                                 explosions.add(new Explosion(enemy.x - EXPLOSION_FRAME_WIDTH * 0.125, enemy.y - EXPLOSION_FRAME_HEIGHT * 0.125, enemy.vX, enemy.vY, 0.35));
-                                //playSound(spaceShipExplosionSound);
+                                playSound(spaceShipExplosionSound);
             } else {
                                 spaceShipExplosion.countX = 0;
                                 spaceShipExplosion.countY = 0;
                                 spaceShipExplosion.x      = spaceShip.x - SPACESHIP_EXPLOSION_FRAME_WIDTH;
                                 spaceShipExplosion.y      = spaceShip.y - SPACESHIP_EXPLOSION_FRAME_HEIGHT;
-                                //playSound(spaceShipExplosionSound);
+                                playSound(spaceShipExplosionSound);
                                 hasBeenHit = true;
                                 noOfLifes--;
                                 if (0 == noOfLifes) {
@@ -2298,10 +2299,10 @@ public class SpaceFXView extends StackPane {
                 if (hit) {
                     toBeRemoved = true;
                     if (spaceShip.shield) {
-                        //playSound(shieldHitSound);
+                        playSound(shieldHitSound);
                     } else {
                         hasBeenHit = true;
-                        //playSound(spaceShipExplosionSound);
+                        playSound(spaceShipExplosionSound);
                         noOfLifes--;
                         if (0 == noOfLifes) {
                             gameOver();
@@ -2335,10 +2336,10 @@ public class SpaceFXView extends StackPane {
                 if (hit) {
                     toBeRemoved = true;
                     if (spaceShip.shield) {
-                        //playSound(shieldHitSound);
+                        playSound(shieldHitSound);
                     } else {
                         hasBeenHit = true;
-                        //playSound(spaceShipExplosionSound);
+                        playSound(spaceShipExplosionSound);
                         noOfLifes--;
                         if (0 == noOfLifes) {
                             gameOver();
@@ -2480,10 +2481,10 @@ public class SpaceFXView extends StackPane {
                 if (hit) {
                     toBeRemoved = true;
                     if (spaceShip.shield) {
-                        //playSound(shieldHitSound);
+                        playSound(shieldHitSound);
                     } else {
                         hasBeenHit = true;
-                        //playSound(spaceShipExplosionSound);
+                        playSound(spaceShipExplosionSound);
                         noOfLifes--;
                         if (0 == noOfLifes) {
                             gameOver();
@@ -2538,10 +2539,10 @@ public class SpaceFXView extends StackPane {
                 if (hit) {
                     toBeRemoved = true;
                     if (spaceShip.shield) {
-                        //playSound(shieldHitSound);
+                        playSound(shieldHitSound);
                     } else {
                         hasBeenHit = true;
-                        //playSound(spaceShipExplosionSound);
+                        playSound(spaceShipExplosionSound);
                         noOfLifes--;
                         if (0 == noOfLifes) {
                             gameOver();
@@ -2719,10 +2720,10 @@ public class SpaceFXView extends StackPane {
                 if (hit) {
                     toBeRemoved = true;
                     if (spaceShip.shield) {
-                        //playSound(shieldHitSound);
+                        playSound(shieldHitSound);
                     } else {
                         hasBeenHit = true;
-                        //playSound(spaceShipExplosionSound);
+                        playSound(spaceShipExplosionSound);
                         noOfLifes--;
                         if (0 == noOfLifes) {
                             gameOver();
@@ -2777,10 +2778,10 @@ public class SpaceFXView extends StackPane {
                 if (hit) {
                     toBeRemoved = true;
                     if (spaceShip.shield) {
-                        //playSound(shieldHitSound);
+                        playSound(shieldHitSound);
                     } else {
                         hasBeenHit = true;
-                        //playSound(spaceShipExplosionSound);
+                        playSound(spaceShipExplosionSound);
                         noOfLifes--;
                         if (0 == noOfLifes) {
                             gameOver();
@@ -2818,10 +2819,10 @@ public class SpaceFXView extends StackPane {
                 if (hit) {
                     toBeRemoved = true;
                     if (spaceShip.shield) {
-                        //playSound(shieldHitSound);
+                        playSound(shieldHitSound);
                     } else {
                         hasBeenHit = true;
-                        //playSound(spaceShipExplosionSound);
+                        playSound(spaceShipExplosionSound);
                         noOfLifes--;
                         if (0 == noOfLifes) {
                             gameOver();
