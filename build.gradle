@@ -6,18 +6,18 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.google.gradle:osdetector-gradle-plugin:1.7.0'
-        classpath 'org.javamodularity:moduleplugin:1.8.8'
-        classpath 'org.beryx:badass-jlink-plugin:2.24.4'
+        classpath 'com.google.gradle:osdetector-gradle-plugin:1.7.3'
+        classpath 'org.javamodularity:moduleplugin:1.8.12'
+        classpath 'org.beryx:badass-jlink-plugin:2.26.0'
     }
 }
 
 plugins {
     id 'java-library'
     id 'application'
-    id 'com.google.osdetector' version '1.7.0'
-    id 'org.javamodularity.moduleplugin' version '1.8.8'
-    id 'org.beryx.jlink' version '2.24.4'
+    id 'com.google.osdetector' version '1.7.3'
+    id 'org.javamodularity.moduleplugin' version '1.8.12'
+    id 'org.beryx.jlink' version '2.26.0'
 }
 
 ext.platform = osdetector.os == 'osx' ? osdetector.arch == 'aarch_64' ? 'mac-aarch64' : 'mac' : osdetector.os == 'windows' ? 'win' : osdetector.os == 'linux' ? osdetector.arch == 'aarch_64' ? 'linux-aarch64' : 'linux' : osdetector.os
@@ -33,7 +33,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.google.gradle:osdetector-gradle-plugin:1.7.0'
+    implementation 'com.google.gradle:osdetector-gradle-plugin:1.7.3'
     implementation "org.openjfx:javafx-base:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"
@@ -89,7 +89,7 @@ task Main(type: JavaExec) {
 // Fix problems with loading resources
 sourceSets {
     main {
-        output.setResourcesDir(java.outputDir)
+        output.setResourcesDir(java.classesDirectory)
     }
 }
 

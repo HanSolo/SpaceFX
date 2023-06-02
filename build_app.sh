@@ -94,5 +94,8 @@ do
   --runtime-image build/java-runtime \
   --icon src/main/resources/eu/hansolo/spacefx/icon.icns \
   --app-version ${APP_VERSION} \
+  --vendor "Gerrit Grunwald" \
+  --copyright "Copyright © 2021 Gerrit Grunwald" \
+  --description "A little Space shooter" \
   --mac-package-name SpaceFX
 done

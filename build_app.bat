@@ -85,3 +85,6 @@ for %%s in ("msi" "exe") do call "%JAVA_HOME%\bin\jpackage" ^
   --win-menu ^
   --win-menu-group "SpaceFX" ^
   --app-version %APP_VERSION% ^
+  --vendor "Gerrit Grunwald" ^
+  --copyright "Copyright © 2021 Gerrit Grunwald" ^
+  --description "A little Space shooter" ^

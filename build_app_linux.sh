@@ -107,9 +107,14 @@ do
   --main-jar ${MAIN_JAR} \
   --java-options -Xmx2048m \
   --java-options '--enable-preview' \
+  --java-options '-Djdk.gtk.version=2' \
   --runtime-image build/java-runtime \
   --icon src/main/resources/eu/hansolo/spacefx/icon128x128.png \
   --app-version ${APP_VERSION} \
   --linux-shortcut \
-  --linux-menu-group "SpaceFX"
+  --linux-menu-group "SpaceFX" \
+  --vendor "Gerrit Grunwald" \
+  --copyright "Copyright © 2021 Gerrit Grunwald" \
+  --description "A little Space shooter" \
+
 done
