@@ -22,7 +22,7 @@ jobs:
         run: .\build_app_windows.bat
       - uses: actions/upload-artifact@v3
         with:
-          name: JDKMon Windows
+          name: SpaceFX Windows
           path: |          
             build/installer
             build/libs
@@ -49,7 +49,7 @@ jobs:
         run: ./build_app_macos.sh
       - uses: actions/upload-artifact@v3
         with:
-          name: JDKMon Mac
+          name: SpaceFX Mac
           path: |
             build/installer
             build/libs
@@ -76,7 +76,7 @@ jobs:
         run: ./build_app_linux.sh
       - uses: actions/upload-artifact@v3
         with:
-          name: JDKMon Linux
+          name: SpaceFX Linux
           path: |
             build/installer
             build/libs
