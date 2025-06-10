@@ -1,20 +1,10 @@
 #!/bin/bash
 
-# ------ ENVIRONMENT --------------------------------------------------------
-# The script depends on various environment variables to exist in order to
-# run properly. The java version we want to use, the location of the java
-# binaries (java home), and the project version as defined inside the pom.xml
-# file, e.g. 1.0-SNAPSHOT.
-#
-# PROJECT_VERSION: version used in pom.xml, e.g. 1.0-SNAPSHOT
-# APP_VERSION: the application version, e.g. 1.0.0, shown in "about" dialog
-
-JAVA_VERSION=11
-MAIN_JAR="SpaceFX-1.0.jar"
+JAVA_VERSION=24
+MAIN_JAR="SpaceFX-1.0.0.jar"
 APP_VERSION=1.0.0
 
 echo "java home: $JAVA_HOME"
-echo "jpackage home: $JPACKAGE_HOME"
 echo "project version: $PROJECT_VERSION"
 echo "app version: $APP_VERSION"
 echo "main JAR file: $MAIN_JAR"
@@ -79,11 +69,11 @@ $JAVA_HOME/bin/jlink \
 # A loop iterates over the various packaging types supported by jpackage. In
 # the end we will find all packages inside the build/installer directory.
 
-for type in "app-image" "dmg" "pkg"
+for type in "deb" "rpm"
 do
   echo "Creating installer of type ... $type"
 
-  $JPACKAGE_HOME/bin/jpackage \
+  $JAVA_HOME/bin/jpackage \
   --type $type \
   --dest build/installer \
   --input build/installer/input/libs \
@@ -91,11 +81,16 @@ do
   --main-class eu.hansolo.spacefx.Launcher \
   --main-jar ${MAIN_JAR} \
   --java-options -Xmx2048m \
+  --java-options '--enable-preview' \
+  --java-options '-Djdk.gtk.verbose=true' \
+  --java-options '-Djdk.gtk.version=3' \
   --runtime-image build/java-runtime \
-  --icon src/main/resources/eu/hansolo/spacefx/icon.icns \
+  --icon src/main/resources/eu/hansolo/spacefx/icon128.png \
+  --linux-shortcut \
+  --linux-menu-group "SpaceFX" \  
   --app-version ${APP_VERSION} \
-  #--vendor "Alliance" \
-  #--copyright "Copyright © 2019 Alliance Inc." \
-  #--mac-package-identifier eu.hansolo.spacefx \
-  #--mac-package-name Alliance
+  --vendor "Gerrit Grunwald" \
+  --copyright "Copyright © 2025 Gerrit Grunwald" \
+  --description "An Arcade like game written in JavaFx" \
+
 done

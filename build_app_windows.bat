@@ -1,16 +1,8 @@
 @ECHO OFF
 
-rem ------ ENVIRONMENT --------------------------------------------------------
-rem The script depends on various environment variables to exist in order to
-rem run properly. The java version we want to use, the location of the java
-rem binaries (java home), and the project version as defined inside the pom.xml
-rem file, e.g. 1.0-SNAPSHOT.
-rem
-rem PROJECT_VERSION: version used in pom.xml, e.g. 1.0-SNAPSHOT
-rem APP_VERSION: the application version, e.g. 1.0.0, shown in "about" dialog
-
-set JAVA_VERSION=13
-set MAIN_JAR=SpaceFX-1.0-SNAPSHOT.jar
+set JAVA_VERSION=24
+set MAIN_JAR=SpaceFX-1.0.0.jar
+set APP_VERSION=1.0.0
 
 rem ------ SETUP DIRECTORIES AND FILES ----------------------------------------
 rem Remove previously generated java runtime and installers. Copy all required
@@ -62,14 +54,16 @@ call "%JAVA_HOME%\bin\jlink" ^
   --compress=2 ^
   --strip-debug ^
   --add-modules %detected_modules%,%manual_modules% ^
-  --output build/java-runtime
+  --output build\java-runtime
 
 
 rem ------ PACKAGING ----------------------------------------------------------
 rem A loop iterates over the various packaging types supported by jpackage. In
 rem the end we will find all packages inside the target/installer directory.
 
-for %%s in ("app-image" "msi" "exe") do call "%JPACKAGE_HOME%\bin\jpackage" ^
+echo create package using jpackage
+
+for %%s in ("msi" "exe") do call "%JAVA_HOME%\bin\jpackage" ^
   --type %%s ^
   --dest build/installer ^
   --input build/installer/input/libs ^
@@ -77,8 +71,15 @@ for %%s in ("app-image" "msi" "exe") do call "%JPACKAGE_HOME%\bin\jpackage" ^
   --main-class eu.hansolo.spacefx.Launcher ^
   --main-jar %MAIN_JAR% ^
   --java-options -Xmx2048m ^
-  --runtime-image target/java-runtime ^
+  --java-options '--enable-preview' ^
+  --runtime-image build/java-runtime ^
   --icon src\main\resources\eu\hansolo\spacefx\icon.ico ^
+  --win-shortcut ^
+  --win-menu ^
+  --win-menu-group "SpaceFX" ^
   --app-version %APP_VERSION% ^
-  --vendor "Alliance" ^
-  --copyright "Copyright © 2019 Alliance"
+  --vendor "Gerrit Grunwald" ^
+  --copyright "Copyright © 2025 Gerrit Grunwald" ^
+  --description "An Arcade like game written in JavaFX" ^
+  
+  
