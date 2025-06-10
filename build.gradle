@@ -44,11 +44,14 @@ ext {
 }
 
 dependencies {
+    implementation 'com.google.gradle:osdetector-gradle-plugin:1.7.3'
     implementation "org.openjfx:javafx-base:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-media:${javafxVersion}:${platform}"
 }
+
+description = 'An Arcade like game written in JavaFX'
 
 application {
     mainModule.set('eu.hansolo.spacefx')
@@ -102,6 +105,7 @@ tasks.register('Main', JavaExec) {
 }
 
 
+// Fix problems with loading resources
 sourceSets {
     main {
         output.setResourcesDir(java.classesDirectory)
@@ -117,4 +121,15 @@ run {
         ]
         classpath = files()
     }
+}
+
+// PreView
+tasks.withType(JavaCompile) {
+    options.compilerArgs += "--enable-preview"
+}
+tasks.withType(Test) {
+    jvmArgs += "--enable-preview"
+}
+tasks.withType(JavaExec) {
+    jvmArgs += "--enable-preview"
 }

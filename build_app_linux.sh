@@ -85,7 +85,7 @@ do
   --java-options '-Djdk.gtk.verbose=true' \
   --java-options '-Djdk.gtk.version=3' \
   --runtime-image build/java-runtime \
-  --icon src/main/resources/eu/hansolo/spacefx/icon128.png \
+  --icon src/main/resources/eu/hansolo/spacefx/icon.png \
   --linux-shortcut \
   --linux-menu-group "SpaceFX" \  
   --app-version ${APP_VERSION} \
