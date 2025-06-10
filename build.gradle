@@ -1,58 +1,68 @@
+import java.text.SimpleDateFormat
+
 buildscript {
     repositories {
-        //jcenter()
         mavenCentral()
         maven {
             url "https://plugins.gradle.org/m2/"
         }
-        //maven {
-        //    url "https://sandec.jfrog.io/artifactory/repo"
-        //}
     }
     dependencies {
-        classpath 'com.google.gradle:osdetector-gradle-plugin:1.7.0'
-        classpath 'org.javamodularity:moduleplugin:1.8.3'
-        classpath 'org.beryx:badass-jlink-plugin:2.23.7'
-        //classpath 'com.sandec.jpro:jpro-plugin-gradle:2021.1.1'
+        classpath 'com.google.gradle:osdetector-gradle-plugin:1.7.3'
+        classpath 'org.javamodularity:moduleplugin:1.8.15'
     }
 }
 
 plugins {
-    id 'java-library'
+    id 'java'
     id 'application'
-    id 'com.google.osdetector' version '1.7.0'
-    id 'org.javamodularity.moduleplugin' version '1.8.3'
-    id 'org.beryx.jlink' version '2.23.7'
+    id 'com.google.osdetector'           version '1.7.3'
+    id 'org.javamodularity.moduleplugin' version '1.8.15'
+    id 'net.nemerosa.versioning'         version '3.1.0'
 }
 
-//apply plugin: 'com.sandec.jpro'
-
-group 'eu.hansolo.spacefx'
-version '1.0'
-
-ext.platform = osdetector.os == 'osx' ? 'mac' : osdetector.os == 'windows' ? 'win' : osdetector.os
+normalization {
+    runtimeClasspath {
+        ignore('/META-INF/MANIFEST.MF')
+    }
+}
 
 repositories {
     mavenCentral()
+    /*
+    flatDir {
+        dirs 'libs'
+    }
+    */
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+Date buildTimeAndDate = new Date()
+ext {
+    buildDate       = new SimpleDateFormat('yyyy-MM-dd').format(buildTimeAndDate)
+    buildTime       = new SimpleDateFormat('HH:mm:ss.SSSZ').format(buildTimeAndDate)
+    platform        = osdetector.os == 'osx' ? osdetector.arch == 'aarch_64' ? 'mac-aarch64' : 'mac' : osdetector.os == 'windows' ? 'win' : osdetector.os == 'linux' ? osdetector.arch == 'aarch_64' ? 'linux-aarch64' : 'linux' : osdetector.os
+}
 
 dependencies {
-    implementation "org.openjfx:javafx-base:11:$platform"
-    implementation "org.openjfx:javafx-graphics:11:$platform"
-    implementation "org.openjfx:javafx-controls:11:$platform"
-    implementation "org.openjfx:javafx-media:11:$platform"
-    //implementation "com.sandec.jpro:jpro-webapi:2021.1.1"
+    implementation "org.openjfx:javafx-base:${javafxVersion}:${platform}"
+    implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
+    implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"
+    implementation "org.openjfx:javafx-media:${javafxVersion}:${platform}"
 }
 
-mainClassName = "$moduleName/eu.hansolo.spacefx.SpaceFX"
+application {
+    mainModule.set('eu.hansolo.spacefx')
+    mainClass.set('eu.hansolo.spacefx.Launcher')
+}
 
-// To run SpaceFX in the browser with jPro use:
-//mainClassName = "eu.hansolo.spacefx.SpaceFX"
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
+}
 
 jar {
+
     from {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         configurations.runtimeClasspath.collect {  it.isDirectory() ? it : zipTree(it)  }
@@ -61,27 +71,50 @@ jar {
         exclude "META-INF/*.DSA"
         exclude "META-INF/*.RSA"
     }
+
     manifest {
-        attributes ('Implementation-Title': 'SpaceFX',
-                    'Class-Path': 'SpaceFX-1.0.jar ',
-                    'Main-Class': 'eu.hansolo.spacefx.Launcher')
+        attributes(
+                //'Built-By'              : System.properties['user.name'],
+                //'Created-By'            : System.properties['java.version'] + " (" + System.properties['java.vendor'] + " " + System.properties['java.vm.version'] + ")",
+                'Build-Date'            : project.buildDate,
+                'Build-Time'            : project.buildTime,
+                //'Build-Revision'        : versioning.info.commit,
+                'Specification-Title'   : project.name,
+                'Specification-Version' : project.version,
+                'Implementation-Title'  : project.name,
+                'Implementation-Version': project.version,
+                'Bundle-Name'           : project.name,
+                'Bundle-License'        : 'https://www.apache.org/licenses/LICENSE-2.0;description=Apache License Version 2.0;link=https://spdx.org/licenses/Apache-2.0.html',
+                'Bundle-Description'    : description,
+                'Bundle-Version'        : project.version,
+                'Bundle-SymbolicName'   : 'eu.hansolo.spacefx',
+                'Class-Path'            : '${project.name}-${project.version}.jar',
+                'Main-Class'            : 'eu.hansolo.spacefx.Launcher'
+        )
     }
 }
 
-jlink {
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
-    launcher {
-        name = 'eu.hansolo.spacefx'
+
+// start app from gradle
+tasks.register('Main', JavaExec) {
+    mainClass = "eu.hansolo.spacefx.Launcher"
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+
+sourceSets {
+    main {
+        output.setResourcesDir(java.classesDirectory)
     }
 }
 
-/*
-jpro {
-    port             = 8080
-    JVMArgs << '-Xmx1000m'
-    visible          = false // Debug mode can also be used to create images via canvas and snapshot
-    //noRenderJobs     = true // false to enable snapshot support
-    jproVersion      = "2021.1.1"
-    openURLOnStartup = false
+run {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        jvmArgs = [
+                '--module-path', classpath.asPath,
+                '--module', mainClassName
+        ]
+        classpath = files()
+    }
 }
-*/

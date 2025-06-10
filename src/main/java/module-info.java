@@ -1,7 +1,9 @@
 module spacefx {
 
     // Java
-    requires java.base;
+    // Java
+    requires java.net.http;
+    requires java.desktop;
 
     // Java-FX
     requires javafx.base;
