@@ -9,9 +9,9 @@ rem
 rem PROJECT_VERSION: version used in pom.xml, e.g. 1.0-SNAPSHOT
 rem APP_VERSION: the application version, e.g. 1.0.0, shown in "about" dialog
 
-set JAVA_VERSION=17
-set MAIN_JAR=SpaceFX-17.0.0.jar
-set APP_VERSION=17.0.0
+set JAVA_VERSION=25
+set MAIN_JAR=SpaceFX-25.jar
+set APP_VERSION=25
 
 rem ------ SETUP DIRECTORIES AND FILES ----------------------------------------
 rem Remove previously generated java runtime and installers. Copy all required
