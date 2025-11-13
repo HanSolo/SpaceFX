@@ -11,7 +11,7 @@
 
 JAVA_VERSION=25
 MAIN_JAR="SpaceFX-25.jar"
-APP_VERSION=25
+APP_VERSION=25.0.0
 
 echo "java home: $JAVA_HOME"
 echo "project version: $PROJECT_VERSION"
