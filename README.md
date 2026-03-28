@@ -1,5 +1,7 @@
 ## SpaceFX 
 
+[![gitcgr](https://gitcgr.com/badge/HanSolo/SpaceFX.svg)](https://gitcgr.com/HanSolo/SpaceFX)
+
 <br>
 A simple tiny space game written in JavaFX.
 
